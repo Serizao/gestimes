@@ -1,0 +1,29 @@
+body {
+  background-color: white;
+  text-align:justify;
+  text-justify: inter-word;
+  font-family: "Free Sans" , Verdana,;
+  margin:0px;
+}
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 15px;
+}
+#top_barre{
+	background-color: #5C97BF;
+	width:100%;
+	height:50px;
+	margin-bottom: 100px;
+	padding: 5px;
+}
+#top_barre button{
+	height: 100%;
+	width:60px;
+	border: 1px #34495E solid;
+	background-color: #D2D7D3;
+	margin:0 10px;
+
+}
