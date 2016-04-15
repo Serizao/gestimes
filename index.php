@@ -15,15 +15,19 @@
 </head>
 <body>
 <?php
+<<<<<<< HEAD
  $current_week_time=0;
 
 
+=======
+>>>>>>> origin/master
 date_default_timezone_set('Europe/Paris');
     include_once('include/bdd.php');
     include_once('include/function.php');
 
     secureAccess();
     include_once ('include/top-barre.php');
+<<<<<<< HEAD
     //include_once ('include/ajax.php');
     $nav=0;
     $bdd=new bdd;
@@ -51,12 +55,35 @@ date_default_timezone_set('Europe/Paris');
   echo "<a href='index.php?semaine=".$semaine."' style='float:left'>< semaine precedente </a>";
    echo "<a href='index.php' style='text-align:center'> NOW </a>";
 	echo '<table class="table table-bordered" style="width:100%">
+=======
+    include_once ('include/ajax.php');
+    $nav=0;
+    $bdd=new bdd;
+    $data=array('0');
+    $result=$bdd->tab('select * from es where id_user=? ', $data);
+    for($w=0;$w<count($result[0]);$w++){
+       $yeartime[]=strtotime($result[0][$w]['temps']);
+    }
+
+   $yeartime=calcul_time($yeartime);
+
+
+ if(isset($_REQUEST['semaine']))$nav=$_REQUEST['semaine'];
+	$result=current_semaine('', $nav);
+	$nbj=count($result['jour']);
+  $semaine=$result['n']-1;
+  $semaine2=$result['n']+1;
+  echo "<a href='index.php?semaine=".$semaine."' style='float:right'> semaine precedente ></a>";
+  echo "<a href='index.php?semaine=".$semaine2."' style='float:left'>< semaine suivante </a>";
+	echo '<table style="width:100%">
+>>>>>>> origin/master
   			<tr>' ;
   	for($i=0;$i<$nbj;$i++){
   		$now1='';
   		$now2='';
 		  $color='';
       $time='';
+<<<<<<< HEAD
       $date1=new datetime($result['date'][$i]);
       $date2=new datetime();
 		$past[$i]="0";
@@ -65,12 +92,19 @@ date_default_timezone_set('Europe/Paris');
       
   		if($result['jour'][$i]=='Samedi' or $result['jour'][$i]=='Dimanche' or $date1 < $date2 or isHoliday($date->getTimestamp())) $color= "style='background-color:#67809F'";
 		if($result['jour'][$i]!='Samedi' and $result['jour'][$i]!='Dimanche' and $date1 < $date2 and !isHoliday($date->getTimestamp())) $past[$i]= true;		
+=======
+      $total=array();
+  		if($result['jour'][$i]=='Samedi' or $result['jour'][$i]=='Dimanche' or $result['numero'][$i] < date('j')) $color= "style='background-color:#67809F'";
+>>>>>>> origin/master
   		if ($result['numero'][$i]==date('j') and $result['mois2'][$i]==date('n')){
   			$now1='class="now-ar"';
   			$now2='class="now-par"';
   			$color= "style='background-color:#87D37C'";
 		}  		
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
    for($o=0;$o<count($result[$i]);$o++){
       if(isset($result[$i][$o]) and !empty($result[$i][$o])){
         if($result[$i][$o]['es']=="e"){
@@ -83,6 +117,7 @@ date_default_timezone_set('Europe/Paris');
         }
       }
     }
+<<<<<<< HEAD
 
     $tempspasser=calcul_time($total);
 	if(!isset($tempspasser['heure']))$tempspasser['heure']="00";
@@ -123,6 +158,17 @@ date_default_timezone_set('Europe/Paris');
         </div>';
     
     }
+=======
+    $tempspasser=calcul_time($total);
+    $finaltime='';
+    if(isset($tempspasser) and !empty($tempspasser['second'])) $finaltime=$tempspasser['heure'].'h'.$tempspasser['minutes'].'min'.$tempspasser['second'];
+  		echo'<td '.$color.'>'. $result['jour'][$i].' '.$result['numero'][$i].' '.$result['mois'][$i].'<br>('.$result['annee'][$i].')<br>'.$time.'<div '.$now1.' id="arrive"></div><br><div '.$now2.' id="depart"></div><br><div  id="total">'.$finaltime.'</div></td>';
+    
+    }
+  	
+  	echo '</tr></table>';
+echo $yeartime['heure'].'h'.$yeartime['minutes'].'min'.$yeartime['second'] .'au total';
+>>>>>>> origin/master
   	
   	echo '</tr></table>';
 

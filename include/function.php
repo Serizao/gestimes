@@ -30,7 +30,18 @@ function last_time($id, $date){
 	return $result;
 }
 
+<<<<<<< HEAD
 function current_semaine($n, $o){
+=======
+function last_time($id, $date){
+	$bdd=new bdd;
+	$data=array($id);
+	$result=$bdd->tab("SELECT es, DATE_FORMAT(`temps`, '%d %M %Y') AS date, DATE_FORMAT(temps, '%H:%i') AS time, temps FROM `es` WHERE cast(temps as date)='".$date."' and id_user=? order by temps asc", $data);
+	return $result;
+}
+
+function current_semaine($i, $o){
+>>>>>>> origin/master
 	date_default_timezone_set('Europe/Paris');
 	$jour = array("Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"); 
 	
@@ -52,6 +63,7 @@ function current_semaine($n, $o){
 			    // Ensuite pour afficher tous les (jour)s de la semaine
 					
 				    for($d = 0; $d < 7; $d++) {
+<<<<<<< HEAD
 				    	//echo $i+$d;
 				    	$semaine['jour'][$d]=jour($i+$d, $year);
 				    	$semaine['numero'][$d]=date("d", mktime(0, 0, 0, 1, $i+$d, $year)); 
@@ -63,6 +75,16 @@ function current_semaine($n, $o){
 						$semaine['date2'][$d]=$year.'-'.$semaine['mois2'][$d].'-'.$semaine['numero'][$d];
 						
 						$result=last_time($n, $date );
+=======
+				    	$semaine['jour'][$d]=$jour[date("w", mktime(0, 0, 0, 1, $i+$d, $year))] ;
+				    	$semaine['numero'][$d]=date("d", mktime(0, 0, 0, 1, $i+$d, $year)); 
+						$semaine['mois'][$d]=$mois[date("n", mktime(0, 0, 0, 1, $i+$d, $year))] ;
+						$semaine['mois2'][$d]=date("m", mktime(0, 0, 0, 1, $i+$d, $year)) ;
+						$semaine['annee'][$d]=$year;
+						$date=$semaine['annee'][$d].'-'.$semaine['mois2'][$d].'-'.$semaine['numero'][$d];
+						
+						$result=last_time('0', $date );
+>>>>>>> origin/master
 						$semaine[$d]=$result[0];
 
 				    }
@@ -74,6 +96,7 @@ function current_semaine($n, $o){
 	
 	
 }
+<<<<<<< HEAD
 function month($i){
 	$mois = array("","Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre");
 	return $mois[$i];
@@ -87,6 +110,13 @@ function arriver($id,$time){
 	date_default_timezone_set('Europe/Paris');
 	$bdd=new bdd;
 	$data=array('','e',$id,$time);
+=======
+
+function arriver(){
+	date_default_timezone_set('Europe/Paris');
+	$bdd=new bdd;
+	$data=array('','e','',date('Y-m-d H:i:s'));
+>>>>>>> origin/master
 	$result=$bdd->tab('insert into `es`(`id`, `es`, `id_user`, `temps`) VALUES( ?, ?, ?, ?) ', $data);
 	
 
@@ -94,7 +124,11 @@ function arriver($id,$time){
 function partir($id,$time){
 	date_default_timezone_set('Europe/Paris');
 	$bdd=new bdd;
+<<<<<<< HEAD
 	$data=array('','s',$id,$time);
+=======
+	$data=array('','s','',date('Y-m-d H:i:s'));
+>>>>>>> origin/master
 	$result=$bdd->tab('insert into `es`(`id`, `es`, `id_user`, `temps`) VALUES( ?, ?, ?, ?) ', $data);
 }
 
@@ -110,6 +144,7 @@ function calcul_time($h1){
 		$table['second']=intval((($spend% 3600) % 60));
 		
 		$p++;
+<<<<<<< HEAD
 
 
 	}
@@ -415,4 +450,9 @@ function random_color_part() {
 function random_color() {
     return random_color_part() . random_color_part() . random_color_part();
 }
+=======
+	}
+	return $table;
+}
+>>>>>>> origin/master
 ?>
