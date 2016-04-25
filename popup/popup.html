@@ -1,0 +1,51 @@
+
+<script>
+$(document).ready(function() {
+    // Lorsque je soumets le formulaire
+    $('#popup1').on('submit', function(e) {
+        e.preventDefault(); // J'empêche le comportement par défaut du navigateur, c-à-d de soumettre le formulaire
+
+        var $this = $(this); // L'objet jQuery du formulaire
+
+        // Je récupère les valeurs
+        var password = $('.password').val();
+        var pseudo = $('.pseudo').val();
+
+        // Je vérifie une première fois pour ne pas lancer la requête HTTP
+        // si je sais que mon PHP renverra une erreur
+        if(password === '' || pseudo === '') {
+            alert('Les champs doivent êtres remplis');
+        } else {
+				;
+            // Envoi de la requête HTTP en mode asynchrone
+            $.ajax({
+                url: './include/auth/auth.php', // Le nom du fichier indiqué dans le formulaire
+                type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
+                data: 'password='+password+'&pseudo='+pseudo, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+                success: function(html) {
+									// Je récupère la réponse du fichier PHP
+									if(html==1)
+									{
+										window.location.href="index.php";
+
+									}
+									else {
+													$("#retour" ).html( html ); // J'affiche cette réponse
+												}
+
+                }
+            });
+        }
+    });
+});
+</script>
+
+<div id="popup1" class="popup_block">
+	<form action="test.html" method="POST" id="popup1">
+		<input class="in pseudo" name="pseudo" placeholder="pseudo" <?php if (isset($_POST['pseudo'])) { echo 'value="'.$_POST['pseudo'].'"'; } ?> ></br>
+		<input type="password" class="password in" placeholder="password" name="password"></br>
+		<input class="input-btn in" type="submit" value="Valider">
+	</form>
+	<a href="./index.php?modules=auth&action=createcount">Créer un compte</a>
+	<div id="retour"></div>
+</div>
