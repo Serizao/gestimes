@@ -20,8 +20,14 @@ echo '<br><br><br><br><a href="#" data-width="500" data-rel="popup" class="popli
 						            $bdd=new bdd();
 						            $contra=$bdd->tab('select * from contrat','');
 						            for($p=0;$p<count($contra);$p++){
+<<<<<<< HEAD
 						            	
 						            	echo '<option  value="'.$contra[$p]['id'].'" selected>'.$contra[$p]['nom'].'</option> ';
+=======
+						            	$state="";
+						            	if($result[$i]['contrat']==$contra[$p]['id'])$state="selected";
+						            	echo '<option '.$state.' value="'.$contra[$p]['id'].'" selected>'.$contra[$p]['nom'].'</option> ';
+>>>>>>> origin/master
 						            }
 						           echo '
 						            </select><br><br>
@@ -32,6 +38,7 @@ echo '<br><br><br><br><a href="#" data-width="500" data-rel="popup" class="popli
 						        </div>';  //popu qui apparaitra au clique pour le add user
 								
 							$result=list_user('');
+<<<<<<< HEAD
                                          
 							$result2=$bdd->tab('select a.begin as begin, a.id as id, a.username as username, a.nom as nom, a.prenom as prenom, a.acl as acl, a.mail as mail , a.state as state  from users a','');
 							echo '<table style="width:100%;margin-top:40px;"><tr><th>login</th><th>nom</th><th>prenom</th><th>fiche utilisateur<s/th><tr>'; //header du tableau
@@ -46,6 +53,19 @@ echo '<br><br><br><br><a href="#" data-width="500" data-rel="popup" class="popli
 								if(isset($result[0]['acl']) and $result[0]['acl']=='1')$user="selected";$admin="";
 								if(isset($result[0]['acl']) and $result[0]['acl']=='10')$admin="selected";$user="";
 								echo '<tr><th>'.$result2[$i]['username'].'</th><th>'.$result2[$i]['nom'].'</th><th>'.$result2[$i]['prenom'].'</th><th><h4><a href="#" data-width="500" data-rel="popup'.$result2[$i]['id'].'" class="poplight" style="color:black"> <button >fiche de '.$result2[$i]['prenom'].'</button></a>'; if(!isset($result[0]['contrat'])) echo '  <span class="label label-danger">Utilisateur desactivé</span></h4>';
+=======
+							$result2=$bdd->tab('select a.begin as begin, a.id as id, a.username as username, a.nom as nom, a.prenom as prenom, a.acl as acl, a.mail as mail , a.state as state  from users a','');
+							echo '<table style="width:100%;margin-top:40px;"><tr><th>login</th><th>nom</th><th>prenom</th><th>fiche utilisateur<s/th><tr>'; //header du tableau
+							for($i=0;$i<count($result2);$i++){
+								//var_dump($result);
+								if(!isset($result[$i]['contrat']))$plein="";$semi="";
+								if(isset($result[$i]['contrat']) and $result[$i]['contrat']=='35')$plein="selected";$semi="";
+								if(isset($result[$i]['contrat']) and $result[$i]['contrat']=='28')$semi="selected";$plein="";
+								if(!isset($result[$i]['acl']))$user="";$admin="";
+								if(isset($result[$i]['acl']) and $result[$i]['acl']=='1')$user="selected";$admin="";
+								if(isset($result[$i]['acl']) and $result[$i]['acl']=='10')$admin="selected";$user="";
+								echo '<tr><th>'.$result2[$i]['username'].'</th><th>'.$result2[$i]['nom'].'</th><th>'.$result2[$i]['prenom'].'</th><th><h4><a href="#" data-width="500" data-rel="popup'.$result2[$i]['id'].'" class="poplight" style="color:black"> <button >fiche de '.$result2[$i]['prenom'].'</button></a>'; if(!isset($result[$i]['contrat'])) echo '  <span class="label label-danger">Utilisateur desactivé</span></h4>';
+>>>>>>> origin/master
 								echo '</th></tr>';
 								
 								echo'
@@ -61,7 +81,11 @@ echo '<br><br><br><br><a href="#" data-width="500" data-rel="popup" class="popli
 						                <option '.$admin.' value="10">administrateur</option>
 						            </select>
 						            <br>';
+<<<<<<< HEAD
 						            	if(isset($result[0]['begin']))$pp=$result[0]['begin'];
+=======
+						            	if(isset($result[$i]['begin']))$pp=$result[$i]['begin'];
+>>>>>>> origin/master
 						            	else $pp="";
 						            echo'
 						            <p>date debut du contrat</p>
@@ -72,7 +96,11 @@ echo '<br><br><br><br><a href="#" data-width="500" data-rel="popup" class="popli
 						            $contra=$bdd->tab('select * from contrat','');
 						            for($p=0;$p<count($contra);$p++){
 						            	$state="";
+<<<<<<< HEAD
 						            	if(isset($result[0]['contrat']) and $result[0]['contrat']==$contra[$p]['nom'])$state="selected";
+=======
+						            	if(isset($result[$i]['contrat']) and $result[$i]['contrat']==$contra[$p]['nom'])$state="selected";
+>>>>>>> origin/master
 						            	echo '<option '.$state.' value="'.$contra[$p]['id'].'" >'.$contra[$p]['nom'].'</option> ';
 
 

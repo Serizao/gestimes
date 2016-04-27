@@ -2,7 +2,10 @@
  session_start();  
 
  ?>
+<<<<<<< HEAD
  <html class="no-js" lang="">
+=======
+>>>>>>> origin/master
  <head>
             <title>Auth</title>
             <meta charset="utf-8">
@@ -11,6 +14,7 @@
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <link rel="stylesheet" type="text/css" href="css/global.css">
             <link rel="stylesheet" type="text/css" href="css/popup.css"> 
+<<<<<<< HEAD
             <script src="//code.jquery.com/jquery-2.0.2.js" type="text/javascript">
 <link rel="stylesheet" href="http://cdn.jsdelivr.net/webshim/1.14.5/shims/styles/shim-ext.css">
 <link rel="stylesheet" href="http://cdn.jsdelivr.net/webshim/1.14.5/shims/styles/forms-picker.css">
@@ -29,12 +33,29 @@ webshims.polyfill('forms forms-ext');
  $current_week_time=0;
 
 
+=======
+            <script src="js/jquery-1.12.0.min.js"></script>
+			<script src="js/jquery-migrate-1.2.1.min.js"></script>
+</head>
+<body>
+<?php
+<<<<<<< HEAD
+ $current_week_time=0;
+
+
+=======
+>>>>>>> origin/master
+>>>>>>> origin/master
 date_default_timezone_set('Europe/Paris');
     include_once('include/bdd.php');
     include_once('include/function.php');
 
     secureAccess();
     include_once ('include/top-barre.php');
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/master
     //include_once ('include/ajax.php');
     $nav=0;
     $bdd=new bdd;
@@ -55,6 +76,7 @@ date_default_timezone_set('Europe/Paris');
     }
  if(isset($_REQUEST['semaine']))$nav=$_REQUEST['semaine'];
 	$result=current_semaine($_SESSION['userid'], $nav);
+<<<<<<< HEAD
 
 	$nbj=count($result['jour']);
   $semaine=$result['n']-1;
@@ -63,12 +85,47 @@ date_default_timezone_set('Europe/Paris');
   echo "<a href='index.php?semaine=".$semaine."' style='float:left'>< semaine precedente </a>";
    echo "<a href='index.php' style='text-align:center'> NOW </a>";
 	echo '<table class="table table-bordered" style="width:100%">
+=======
+	$nbj=count($result['jour']);
+  $semaine=$result['n']-1;
+  $semaine2=$result['n']+1;
+  echo "<a href='index.php?semaine=".$semaine2."' style='float:right'> semaine suivante ></a>";
+  echo "<a href='index.php?semaine=".$semaine."' style='float:left'>< semaine precedente </a>";
+   echo "<a href='index.php' style='text-align:center'> NOW </a>";
+	echo '<table class="table table-bordered" style="width:100%">
+=======
+    include_once ('include/ajax.php');
+    $nav=0;
+    $bdd=new bdd;
+    $data=array('0');
+    $result=$bdd->tab('select * from es where id_user=? ', $data);
+    for($w=0;$w<count($result[0]);$w++){
+       $yeartime[]=strtotime($result[0][$w]['temps']);
+    }
+
+   $yeartime=calcul_time($yeartime);
+
+
+ if(isset($_REQUEST['semaine']))$nav=$_REQUEST['semaine'];
+	$result=current_semaine('', $nav);
+	$nbj=count($result['jour']);
+  $semaine=$result['n']-1;
+  $semaine2=$result['n']+1;
+  echo "<a href='index.php?semaine=".$semaine."' style='float:right'> semaine precedente ></a>";
+  echo "<a href='index.php?semaine=".$semaine2."' style='float:left'>< semaine suivante </a>";
+	echo '<table style="width:100%">
+>>>>>>> origin/master
+>>>>>>> origin/master
   			<tr>' ;
   	for($i=0;$i<$nbj;$i++){
   		$now1='';
   		$now2='';
 		  $color='';
       $time='';
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/master
       $date1=new datetime($result['date'][$i]);
       $date2=new datetime();
 		$past[$i]="0";
@@ -77,12 +134,21 @@ date_default_timezone_set('Europe/Paris');
       
   		if($result['jour'][$i]=='Samedi' or $result['jour'][$i]=='Dimanche' or $date1 < $date2 or isHoliday($date->getTimestamp())) $color= "style='background-color:#67809F'";
 		if($result['jour'][$i]!='Samedi' and $result['jour'][$i]!='Dimanche' and $date1 < $date2 and !isHoliday($date->getTimestamp())) $past[$i]= true;		
+<<<<<<< HEAD
+=======
+=======
+      $total=array();
+  		if($result['jour'][$i]=='Samedi' or $result['jour'][$i]=='Dimanche' or $result['numero'][$i] < date('j')) $color= "style='background-color:#67809F'";
+>>>>>>> origin/master
+>>>>>>> origin/master
   		if ($result['numero'][$i]==date('j') and $result['mois2'][$i]==date('n')){
   			$now1='class="now-ar"';
   			$now2='class="now-par"';
   			$color= "style='background-color:#87D37C'";
 		}  		
+<<<<<<< HEAD
 
+<<<<<<< HEAD
    for($o=0;$o<count($result[$i]);$o++){
       if(isset($result[$i][$o]) and !empty($result[$i][$o])){
         if($result[$i][$o]['es']=="e"){
@@ -91,10 +157,26 @@ date_default_timezone_set('Europe/Paris');
         }
         if($result[$i][$o]['es']=="s"){
           $time=$time.'<div class="col-md-offset-1 hour" ><a href="#" class="delmouv" alt="'.$result[$i][$o]['id'].'"><span class="glyphicon glyphicon-remove" aria-hidden="true"> </span></a> Parti à '.$result[$i][$o]['time'].'</div>';
+=======
+=======
+>>>>>>> origin/master
+   for($o=0;$o<count($result[$i]);$o++){
+      if(isset($result[$i][$o]) and !empty($result[$i][$o])){
+        if($result[$i][$o]['es']=="e"){
+          $time=$time.'<br>Arrivé à '.$result[$i][$o]['time'];
+          $total[]=strtotime($result[$i][$o]['temps']);
+        }
+        if($result[$i][$o]['es']=="s"){
+          $time=$time.'<br>Parti à '.$result[$i][$o]['time'];
+>>>>>>> origin/master
           $total[]=strtotime($result[$i][$o]['temps']);
         }
       }
     }
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/master
 
     $tempspasser=calcul_time($total);
 	if(!isset($tempspasser['heure']))$tempspasser['heure']="00";
@@ -103,6 +185,7 @@ date_default_timezone_set('Europe/Paris');
     $finaltime='';
     $current_week_time=$current_week_time+hourtosec($tempspasser['heure'].':'.$tempspasser['minutes']);
     $current_week_time=$current_week_time+$tempspasser['second'];
+<<<<<<< HEAD
 
     if(isset($tempspasser)  and $tempspasser['heure']>=7) $finaltime=$tempspasser['heure'].'h'.$tempspasser['minutes'].'min'.$tempspasser['second'];
     if(isset($tempspasser)  and $tempspasser['heure']<7) $finaltime='<b style="color:red">'.$tempspasser['heure'].'h'.$tempspasser['minutes'].'min'.$tempspasser['second'].'</b>';
@@ -112,6 +195,17 @@ date_default_timezone_set('Europe/Paris');
         echo'<br><br>'. $result['jour'][$i].' '.$result['numero'][$i].' '.$result['mois'][$i].'<br>('.$result['annee'][$i].')<br><br>'.$time.'<div '.$now1.' id="arrive"></div><br><div '.$now2.' id="depart"></div><br><div  id="total">';
         if($past[$i]) {echo $finaltime;}
 
+=======
+
+    if(isset($tempspasser)  and $tempspasser['heure']>=7) $finaltime=$tempspasser['heure'].'h'.$tempspasser['minutes'].'min'.$tempspasser['second'];
+    if(isset($tempspasser)  and $tempspasser['heure']<7) $finaltime='<b style="color:red">'.$tempspasser['heure'].'h'.$tempspasser['minutes'].'min'.$tempspasser['second'].'</b>';
+    //affichage des case du tableau et de leur contenu
+  		echo'<td '.$color.'>';
+        if($past[$i]){echo '<br><a href="#" data-width="300" data-rel="popup'.$i.'" class="poplight" style="color:black">ajouter un mouvement</a>';}
+        echo'<br><br>'. $result['jour'][$i].' '.$result['numero'][$i].' '.$result['mois'][$i].'<br>('.$result['annee'][$i].')<br>'.$time.'<div '.$now1.' id="arrive"></div><br><div '.$now2.' id="depart"></div><br><div  id="total">';
+        if($past[$i]) {echo $finaltime;}
+
+>>>>>>> origin/master
         $aoaa=count_hour($result['date2'][$i], '2');
 
         if($aoaa and ($aoaa['heure']>0 or $aoaa['minutes']>0))echo '<br><br>il reste à categoriser '.$aoaa['heure'].'h'.$aoaa['minutes'];
@@ -135,6 +229,20 @@ date_default_timezone_set('Europe/Paris');
         </div>';
     
     }
+<<<<<<< HEAD
+=======
+=======
+    $tempspasser=calcul_time($total);
+    $finaltime='';
+    if(isset($tempspasser) and !empty($tempspasser['second'])) $finaltime=$tempspasser['heure'].'h'.$tempspasser['minutes'].'min'.$tempspasser['second'];
+  		echo'<td '.$color.'>'. $result['jour'][$i].' '.$result['numero'][$i].' '.$result['mois'][$i].'<br>('.$result['annee'][$i].')<br>'.$time.'<div '.$now1.' id="arrive"></div><br><div '.$now2.' id="depart"></div><br><div  id="total">'.$finaltime.'</div></td>';
+    
+    }
+  	
+  	echo '</tr></table>';
+echo $yeartime['heure'].'h'.$yeartime['minutes'].'min'.$yeartime['second'] .'au total';
+>>>>>>> origin/master
+>>>>>>> origin/master
   	
   	echo '</tr></table>';
 
@@ -244,6 +352,10 @@ date_default_timezone_set('Europe/Paris');
 
 <script src="./js/user.js"></script>
 <script src="./js/popup.js"></script>
+<<<<<<< HEAD
 
 </body>
 </html>
+=======
+</body>
+>>>>>>> origin/master
