@@ -2,6 +2,7 @@
  session_start();  
 
  ?>
+ <html class="no-js" lang="">
  <head>
             <title>Auth</title>
             <meta charset="utf-8">
@@ -10,8 +11,18 @@
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <link rel="stylesheet" type="text/css" href="css/global.css">
             <link rel="stylesheet" type="text/css" href="css/popup.css"> 
-            <script src="js/jquery-1.12.0.min.js"></script>
-			<script src="js/jquery-migrate-1.2.1.min.js"></script>
+            <script src="//code.jquery.com/jquery-2.0.2.js" type="text/javascript">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/webshim/1.14.5/shims/styles/shim-ext.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/webshim/1.14.5/shims/styles/forms-picker.css">
+			
+      <script src="js/jquery-migrate-1.2.1.min.js"></script>
+      <script src="//cdn.jsdelivr.net/webshim/1.14.5/polyfiller.js"></script>
+<script>
+    webshims.setOptions('forms-ext', {types: 'date'});
+
+webshims.polyfill('forms forms-ext');
+</script>
+      
 </head>
 <body>
 <?php
@@ -44,6 +55,7 @@ date_default_timezone_set('Europe/Paris');
     }
  if(isset($_REQUEST['semaine']))$nav=$_REQUEST['semaine'];
 	$result=current_semaine($_SESSION['userid'], $nav);
+
 	$nbj=count($result['jour']);
   $semaine=$result['n']-1;
   $semaine2=$result['n']+1;
@@ -74,11 +86,11 @@ date_default_timezone_set('Europe/Paris');
    for($o=0;$o<count($result[$i]);$o++){
       if(isset($result[$i][$o]) and !empty($result[$i][$o])){
         if($result[$i][$o]['es']=="e"){
-          $time=$time.'<br>Arrivé à '.$result[$i][$o]['time'];
+          $time=$time.'<div class="col-md-offset-1 hour"><a href="#"  class="delmouv" alt="'.$result[$i][$o]['id'].'"><span class="glyphicon glyphicon-remove" aria-hidden="true"> </span></a> Arrivé à '.$result[$i][$o]['time'].'</div>';
           $total[]=strtotime($result[$i][$o]['temps']);
         }
         if($result[$i][$o]['es']=="s"){
-          $time=$time.'<br>Parti à '.$result[$i][$o]['time'];
+          $time=$time.'<div class="col-md-offset-1 hour" ><a href="#" class="delmouv" alt="'.$result[$i][$o]['id'].'"><span class="glyphicon glyphicon-remove" aria-hidden="true"> </span></a> Parti à '.$result[$i][$o]['time'].'</div>';
           $total[]=strtotime($result[$i][$o]['temps']);
         }
       }
@@ -97,7 +109,7 @@ date_default_timezone_set('Europe/Paris');
     //affichage des case du tableau et de leur contenu
   		echo'<td '.$color.'>';
         if($past[$i]){echo '<br><a href="#" data-width="300" data-rel="popup'.$i.'" class="poplight" style="color:black">ajouter un mouvement</a>';}
-        echo'<br><br>'. $result['jour'][$i].' '.$result['numero'][$i].' '.$result['mois'][$i].'<br>('.$result['annee'][$i].')<br>'.$time.'<div '.$now1.' id="arrive"></div><br><div '.$now2.' id="depart"></div><br><div  id="total">';
+        echo'<br><br>'. $result['jour'][$i].' '.$result['numero'][$i].' '.$result['mois'][$i].'<br>('.$result['annee'][$i].')<br><br>'.$time.'<div '.$now1.' id="arrive"></div><br><div '.$now2.' id="depart"></div><br><div  id="total">';
         if($past[$i]) {echo $finaltime;}
 
         $aoaa=count_hour($result['date2'][$i], '2');
@@ -232,4 +244,6 @@ date_default_timezone_set('Europe/Paris');
 
 <script src="./js/user.js"></script>
 <script src="./js/popup.js"></script>
+
 </body>
+</html>

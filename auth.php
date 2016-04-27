@@ -9,7 +9,7 @@
         header('location: index.php');
         exit;
     }
-    if ($_POST and !empty( $_POST['password']) and !empty( $_POST['username'])){
+    if (!empty( $_POST['password']) and !empty( $_POST['username'])){
         $bdd=new bdd;
         $data=array($_POST['username'], hash('sha512', $_POST['password']));
         $result=$bdd->tab("select id, acl from users where username=? and password=?",$data);
@@ -17,8 +17,8 @@
            
             $_SESSION['username']=$_POST['username'];
             $_SESSION['userid']=$result[0][0]['id'];
-			 $_SESSION['acl']=$result[0][0]['acl'];
-
+            $_SESSION['acl']=$result[0][0]['acl'];
+            
             header('location: index.php');
             exit;
         }elseif($ad->login($_POST['username'], $_POST['password'])){

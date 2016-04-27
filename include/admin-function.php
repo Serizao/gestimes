@@ -18,7 +18,7 @@
 				if(!check_exist($username)){
 					$bdd=new bdd();
 					$array=array($username,$nom,$prenom,$password,$acl, $mail, $contrat,$begin);
-					$bdd->tab("insert into users set id='', username=?, nom=?, prenom=?, password=?, acl=?, mail=?, id_contrat=?, begin=?,state='1'", $array);
+					$bdd->tab("insert into users set username=?, nom=?, prenom=?, password=?, acl=?, mail=?, id_contrat=?, begin=?,state='1'", $array);
 					echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> utilisateur ajouté avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=user">';
 				}
 				else{
@@ -40,19 +40,24 @@
 			if(!empty($prenom)){$req.="prenom= ?, ";$array[]=$prenom;}
 			if(!empty($mail)){$req.="mail= ?, ";$array[]=$mail;}
 			$req.= "id_contrat=?, acl=? ,begin=?,state='1' where id=?";
-			$array[]=$contrat;
-			$array[]=$acl;
-			$array[]=$begin;
-			$array[]=$id;
-			$bdd=new bdd();
-			$bdd->tab($req, $array);
-			echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> utilisateur mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=user">';			
+      if(!empty($contrat) and !empty($acl) and !empty($begin) and !empty(id)){
+  			$array[]=$contrat;
+  			$array[]=$acl;
+  			$array[]=$begin;
+  			$array[]=$id;
+  			$bdd=new bdd();
+
+  			$bdd->tab($req, $array);
+  			echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> utilisateur mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=user">';	
+      }else{
+        	echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">erreur : vous n\'avez probablement pas remplity les champs obligatoire : -contrat<br>-niveau de droit<br>-date de debut</div>';
+      }		
 		}
 		//gestion des catégories
 		function add_cat($cat, $catdom){
 			$bdd=new bdd();
 			$array=array($cat,$catdom);
-			$bdd->tab('insert into categorie set id="", nom=?, id_domaine=?',$array);
+			$bdd->tab('insert into categorie set  nom=?, id_domaine=?',$array);
 			echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> catégorie ajoutée avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=categorie">';
 		}
 		function rename_cat($cat,$name, $catdom){
@@ -77,7 +82,7 @@
 		function add_dom($dom){
 			$bdd=new bdd();
 			$array=array($dom);
-			$bdd->tab('insert into domaine set id="", nom=?',$array);
+			$bdd->tab('insert into domaine set  nom=?',$array);
 			echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> domaine ajoutée avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=domaine">';
 		}
 		function rename_dom($dom,$name){
@@ -124,7 +129,7 @@
 		}
 		function addcontrat($array){
 			$bdd=new bdd();
-			$bdd->tab("INSERT INTO `contrat`(`id`, `nom`, `pourcent`, `conge`) VALUES ('', ?, ?, ?)",$array);
+			$bdd->tab("INSERT INTO `contrat`( `nom`, `pourcent`, `conge`) VALUES ( ?, ?, ?)",$array);
 			echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> contrat ajouter avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=contrat">';
 		}
 		function modifmotif($nom,$type,$id){
@@ -143,7 +148,7 @@
 		function addmotif($nom,$type){
 			$bdd=new bdd();
 			$array=array($type,$nom);
-			$bdd->tab("INSERT INTO `motif`(`id`, `type`, `nom`) VALUES ('',?,?)", $array);
+			$bdd->tab("INSERT INTO `motif`( `type`, `nom`) VALUES (?,?)", $array);
 			echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> motif ajouté avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=motif">';
 			
 		}
@@ -187,7 +192,7 @@
 				if($futur>0){
 					$bdd->tab('update heure set nb=? where id=?',$array1);
 				}
-				$bdd->tab("INSERT INTO `heure`(`id`, `id_user`, `nb`, `id_cat`, `date`) VALUES ('',?,?,?,?)",$array2);
+				$bdd->tab("INSERT INTO `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",$array2);
 				echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> heure modifié avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=geshour">';
 
 			}else{
@@ -221,11 +226,11 @@
 						$hj=$user[$i]['conge']/365;
 						$conge=ceil($nbs*$hj);
 						$array2=array($conge,$user[$i]['id']);
-						$bdd->tab("insert into credit_conge (`id`, `nb_jour`, `id_user`) VALUES ('',?,?)",$array2);
+						$bdd->tab("insert into credit_conge ( `nb_jour`, `id_user`) VALUES (?,?)",$array2);
 
 					}else{
 						$array=array($user[$i]['conge'],$user[$i]['id']);
-						$bdd->tab("insert into credit_conge (`id`, `nb_jour`, `id_user`) VALUES ('',?,?)",$array);
+						$bdd->tab("insert into credit_conge ( `nb_jour`, `id_user`) VALUES (?,?)",$array);
 					}
 				}
 			}
@@ -251,7 +256,7 @@
 					if(isHoliday($compteur)!=1){  //check si c'est un jour de congé
 						if($begins==$ends){  //si la personne a pris une demie journé
 							$nbh=hourtosec($end[1])-hourtosec($begin[1]); //nombre de seconde
-							 $bdd->tab("insert into `heure`(`id`, `id_user`, `nb`, `id_cat`, `date`) VALUES ('',?,?,'34',?)",array($type[0]['id_user'], $nbh,$begin[0]));
+							 $bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,'34',?)",array($type[0]['id_user'], $nbh,$begin[0]));
 						}else{
 							
 							if($begins==$compteur or $ends==$compteur){ //si on arrive au debut ou la fin de la periode demandée
@@ -259,17 +264,17 @@
 									if($begin[1]=='08:30:00')$n='9:30';//on enleve 1h le soir pour compenser la pause dejeuner
 									if($begin[1]=='13:00:00')$n='13:30';
 									$nbh=hourtosec('16:30')-(hourtosec($n)); 
-									$bdd->tab("insert into `heure`(`id`, `id_user`, `nb`, `id_cat`, `date`) VALUES ('',?,?,'34',?)",array($type[0]['id_user'], $nbh,$begin[0]));
+									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,'34',?)",array($type[0]['id_user'], $nbh,$begin[0]));
 								}else{
 
 									if($end[1]=='12:00')$n='12:00';//on enleve 1h le soir pour compenser la pause dejeuner
 									if($end[1]=='16:30')$n='15:30';
 									$nbh=hourtosec($n)-hourtosec('09:30'); 
-									 $bdd->tab("insert into `heure`(`id`, `id_user`, `nb`, `id_cat`, `date`) VALUES ('',?,?,'34',?)",array($type[0]['id_user'], $nbh,$end[0]));
+									 $bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,'34',?)",array($type[0]['id_user'], $nbh,$end[0]));
 								}
 							}else{//sinon
 								
-								$bdd->tab("insert into `heure`(`id`, `id_user`, `nb`, `id_cat`, `date`) VALUES ('',?,?,'34',?)",array($type[0]['id_user'], '25200',date('Y-m-d',$compteur)));
+								$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,'34',?)",array($type[0]['id_user'], '25200',date('Y-m-d',$compteur)));
 							}
 
 						}
@@ -296,18 +301,18 @@
 									//echo $n;
 									$nbh=hourtosec('16:30')-hourtosec($n); 
 									$nbjt=$nbjt+$nbh;
-									$bdd->tab("insert into `heure`(`id`, `id_user`, `nb`, `id_cat`, `date`) VALUES ('',?,?,'33',?)",array($type[0]['id_user'], $nbh,$begin[0]));
+									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,'33',?)",array($type[0]['id_user'], $nbh,$begin[0]));
 								}else{
 									
 									if($end[1]=='12:00:00')$n='12:00';//on enleve 1h le soir pour compenser la pause dejeuner
 									if($end[1]=='16:30:00')$n='15:30';
 									$nbh=hourtosec($n)-hourtosec('08:30');
 									$nbjt=$nbjt+$nbh;
-									$bdd->tab("insert into `heure`(`id`, `id_user`, `nb`, `id_cat`, `date`) VALUES ('',?,?,'33',?)",array($type[0]['id_user'], $nbh,$end[0]));
+									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,'33',?)",array($type[0]['id_user'], $nbh,$end[0]));
 								}
 							}else{//sinon
 								$nbjt=$nbjt+$nbh;
-								$bdd->tab("insert into `heure`(`id`, `id_user`, `nb`, `id_cat`, `date`) VALUES ('',?,?,'33',?)",array($type[0]['id_user'], '25200',date('Y-m-d',$compteur)));
+								$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,'33',?)",array($type[0]['id_user'], '25200',date('Y-m-d',$compteur)));
 							}
 
 						}
@@ -328,6 +333,4 @@
 		//<meta http-equiv="refresh" content="2; URL=admin.php?action=conge">
 
 	}//fin de la verif admin
-	else{
-		echo 'error';
-	}
+	

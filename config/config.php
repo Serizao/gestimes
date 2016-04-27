@@ -2,17 +2,17 @@
 
 
 	/* parmètre de connection au serveur ldap */
-	$host_ldap="ldap://bruz.triskem.fr";
-	$domain_ldap="DOM2003";
-	$dn_ldap="dc=DOM2003,dc=local";
+	$host_ldap="ldap://addresse.du.ldap";
+	$domain_ldap="exemple";
+	$dn_ldap="dc=exemple,dc=com";
 
 
 
 
 	/* parmètre de connection a la base de donnée */
-	$host_bdd = "127.0.0.1";
-    $user_bdd = "root";
-    $pass_bdd = "root";
+	$host_bdd = "";
+    $user_bdd = "";
+    $pass_bdd = "";
     $base_bdd = "time"; 
 
 /*possibilité de rentré les login de l'ad en dur afin de pas les rentrer utltérieurement*/

@@ -71,7 +71,29 @@ $(document).ready(function(){
                     });
             }
     }));
+    $('.delmouv').on("click",(function(e){
+        e.preventDefault(); // J'empêche le comportement par défaut du navigateur, c-à-d de soumettre le formulaire
+        var _this = this;
+        var $this = $(this);
+        var id = $this.attr('alt')
+        var url = $('#url').val();
+          if(id==''|| url=='') {
+            alert('Les champs doivent êtres remplis');
+        } else {
+             $.ajax({
+                        url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
+                        type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
+                        data: 'action=del_mouv&id='+id+'&url='+url, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+                        success: function(html) {
+                          // Je récupère la réponse du fichier PHP
+                        
+                                  $("#retourtop" ).html( html ); // J'affiche cette réponse
+                                
 
+                        }
+                    });
+            }
+    }));
     // Lorsque je soumets le formulaire
     $('.popup').on('submit', function(e) {
         e.preventDefault(); // J'empêche le comportement par défaut du navigateur, c-à-d de soumettre le formulaire

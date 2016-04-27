@@ -92,6 +92,9 @@ switch($action){
 	case "valid_transf":
 		transfere_v($_REQUEST['id'],$_REQUEST['date'],$_REQUEST['user'],$_REQUEST['time'],$_REQUEST['vers'],$_REQUEST['de']);
 		break;
+  case "del_mouv":
+    del_mouvement($_REQUEST['id'],$_SESSION['userid'],$_REQUEST['url']);
+    break;
 
 	
 	}

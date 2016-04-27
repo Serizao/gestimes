@@ -36,3 +36,13 @@ th, td {
 table{
 	text-align: center;
 }
+.hour{
+text-align:left;
+line-height: 2em;
+}
+.hour span{
+color:#95A5A6;
+}
+.hour span:hover{
+color:white;
+}

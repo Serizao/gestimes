@@ -1,6 +1,4 @@
 <?php
-
-
 function secureAccess(){                                                                                         
                                                                                                
     if (!checkaccess()){                                                                                         
@@ -26,7 +24,7 @@ function check_admin(){
 function last_time($id, $date){
 	$bdd=new bdd;
 	$data=array($id);
-	$result=$bdd->tab("SELECT es, DATE_FORMAT(`temps`, '%d %M %Y') AS date, DATE_FORMAT(temps, '%H:%i') AS time, temps FROM `es` WHERE cast(temps as date)='".$date."' and id_user=? order by temps asc", $data);
+	$result=$bdd->tab("SELECT id, es, DATE_FORMAT(`temps`, '%d %M %Y') AS date, DATE_FORMAT(temps, '%H:%i') AS time, temps FROM `es` WHERE cast(temps as date)='".$date."' and id_user=? order by temps asc", $data);
 	return $result;
 }
 
@@ -86,16 +84,18 @@ function jour($m, $year){
 function arriver($id,$time){
 	date_default_timezone_set('Europe/Paris');
 	$bdd=new bdd;
-	$data=array('','e',$id,$time);
-	$result=$bdd->tab('insert into `es`(`id`, `es`, `id_user`, `temps`) VALUES( ?, ?, ?, ?) ', $data);
+	$data=array('e',$id,$time);
+	$result=$bdd->tab('insert into `es`( `es`, `id_user`, `temps`) VALUES(  ?, ?, ?) ', $data);
+ 
 	
 
 }
 function partir($id,$time){
 	date_default_timezone_set('Europe/Paris');
 	$bdd=new bdd;
-	$data=array('','s',$id,$time);
-	$result=$bdd->tab('insert into `es`(`id`, `es`, `id_user`, `temps`) VALUES( ?, ?, ?, ?) ', $data);
+	$data=array('s',$id,$time);
+	$result=$bdd->tab('insert into `es`( `es`, `id_user`, `temps`) VALUES(  ?, ?, ?) ', $data);
+
 }
 
 
@@ -141,10 +141,11 @@ function number_day($month,$year,$a){
 
 function add_mouvement($id,$sens,$heure,$url){
 	$mouv=last_mouvement($id, $heure);
-	
+
 	if($sens=="e" and ($mouv=='s' or empty($mouv))){
 		arriver($_SESSION['userid'],$heure);
-		echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> horaires mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL='.$url.'">';
+   
+  	echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> horaires mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL='.$url.'">';
 	}
 	elseif($sens=="s"and $mouv=='e') {
 		partir($_SESSION['userid'],$heure);
@@ -160,6 +161,13 @@ function last_mouvement($id, $date){
 	if(isset( $result[0][0]['es']))return $result[0][0]['es'];
 	else return '';
 	
+}
+function del_mouvement($id_mouv,$id_user,$url){
+  $bdd=new bdd();
+  $array=array($id_mouv,$id_user);
+  $bdd->tab('delete from es where id=? and id_user=?',$array);
+ 	echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> horaires mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL='.$url.'">';
+
 }
 function check_exist($o){
 	$bdd=new bdd();
@@ -235,7 +243,7 @@ function cat_hour($date,$cathour,$nb,$url){
 	if($i>0 and $a>=0){
 		$bdd=new bdd();
 		$array=array($_SESSION['userid'],$nb, $cathour,$date);
-		$bdd->tab('insert into heure set id="", id_user=?, nb=?, id_cat=?, date=?',$array);
+		$bdd->tab('insert into heure set  id_user=?, nb=?, id_cat=?, date=?',$array);
 		echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> modification effectuée avec succès</div><meta http-equiv="refresh" content="2; URL='.$url.'">';
 	}
 	
@@ -341,7 +349,7 @@ function majhs($id){
 	if(!isset($test[0][0]['id'])){
 
 		$tab3=array($id, $all, $dateformat);
-		$bdd->tab('insert into heure_sup (`id`, `id_user`, `heure`, `date_refresh`) VALUES ("", ?, ?, ?)',$tab3 );
+		$bdd->tab('insert into heure_sup ( `id_user`, `heure`, `date_refresh`) VALUES ( ?, ?, ?)',$tab3 );
 	}else{
 		$tab2=array($all, $dateformat, $id);
 		$bdd->tab('update heure_sup set heure=?, date_refresh=? where id_user=?',$tab2);
@@ -392,7 +400,7 @@ function addconge($id_motif,$id_user,$begin,$end,$jbegin,$jend){
 	$fin=$end.' '.$jend;
 	$array2=array($id_motif,$id_user,$debut,$fin);
 	//print_r($array2);
-	$bdd->tab("INSERT INTO `conge`(`id`, `id_motif`, `id_user`, `state`, `begin`, `end`) VALUES ('', ?, ?, '0', ? ,?)",$array2);
+	$bdd->tab("INSERT INTO `conge`( `id_motif`, `id_user`, `state`, `begin`, `end`) VALUES ( ?, ?, '0', ? ,?)",$array2);
 	echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> conge ajouté avec succès</div><meta http-equiv="refresh" content="2; URL=index.php">';
 }
 function delconge($id, $user_id){
