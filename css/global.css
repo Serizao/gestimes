@@ -36,7 +36,6 @@ th, td {
 table{
 	text-align: center;
 }
-<<<<<<< HEAD
 .hour{
 text-align:left;
 line-height: 2em;
@@ -47,5 +46,3 @@ color:#95A5A6;
 .hour span:hover{
 color:white;
 }
-=======
->>>>>>> origin/master

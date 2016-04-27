@@ -71,7 +71,6 @@ $(document).ready(function(){
                     });
             }
     }));
-<<<<<<< HEAD
     $('.delmouv').on("click",(function(e){
         e.preventDefault(); // J'empêche le comportement par défaut du navigateur, c-à-d de soumettre le formulaire
         var _this = this;
@@ -95,9 +94,6 @@ $(document).ready(function(){
                     });
             }
     }));
-=======
-
->>>>>>> origin/master
     // Lorsque je soumets le formulaire
     $('.popup').on('submit', function(e) {
         e.preventDefault(); // J'empêche le comportement par défaut du navigateur, c-à-d de soumettre le formulaire

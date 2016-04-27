@@ -10,21 +10,12 @@
 				for($z=0;$z<count($user);$z++){
 					if(isset($_REQUEST[$user[$z]['samaccountname']])){
 						$bdd= new bdd();
-<<<<<<< HEAD
 						$array=array($user[$z]['samaccountname'],$user[$z]['last_name'],$user[$z]['first_name'],'','1', $user[$z]['email'], '','0000-00-00','0');                                                                                            
     		    $bdd->tab("insert into users set  username=?, nom=?, prenom=?, password=?, acl=?, mail=?, id_contrat=?, begin=?,state=?", $array);
         		echo '-'.$user[$z]['samaccountname'];
 					}
 				}
 				echo '<br><br><div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> imort effectuer avec succès</div>';
-=======
-						$array=array($user[$z]['samaccountname'],$user[$z]['last_name'],$user[$z]['first_name'],'','1', $user[$z]['email'], '','','0');
-                		$bdd->tab("insert into users set id='', username=?, nom=?, prenom=?, password=?, acl=?, mail=?, id_contrat=?, begin=?,state=?", $array);
-                		echo '-'.$user[$z]['samaccountname'];
-					}
-				}
-				echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> imort effectuer avec succès</div><meta http-equiv="refresh" content="2; URL=index.php">';
->>>>>>> origin/master
 		}else{
 			$ad=new ad();
 			$user=$ad->get_all_user($ad_admin,$ad_password);
