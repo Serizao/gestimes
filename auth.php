@@ -70,7 +70,7 @@
                     <br>
                     <input class="input" type="submit" value="Valider">
                     <br>
-                    <a href="subscribe.php"> s'inscrire</a>
+                    
                 </div>
             </form>
             
