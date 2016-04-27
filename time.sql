@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.2.12deb2+deb8u1
+-- version 4.2.7.1
 -- http://www.phpmyadmin.net
 --
 -- Client :  localhost
--- Généré le :  Mer 27 Avril 2016 à 10:29
--- Version du serveur :  5.6.30
--- Version de PHP :  5.6.19-0+deb8u1
+-- Généré le :  Mer 27 Avril 2016 à 08:44
+-- Version du serveur :  5.6.20-log
+-- Version de PHP :  5.6.16
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,7 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8 */;
 
 --
--- Base de données :  `time`
+-- Base de données :  `test`
 --
 
 -- --------------------------------------------------------
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `categorie` (
 `id` int(11) NOT NULL,
   `nom` varchar(255) NOT NULL,
   `id_domaine` int(11) NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=36 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=36 ;
 
 --
 -- Contenu de la table `categorie`
@@ -53,11 +53,7 @@ CREATE TABLE IF NOT EXISTS `conge` (
   `state` int(11) NOT NULL,
   `begin` datetime NOT NULL,
   `end` datetime NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=47 DEFAULT CHARSET=latin1;
-
---
--- Contenu de la table `conge`
---
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=47 ;
 
 -- --------------------------------------------------------
 
@@ -70,7 +66,7 @@ CREATE TABLE IF NOT EXISTS `contrat` (
   `nom` varchar(255) NOT NULL,
   `pourcent` int(11) NOT NULL,
   `conge` varchar(255) NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=52 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=52 ;
 
 --
 -- Contenu de la table `contrat`
@@ -90,12 +86,7 @@ CREATE TABLE IF NOT EXISTS `credit_conge` (
 `id` int(11) NOT NULL,
   `nb_jour` decimal(20,5) NOT NULL,
   `id_user` int(11) NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
-
---
--- Contenu de la table `credit_conge`
---
-
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7 ;
 
 -- --------------------------------------------------------
 
@@ -106,7 +97,7 @@ CREATE TABLE IF NOT EXISTS `credit_conge` (
 CREATE TABLE IF NOT EXISTS `domaine` (
 `id` int(11) NOT NULL,
   `nom` varchar(255) NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=9 ;
 
 --
 -- Contenu de la table `domaine`
@@ -126,11 +117,7 @@ CREATE TABLE IF NOT EXISTS `es` (
   `es` varchar(255) NOT NULL,
   `id_user` int(11) NOT NULL,
   `temps` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM AUTO_INCREMENT=251 DEFAULT CHARSET=latin1;
-
---
--- Contenu de la table `es`
---
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=251 ;
 
 -- --------------------------------------------------------
 
@@ -144,11 +131,7 @@ CREATE TABLE IF NOT EXISTS `heure` (
   `nb` int(11) NOT NULL,
   `id_cat` int(11) NOT NULL,
   `date` date NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=283 DEFAULT CHARSET=latin1;
-
---
--- Contenu de la table `heure`
---
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=283 ;
 
 -- --------------------------------------------------------
 
@@ -161,12 +144,14 @@ CREATE TABLE IF NOT EXISTS `heure_sup` (
   `id_user` int(11) NOT NULL,
   `heure` int(11) NOT NULL,
   `date_refresh` date NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=20 ;
 
 --
 -- Contenu de la table `heure_sup`
 --
 
+INSERT INTO `heure_sup` (`id`, `id_user`, `heure`, `date_refresh`) VALUES
+(19, 1, 0, '2016-04-27');
 
 -- --------------------------------------------------------
 
@@ -178,7 +163,7 @@ CREATE TABLE IF NOT EXISTS `motif` (
 `id` int(11) NOT NULL,
   `type` int(11) NOT NULL,
   `nom` varchar(255) NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ;
 
 --
 -- Contenu de la table `motif`
@@ -206,14 +191,14 @@ CREATE TABLE IF NOT EXISTS `users` (
   `id_contrat` varchar(255) NOT NULL,
   `begin` date NOT NULL DEFAULT '0000-00-00',
   `state` int(11) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=21 ;
 
 --
 -- Contenu de la table `users`
 --
 
 INSERT INTO `users` (`id`, `username`, `nom`, `prenom`, `password`, `acl`, `mail`, `id_contrat`, `begin`, `state`) VALUES
-(1, 'admin', 'admin', 'admin', '729245b9bfc7d67eede5ae2acb071baf7e9cb291fcbc315586fe8b8835c2fff195e6c70a1a3dff0e4003d3964c081d9d1080da89ab376b1711f564410443002f', '10', 'admin@admin.fr', '3', '2016-04-25', 1);
+(1, 'admin', 'admin', 'admin', 'c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b931dd472634dfac71cd34ebc35d16ab7fb8a90c81f975113d6c7538dc69dd8de9077ec', '10', 'admin@admin.fr', '3', '2016-04-25', 1);
 
 --
 -- Index pour les tables exportées
@@ -322,7 +307,7 @@ MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=283;
 -- AUTO_INCREMENT pour la table `heure_sup`
 --
 ALTER TABLE `heure_sup`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=19;
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=20;
 --
 -- AUTO_INCREMENT pour la table `motif`
 --

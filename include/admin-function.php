@@ -40,7 +40,7 @@
 			if(!empty($prenom)){$req.="prenom= ?, ";$array[]=$prenom;}
 			if(!empty($mail)){$req.="mail= ?, ";$array[]=$mail;}
 			$req.= "id_contrat=?, acl=? ,begin=?,state='1' where id=?";
-      if(!empty($contrat) and !empty($acl) and !empty($begin) and !empty(id)){
+      if(!empty($contrat) and !empty($acl) and !empty($begin) and !empty($id)){
   			$array[]=$contrat;
   			$array[]=$acl;
   			$array[]=$begin;
