@@ -13,6 +13,7 @@
 		<ul class="nav navbar-nav">
 			<li><a href="#" id="arriver" class="esbutton">arriver</a></li>
 			<li><a href="#" id="sortir" class="esbutton">Sortir</a></li>
+			<li><a href="include/exel.php" >ma fiche de temps</a></li>
 			<li><a href="include/ajax.php?action=disconnect" id="diconnect" name="disconnect"> deconnection</a>
 			<?php
 				if(check_admin()){

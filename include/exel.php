@@ -1,14 +1,23 @@
 <?php
 session_start();
-$cachem=explode("-",$_REQUEST['begindate']);
-$cachem2=explode("-",$_REQUEST['enddate']);
+
 //print_r($cachem);
 
  include_once('bdd.php');
  include_once('function.php');
+ secureAccess();
+
+if($_REQUEST and check_admin()){
+	$cachem=explode("-",$_REQUEST['begindate']);
+	$cachem2=explode("-",$_REQUEST['enddate']);
+	$user=$_REQUEST['userid'];
+}else{
+	$user=$_SESSION['userid'];
+	$cachem=explode("-",date("Y-m"));
+	$cachem2=explode("-",date("Y-m"));
+}
 $month=array($cachem[1],$cachem2[1]);
 $year=array($cachem[0], $cachem2[0]);
-$user=$_REQUEST['userid'];
 $f=1;
 $g=1;
 $mem=1;
@@ -17,7 +26,7 @@ $m=0;
 //$moissans=ltrim($mois,0);
 $moissans="3";
 
-    secureAccess();
+    
    // include_once ('include/top-barre.php');
     include_once ('ajax.php');
 error_reporting(E_ALL);

@@ -140,24 +140,34 @@ function number_day($month,$year,$a){
 }
 
 function add_mouvement($id,$sens,$heure,$url){
-	$mouv=last_mouvement($id, $heure);
+	$mouv=last_mouvement($id, $heure); //recuperation du dernier mouvement
 
-	if($sens=="e" and ($mouv=='s' or empty($mouv))){
-		arriver($_SESSION['userid'],$heure);
-   
-  	echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> horaires mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL='.$url.'">';
-	}
-	elseif($sens=="s"and $mouv=='e') {
-		partir($_SESSION['userid'],$heure);
-		echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> horaires mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL='.$url.'">';
-	} else {
-		echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">erreur : il est possible que le sens ne soit pas correct</div>';
+	$bdd=new bdd();//check que le dernier mouvement passer n'était pas identique 
+	$array=array($_SESSION['userid']);
+	$verif=$bdd->tab('select es, temps from es where id_user=? ORDER BY id DESC  limit 1',$array);
+	$verif=$verif[0];
+	$invalid=false;
+		if($verif[0]['es']==$sens and strtotime($verif[0]['temps'])==strtotime($heure)){
+			$invalid=true;
+		}
+	if(!$invalid){  //check identique
+		if($sens=="e" and ($mouv=='s' or empty($mouv))){ //check coérence du mouvement
+			arriver($_SESSION['userid'],$heure);
+	   
+	  	echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> horaires mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL='.$url.'">';
+		}
+		elseif($sens=="s"and $mouv=='e') {
+			partir($_SESSION['userid'],$heure);
+			echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> horaires mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL='.$url.'">';
+		} else {
+			echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">erreur : il est possible que le sens ne soit pas correct</div>';
+		}
 	}
 }
 function last_mouvement($id, $date){
 	$bdd=new bdd();
-	$array=array($id);
-	$result=$bdd->tab("select es from es where id_user=? and cast(temps as date)<'".$date."' and DATE_FORMAT(temps, '%d-%m-%Y')=DATE_FORMAT('".$date."', '%d-%m-%Y') and DATE_FORMAT(temps, '%d-%m-%Y %H:%i:%s')<DATE_FORMAT('".$date."', '%d-%m-%Y %H:%i:%s') order by temps desc limit 0, 1", $array);
+	$array=array($id,$date,$date,$date);
+	$result=$bdd->tab("select es from es where id_user=? and cast(temps as date)<? and DATE_FORMAT(temps, '%d-%m-%Y')=DATE_FORMAT(?, '%d-%m-%Y') and DATE_FORMAT(temps, '%d-%m-%Y %H:%i:%s')<DATE_FORMAT(?, '%d-%m-%Y %H:%i:%s') order by temps desc limit 0, 1", $array);
 	if(isset( $result[0][0]['es']))return $result[0][0]['es'];
 	else return '';
 	
