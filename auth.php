@@ -48,7 +48,9 @@
             $errMsg='<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">Nom d´utilisateur ou mot de passe invalide.</div>';
         }
     }
+
 ?>
+
 <!DOCTYPE html>
     <html>
         <head>
@@ -56,6 +58,7 @@
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <link rel="stylesheet" type="text/css" href="css/auth.css">
+          
         </head>
         <body>
            
@@ -63,8 +66,8 @@
                 <div class="content">
                     <h1>Connexion</h1>
                     <?php if (isset($errMsg)) { print $errMsg;} ?>
-                    <p class="free_sans">Please, logon to use</p>
-                    <input type="text" class="free_sans" name="username" placeholder="Nom d'utilisateur">
+                    <p class="free_sans">Please, login to use</p>
+                    <input type="text" class="free_sans" name="username" placeholder="username" >
                     <br>
                     <input class="free_sans" name="password" placeholder="Mot de passe" type="password">
                     <br>
@@ -73,4 +76,5 @@
                     
                 </div>
             </form>
-            
+</body>
+</html>            

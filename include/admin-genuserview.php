@@ -171,51 +171,50 @@ for($i=0;$i<count($domaine);$i++){
 
 for($y=$by;$y<=$ey;$y++){
 
-$yy=array($y,$y);
-	for($e=1;$e<$nbj;$e++){
-		$o=addzero($e-1);
-		if($e>$nbjtm){
-			if($enddate>=$datebm){ //si e est superieur au nombre de jour dans le mois alor on passe au mois suivant
-				if(intval($bm)<12){ //si mois inferieur a 12
-					$bm++;
-					$mm=array($bm,$bm);
-					$nbjtm=number_day($mm,$yy,'a');
+    $yy=array($y,$y);
+    for($e=1;$e<=$nbj;$e++){
+    		$o=addzero($e-1);
+    		if($e>$nbjtm){
+    			if($enddate>=$datebm){ //si e est superieur au nombre de jour dans le mois alor on passe au mois suivant
+    				if(intval($bm)<12){ //si mois inferieur a 12
+    					$bm++;
+    					$mm=array($bm,$bm);
+    					$nbjtm=number_day($mm,$yy,'a');
 
-					$datebm=new DateTime($y.'-'.$bm.'-'.addzero($e));
-					$e=1;
-				}
-				else{ //changement d'anné
-
-					$bm='01';
-					$by++;
-					$y++;
-					$yy=array($y,$y);
-					$mm=array($bm,$bm);
-					$nbjtm=number_day($mm,$yy,'a');
-					$e=1;
-					$o=$e;
-					$datebm=new DateTime($y.'-'.$bm.'-'.addzero($e));
-				}
-
-			}else{
-				$week[$compt-1]['end']=$y.'-'.$bm.'-'.addzero($e);
-				break;
-			}
-		}
-		$dd=$by.'-'.$bm.'-'.addzero($e);
-		$nbweek=date("W", strtotime($dd));
-		if($nbweek!=$nbweekmem){
-			$nbweekmem=$nbweek;
-			$week[$compt-1]['end']=$y.'-'.$bm.'-'.addzero($o);
-			$week[$compt]['begin']=$dd;
-			$week[$compt]['number']=$nbweek;
-			$compt++;	
-		}	
-	}
+    					$datebm=new DateTime($y.'-'.$bm.'-'.addzero($e));
+    					$e=1;
+    				}
+    				else{ //changement d'anné
+    					$bm='01';
+    					$by++;
+    					$y++;
+    					$yy=array($y,$y);
+    					$mm=array($bm,$bm);
+    					$nbjtm=number_day($mm,$yy,'a');
+    					$e=1;
+    					$o=$e;
+    					$datebm=new DateTime($y.'-'.$bm.'-'.addzero($e));
+    				}
+    			}else{
+    				$week[$compt-1]['end']=$y.'-'.$bm.'-'.addzero($e);
+    				break;
+    			}
+    		}
+    		$dd=$by.'-'.$bm.'-'.addzero($e);
+    		$nbweek=date("W", strtotime($dd));
+    		if($nbweek!=$nbweekmem){
+    			$nbweekmem=$nbweek;
+    			$week[$compt-1]['end']=$y.'-'.$bm.'-'.addzero($o);
+    			$week[$compt]['begin']=$dd;
+    			$week[$compt]['number']=$nbweek;
+    			$compt++;	
+    		}	
+    }
 }
 $y=$y-1;
-
-$week[$compt-1]['end']=$y.'-'.$bm.'-'.addzero($e);
+//echo $dd;
+if($_REQUEST['begindate']==$_REQUEST['enddate']) $week[$compt-1]['end']=$dd;
+else $week[$compt-1]['end']=$y.'-'.$bm.'-'.addzero($e);
 $hs=$hs[0][0]['heure'];
 //print_r($hs);
 $hs=sectohour($hs);
@@ -234,6 +233,7 @@ $hs=sectohour($hs);
     <thead>
       <tr>
         <th>Numero de la semaine</th>
+        <th>Nombre de jours ouvrés dans la semaine</th>
         <th>debut de la semaine</th>
         <th>fin de la semaine</th>
         <th>nombre d'heure</th>
@@ -243,7 +243,14 @@ $hs=sectohour($hs);
     <tbody>
     <?php
     	for($e=0;$e<=count($week)-2;$e++){
+            $nbnonferie=datediff($week[$e]['begin'],$week[$e]['end']); //nombre de jour non ferié dans la semaien traitée
+            $hourcontrat=contrat2hour($user['pourcent']);
+           //echo $nbnonferie.'-----'.$hourcontrat.'-----------------'.hourtosec($hourcontrat.':00');
+     
+           // $seccontrat=$seccontrat*$nbnonferie;
 
+            $hourcontrat=((7*$nbnonferie)*$user['pourcent'])/100;
+            $seccontrat=hourtosec($hourcontrat.':00');
     		$array=array($userid, $week[$e]['begin'],$week[$e]['end']);
     			//print_r($array).'<br>';
     		$week_hour=$bdd->tab("select sum(nb) as nb from heure where id_user=? and date between ? and ?", $array);
@@ -251,10 +258,10 @@ $hs=sectohour($hs);
             
     		$hour=sectohour($week_hour[0][0]['nb']);
             //echo $week_hour[0][0]['nb'];
-            $heure_s=$week_hour[0][0]['nb']-$seccontrat;
+            $heure_s=sectohour($week_hour[0][0]['nb']-$seccontrat);
             //echo $week_hour[0][0]['nb'].'-'.$seccontrat.'='.$heure_s.'<br>';
             //echo intval($heure_s / 3600);
-            $heure_s=sectohour($heure_s);
+       
 
             $h1=$hour['h'].'h'.$hour['m'].'min'.$hour['s'];
             $h2=$heure_s['h'].'h'.$heure_s['m'].'min'.$heure_s['s'];
@@ -268,12 +275,14 @@ $hs=sectohour($hs);
                 $h2="en cour";
 
             }
+
     		if($hourcontrat>=$hour['h']-5 and $hourcontrat<=$hour['h']+5 ) $s='class="success"';
     		if($hour['h']>=($hourcontrat+5))$s='class="danger"';
     		if($hour['h']<=($hourcontrat-5))$s='class="danger"';
             if($h1=="à venir" or $h1=="en cour") $s='class="success"';
                 		echo '<tr '.$s.' >
 			        <td>'.$week[$e]['number'].'</td>
+                    <td>'.$nbnonferie.'</td>
 			        <td>'.$week[$e]['begin'].'</td>
 			        <td>'.$week[$e]['end'].'</td>
 			        <td>'.$h1.'</td>

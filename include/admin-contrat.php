@@ -6,7 +6,7 @@
 	echo '<a href="#" data-width="500" data-rel="addcontrat" class="poplight" style="color:black">
 			    <button>ajouter un contrat</button>
 			</a><br><br>';
-			echo '<input type="button" id="creditconge" value="crediter les contrat de leur congé annuel"/>';
+			//echo '<input type="button" id="creditconge" value="crediter les contrat de leur congé annuel"/>';
 	echo '<table class="table table-striped">
 		    <thead>
 		      <tr>

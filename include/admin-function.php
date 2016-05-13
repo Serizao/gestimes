@@ -152,54 +152,7 @@
 			echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> motif ajouté avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=motif">';
 			
 		}
-		function transfere($date,$id){
-			$bdd=new bdd();
-			$array=array($id,$date);
-			$result=$bdd->tab("select a.nb as nb, b.nom as cat, a.id as id from heure a, categorie b where a.id_cat=b.id and id_user=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?  ", $array);
-			$result=$result[0];
-			if(isset($result[0]['nb'])){
-				echo '<select id="de" class="col-md-4">';
-				for($i=0;$i<count($result);$i++){
-						$nb=sectohour($result[$i]['nb']);
-						echo '<option value="'.$result[$i]['id'].'" max="'.$nb['h'].':'.$nb['m'].'">de '.$result[$i]['cat'].' ( '.$nb['h'].'h'.$nb['m'].' disponible ) </option>';
-				}
-				echo '</select>';
-				echo '<input type="time" id="nb_transf"/>';
-				$cat=$bdd->tab('select * from categorie','');
-				echo '<br>';
-
-				echo '<select id="vers" class="col-md-4">';
-				for($i=0;$i<count($cat);$i++){
-						echo '<option value="'.$cat[$i]['id'].'">vers '.$cat[$i]['nom'].'</option>';
-
-				}
-				echo '</select>';
-				echo '<input id="valid_transfere" onclick="valid_transfere();" type="button" value="valider le changement" class="col-md-4">';
-			}else{
-				echo 'pas de temps sur ce jour la avec cet utilisateur';
-			}
-			
-		}
-		function transfere_v($id,$date,$user,$time,$vers,$de){
-			$bdd= new bdd();
-			$array=array($de);
-			$result=$bdd->tab("select nb from heure where id=?", $array);
-			$time=hourtosec($time);
-			if($time<=$result[0][0]['nb']){
-				$futur=$result[0][0]['nb']-$time;
-				$array1=array($futur,$de);
-				$array2=array($user,$time,$vers,$date);
-				if($futur>0){
-					$bdd->tab('update heure set nb=? where id=?',$array1);
-				}
-				$bdd->tab("INSERT INTO `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",$array2);
-				echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> heure modifié avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=geshour">';
-
-			}else{
-				echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">le temps est sans doute trop élevé</div>';
-			}
-
-		}
+		
 		function credit_conge(){
 			$bdd=new bdd();
 			$user=$bdd->tab('select a.id as id, b.conge as conge, a.begin as begin from users a, contrat b where a.id_contrat=b.id ','');
@@ -238,7 +191,7 @@
 		function admconge($id, $state){
 			$bdd=new bdd();
 			$bdd->tab("update conge set state= ? where id=?",array($state,$id));
-			$type=$bdd->tab('select a.state as state, b.type as type, a.end as end, a.begin as begin, a.id_user as id_user from conge a , motif b where b.id=a.id_motif and a.id=?',array($id));
+			$type=$bdd->tab('select a.state as state, a.id_motif as motif, b.type as type, a.end as end, a.begin as begin, a.id_user as id_user from conge a , motif b where b.id=a.id_motif and a.id=?',array($id));
 			$type=$type[0];
 			
 			
@@ -256,7 +209,7 @@
 					if(isHoliday($compteur)!=1){  //check si c'est un jour de congé
 						if($begins==$ends){  //si la personne a pris une demie journé
 							$nbh=hourtosec($end[1])-hourtosec($begin[1]); //nombre de seconde
-							 $bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,'34',?)",array($type[0]['id_user'], $nbh,$begin[0]));
+							 $bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,'34',$begin[0]));
 						}else{
 							
 							if($begins==$compteur or $ends==$compteur){ //si on arrive au debut ou la fin de la periode demandée
@@ -264,17 +217,17 @@
 									if($begin[1]=='08:30:00')$n='9:30';//on enleve 1h le soir pour compenser la pause dejeuner
 									if($begin[1]=='13:00:00')$n='13:30';
 									$nbh=hourtosec('16:30')-(hourtosec($n)); 
-									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,'34',?)",array($type[0]['id_user'], $nbh,$begin[0]));
+									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,'34',$begin[0]));
 								}else{
 
 									if($end[1]=='12:00')$n='12:00';//on enleve 1h le soir pour compenser la pause dejeuner
 									if($end[1]=='16:30')$n='15:30';
 									$nbh=hourtosec($n)-hourtosec('09:30'); 
-									 $bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,'34',?)",array($type[0]['id_user'], $nbh,$end[0]));
+									 $bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,'34',$end[0]));
 								}
 							}else{//sinon
 								
-								$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,'34',?)",array($type[0]['id_user'], '25200',date('Y-m-d',$compteur)));
+								$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], '25200','34',date('Y-m-d',$compteur)));
 							}
 
 						}
@@ -301,18 +254,18 @@
 									//echo $n;
 									$nbh=hourtosec('16:30')-hourtosec($n); 
 									$nbjt=$nbjt+$nbh;
-									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,'33',?)",array($type[0]['id_user'], $nbh,$begin[0]));
+									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,'33',$begin[0]));
 								}else{
 									
 									if($end[1]=='12:00:00')$n='12:00';//on enleve 1h le soir pour compenser la pause dejeuner
 									if($end[1]=='16:30:00')$n='15:30';
 									$nbh=hourtosec($n)-hourtosec('08:30');
 									$nbjt=$nbjt+$nbh;
-									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,'33',?)",array($type[0]['id_user'], $nbh,$end[0]));
+									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,'33',$end[0]));
 								}
 							}else{//sinon
 								$nbjt=$nbjt+$nbh;
-								$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,'33',?)",array($type[0]['id_user'], '25200',date('Y-m-d',$compteur)));
+								$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], '25200','33',date('Y-m-d',$compteur)));
 							}
 
 						}
@@ -323,7 +276,9 @@
 					
 				if($type[0]['state']==1){ //si il a déja été valider on recredite le solde de congé de l'utilisateur
 				$nbjt=($nbjt/3600)/7;
-				$nbjt=$conge[0]['nb_jour']-$nbjt;
+				//echo $nbjt."<br>".$conge[0]['nb_jour']."<br>";
+				$nbjt=$conge[0]['nb_jour']-$nbjt*12;
+				//echo $nbjt;
 				$bdd->tab('update credit_conge set nb_jour=? where id_user=?',array($nbjt,$type[0]['id_user']));
 
 				}

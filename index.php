@@ -11,16 +11,30 @@
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <link rel="stylesheet" type="text/css" href="css/global.css">
             <link rel="stylesheet" type="text/css" href="css/popup.css"> 
-            <script src="//code.jquery.com/jquery-2.0.2.js" type="text/javascript">
-<link rel="stylesheet" href="http://cdn.jsdelivr.net/webshim/1.14.5/shims/styles/shim-ext.css">
-<link rel="stylesheet" href="http://cdn.jsdelivr.net/webshim/1.14.5/shims/styles/forms-picker.css">
+            <script src="js/jquery-2.0.2.js" type="text/javascript">
+<link rel="stylesheet" href="css/shim-ext.css">
+<link rel="stylesheet" href="css/forms-picker.css">
 			
       <script src="js/jquery-migrate-1.2.1.min.js"></script>
-      <script src="//cdn.jsdelivr.net/webshim/1.14.5/polyfiller.js"></script>
+      <script src="js/polyfiller.js"></script>
 <script>
     webshims.setOptions('forms-ext', {types: 'date'});
 
 webshims.polyfill('forms forms-ext');
+
+
+var timer = null;
+
+function goAway() {
+    clearTimeout(timer);
+    timer = setTimeout(function() {
+        window.location.reload();
+    }, 60000);
+}
+
+window.addEventListener('mousemove', goAway, true);
+
+goAway(); 
 </script>
       
 </head>
@@ -36,10 +50,11 @@ date_default_timezone_set('Europe/Paris');
     secureAccess();
     include_once ('include/top-barre.php');
     //include_once ('include/ajax.php');
+    if(empty($_GET["function"])){ //si pas de post on affiche la page normal
+
     $nav=0;
     $bdd=new bdd;
     $data=array($_SESSION['userid']);
-
 
     majhs($_SESSION['userid']);
     $actual_link = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
@@ -75,7 +90,7 @@ date_default_timezone_set('Europe/Paris');
       $total=array();
       $date = new DateTime($result['date'][$i]);
       
-  		if($result['jour'][$i]=='Samedi' or $result['jour'][$i]=='Dimanche' or $date1 < $date2 or isHoliday($date->getTimestamp())) $color= "style='background-color:#67809F'";
+  		if($result['jour'][$i]=='Samedi' or $result['jour'][$i]=='Dimanche' or $date1 < $date2 or isHoliday($date->getTimestamp())) $color= "style='background-color:#81CFE0'";
 		if($result['jour'][$i]!='Samedi' and $result['jour'][$i]!='Dimanche' and $date1 < $date2 and !isHoliday($date->getTimestamp())) $past[$i]= true;		
   		if ($result['numero'][$i]==date('j') and $result['mois2'][$i]==date('n')){
   			$now1='class="now-ar"';
@@ -106,8 +121,10 @@ date_default_timezone_set('Europe/Paris');
 
     if(isset($tempspasser)  and $tempspasser['heure']>=7) $finaltime=$tempspasser['heure'].'h'.$tempspasser['minutes'].'min'.$tempspasser['second'];
     if(isset($tempspasser)  and $tempspasser['heure']<7) $finaltime='<b style="color:red">'.$tempspasser['heure'].'h'.$tempspasser['minutes'].'min'.$tempspasser['second'].'</b>';
+
     //affichage des case du tableau et de leur contenu
-  		echo'<td '.$color.'>';
+
+  		echo'<td '.$color.' onclick=" auto_complete_hs(\''.$result['date2'][$i].'\')">';
         if($past[$i]){echo '<br><a href="#" data-width="300" data-rel="popup'.$i.'" class="poplight" style="color:black">ajouter un mouvement</a>';}
         echo'<br><br>'. $result['jour'][$i].' '.$result['numero'][$i].' '.$result['mois'][$i].'<br>('.$result['annee'][$i].')<br><br>'.$time.'<div '.$now1.' id="arrive"></div><br><div '.$now2.' id="depart"></div><br><div  id="total">';
         if($past[$i]) {echo $finaltime;}
@@ -148,6 +165,7 @@ date_default_timezone_set('Europe/Paris');
 
 <hr style="width:100%; height:1px;" />
 <div class="col-md-4">
+<div class="row">
 <H2>Categoriser ces heures</H2> 
   <?php
 
@@ -156,7 +174,7 @@ date_default_timezone_set('Europe/Paris');
   echo '<input type="time" name="time" id="timecathour"/>';
   //on liste les catégorie dans un select
   	echo '<select id="cathour">';
-  	$cat=list_cat();
+  	$cat=list_cat('2',$_SESSION['userid']);
   	for($i=0;$i<count($cat);$i++){
   		echo '<option value="'.$cat[$i]['id'].'">'.$cat[$i]['nom'].'</option>';
   	}
@@ -166,6 +184,22 @@ date_default_timezone_set('Europe/Paris');
    
   ?>
 </div>
+<div class="row">
+<h2>transfert d'heure</h2>
+
+
+<?php
+
+
+echo '<input type="date" id="changetimeuser" >';
+  
+?>
+
+<div id="transfretour"></div>
+</div>
+
+</div>
+</div>
 <div class="col-md-4">
   <h2>Congé / Récupération</h2><br>
   <form id="addconge" method="POST">
@@ -173,7 +207,8 @@ date_default_timezone_set('Europe/Paris');
     $userid=array($_SESSION['userid']);
       $hs=$bdd->tab('select * from heure_sup where id_user=?',$userid);
        $hs=sectohour($hs[0][0]['heure']);
-      echo ' <h4>Vous disposez actuellement de '.$hs['h'].'h'.$hs['m'].'heure suplémentaire(s)</h4>';
+       $cong=check_conge($_SESSION['userid'],'1');
+      echo ' <h4>Vous disposez actuellement :<br> - de '.$hs['h'].'h'.$hs['m'].'heure à récupérer <br> - de '.round($cong,2).' jour(s) de congé(s)</h4>';
       $motif=$bdd->tab('select * from motif where 1','');
       echo '<select name="typeconge" id="typeconge" class="col-md-6 col-md-offset-3">';
       for($i=0;$i<count($motif);$i++){
@@ -224,8 +259,8 @@ date_default_timezone_set('Europe/Paris');
               $vac=$vac[0];
               for($i=0;$i<count($vac);$i++){
                 if($vac[$i]['statut']==0)$u="en cour de traitement";
-                if($vac[$i]['statut']==1)$u="Accepter";
-                if($vac[$i]['statut']==10)$u="Refuser";
+                if($vac[$i]['statut']==1)$u="Accepté";
+                if($vac[$i]['statut']==10)$u="Refusé";
                 echo '<tr>
                         <td>'.$vac[$i]['begin'].'</td>
                         <td>'.$vac[$i]['end'].'</td>
@@ -239,6 +274,15 @@ date_default_timezone_set('Europe/Paris');
                 
      echo '     </tbody> 
             </table>';
+          }
+          if(isset($_GET['function'])){
+            switch ($_GET['function']) {
+              case "cal":
+                  include('include/calendar.php');
+                 
+                  break;
+            }
+          }
   ?>
 </div>
 

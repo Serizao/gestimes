@@ -49,6 +49,24 @@ $(document).ready(function(){
                     });
             }
     }));
+        $('#changetimeuser').on('change', function(e){
+                            var date = $('#changetimeuser').val();
+                         
+
+                            $.ajax({
+                                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
+                                type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
+                                data: 'action=transferehuser&date='+date, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+                                success: function(html) {
+                                  // Je récupère la réponse du fichier PHP
+                                 
+                                          $("#transfretour" ).html( html ); // J'affiche cette réponse
+                               }         
+                                
+                            });
+                        
+
+                    });
     $('.delconge').on("click",(function(e){
         e.preventDefault(); // J'empêche le comportement par défaut du navigateur, c-à-d de soumettre le formulaire
         var _this = this;
@@ -158,7 +176,7 @@ $(document).ready(function(){
 	                data: 'action=categorize&date='+date+'&cathour='+cathour+'&nb='+nb+'&url='+url, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 	                success: function(html) {
 	                  // Je récupère la réponse du fichier PHP
-	                
+	                           
 	                          $("#catretour" ).html( html ); // J'affiche cette réponse
 	                        
 
@@ -166,4 +184,48 @@ $(document).ready(function(){
 	            });
 		}
 	});
-});
+}); //fin du document ready
+
+function auto_complete_hs(date){
+    $("#datecathour").val(date);
+    $.ajax({
+                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
+                type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
+                data: 'action=gethour2&date='+date, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+                success: function(html) {
+                  // Je récupère la réponse du fichier PHP
+                         var objJSON = JSON.parse(html);
+                        $("#timecathour" ).val(objJSON.hs); // J'affiche cette réponse
+                }
+    });
+}
+function valid_transfere_user(){
+                        
+                        var _this = this;
+                        var $this = $(this); // L'objet jQuery du formulaire
+                        var id =$this.attr('alt');
+                        var date =$('#changetimeuser').val();
+                        var de =$('#de').val();
+                        var vers =$('#vers').val();
+                        var time =$('#nb_transf').val();
+                        
+                        
+                         if(id==='' || date===''||de===''|| vers===''||time==='') {
+                            alert('erreur');
+                        } else {
+                        
+                            // Envoi de la requête HTTP en mode asynchrone
+                            $.ajax({
+                                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
+                                type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
+                                data: 'action=valid_transf_user&id='+id+'&date='+date+'&vers='+vers+'+&de='+de+'&time='+time, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+                                success: function(html) {
+                                  // Je récupère la réponse du fichier PHP
+                                 
+                                          $("#transfretour" ).html( html ); // J'affiche cette réponse
+                                        
+                                }
+                            });
+                        }
+
+                    }

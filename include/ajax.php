@@ -54,6 +54,9 @@ switch($action){
 	case "gethour":
 		count_hour($_REQUEST['date'], '0');
 		break;
+	case "gethour2":
+		count_hour($_REQUEST['date'], '3');
+		break;
 	case "delcontrat":
 		delcontrat($_REQUEST['id']);
 		break;
@@ -87,10 +90,16 @@ switch($action){
 		credit_conge();
 		break;
 	case "transfere":
-		transfere($_REQUEST['date'],$_REQUEST['id']);
+		transfere($_REQUEST['date'],$_REQUEST['id'],'10');
+		break;
+		case "transferehuser":
+		transfere($_REQUEST['date'],$_SESSION['userid'],'1');
 		break;
 	case "valid_transf":
 		transfere_v($_REQUEST['id'],$_REQUEST['date'],$_REQUEST['user'],$_REQUEST['time'],$_REQUEST['vers'],$_REQUEST['de']);
+		break;
+	case "valid_transf_user":
+		transfere_v($_REQUEST['id'],$_REQUEST['date'],$_SESSION['userid'],$_REQUEST['time'],$_REQUEST['vers'],$_REQUEST['de']);
 		break;
   case "del_mouv":
     del_mouvement($_REQUEST['id'],$_SESSION['userid'],$_REQUEST['url']);

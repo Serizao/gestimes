@@ -101,7 +101,7 @@
 					      </ul>
 					     
 					      <ul class="nav navbar-nav navbar-right">
-					       <li><a href="include/ajax.php?action=disconnect">deconnection</a></li>
+					       <li><a href="include/ajax.php?action=disconnect">deconnexion</a></li>
 					      </ul>
 					    </div><!-- /.navbar-collapse -->
 					  </div><!-- /.container-fluid -->
