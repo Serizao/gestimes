@@ -220,10 +220,12 @@
 									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,'34',$begin[0]));
 								}else{
 
-									if($end[1]=='12:00')$n='12:00';//on enleve 1h le soir pour compenser la pause dejeuner
-									if($end[1]=='16:30')$n='15:30';
-									$nbh=hourtosec($n)-hourtosec('09:30'); 
-									 $bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,'34',$end[0]));
+									if($end[1]=='12:00:00')$n='12:00';//on enleve 1h le soir pour compenser la pause dejeuner
+									if($end[1]=='16:30:00')$n='15:30';
+									$nbh=hourtosec($n)-hourtosec('08:30'); 
+
+									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,'34',$end[0]));
+								
 								}
 							}else{//sinon
 								

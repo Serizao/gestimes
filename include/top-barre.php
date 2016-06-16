@@ -11,14 +11,14 @@
 	</div>
 	<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-7">
 		<ul class="nav navbar-nav">
-			<li><a href="#" id="arriver" class="esbutton">arriver</a></li>
+			<li><a href="#" id="arriver" class="esbutton">Arriver</a></li>
 			<li><a href="#" id="sortir" class="esbutton">Sortir</a></li>
-			<li><a href="include/exel.php" >ma fiche de temps</a></li>
-			<li><a href="?function=cal" >le calendrier</a></li>
-			<li><a href="include/ajax.php?action=disconnect" id="diconnect" name="disconnect"> deconnexion</a>
+			<li><a href="include/exel.php" >Ma fiche de temps</a></li>
+			<li><a href="?function=cal" >Le calendrier</a></li>
+			<li><a href="include/ajax.php?action=disconnect" id="diconnect" name="disconnect"> Déconnexion</a>
 			<?php
 				if(check_admin()){
-					echo '<li><a href="admin.php" id >panneau d\'administration</a></li>';
+					echo '<li><a href="admin.php" id >Panneau d\'administration</a></li>';
 				}
 			?>
 			

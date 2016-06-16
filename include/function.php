@@ -655,8 +655,8 @@ function addconge($id_motif,$id_user,$begin,$end,$jbegin,$jend){
 	$nbjrc=check_conge($id_user,$id_motif);
 	$conge_deja_demande=get_take_conge($id_user);
 	$nbjc=$nbjc+$conge_deja_demande;
-	//echo $conge_deja_demande;
-	if($nbjc<=$nbjrc){
+
+	if($nbjc<=$nbjrc or $type==2){
 		//print_r($array2);
 		$bdd->tab("INSERT INTO `conge`( `id_motif`, `id_user`, `state`, `begin`, `end`) VALUES ( ?, ?, '0', ? ,?)",$array2);
 		
@@ -718,10 +718,9 @@ function del_heure_conge($id, $id_user){
 									
 									$bdd->tab("delete from `heure` where id_cat=34 and id_user=? and nb=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?",array($type[0]['id_user'], $nbh,$begin[0]));
 								}else{
-									if($end[1]=='12:00')$n='12:00';//on enleve 1h le soir pour compenser la pause dejeuner
-									if($end[1]=='16:30')$n='15:30';
-									$nbh=hourtosec($n)-hourtosec('09:30'); 
-									
+									if($end[1]=='12:00:00')$n='12:00';//on enleve 1h le soir pour compenser la pause dejeuner
+									if($end[1]=='16:30:00')$n='15:30';
+									$nbh=hourtosec($n)-hourtosec('08:30'); 
 									 $bdd->tab("delete from `heure` where id_cat=34 and id_user=? and nb=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?",array($type[0]['id_user'], $nbh,$end[0]));
 								}
 							}else{//sinon
