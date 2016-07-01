@@ -13,7 +13,7 @@
 	$host_bdd = "127.0.0.1";
     $user_bdd = "root";
     $pass_bdd = "root";
-    $base_bdd = "time"; 
+    $base_bdd = "t2"; 
 
 /*possibilité de rentré les login de l'ad en dur afin de pas les rentrer utltérieurement*/
     /*$ad_admin="";

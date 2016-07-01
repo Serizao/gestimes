@@ -409,19 +409,20 @@ function check_conge($id,$idmotif,$raison=1){
 
 	$bdd=new bdd;
 	$type=$bdd->tab('select type from motif where id=? ',array($idmotif));
-	if($type[0][0]['type']==1){
-		$solde=$bdd->tab('select nb_jour from credit_conge where id_user=?',array($id));
-		if($raison==0) return $solde[0][0]['nb_jour'];
-		if($raison==1){
-			$a=$solde[0][0]['nb_jour'];
-			if($a!=0) $a=$a/12;
-			return $a;	
-		} 
-	}elseif ($type[0][0]['type']==0) {
-		$solde=$bdd->tab('select heure from heure_sup where id_user=?',array($id));
-		return $solde[0][0]['heure']*3600*7;
+	if(isset($type[0][0]['type'])){
+		if($type[0][0]['type']==1){
+			$solde=$bdd->tab('select nb_jour from credit_conge where id_user=?',array($id));
+			if($raison==0) return $solde[0][0]['nb_jour'];
+			if($raison==1){
+				$a=$solde[0][0]['nb_jour'];
+				if($a!=0) $a=$a/12;
+				return $a;	
+			} 
+		}elseif ($type[0][0]['type']==0) {
+			$solde=$bdd->tab('select heure from heure_sup where id_user=?',array($id));
+			return $solde[0][0]['heure']*3600*7;
+		}
 	}
-	
 }
 function fnl_of_week($annee,$num){
 	$dernier_jour=31; 
@@ -459,88 +460,91 @@ function majhs($id){
 	$bdd=new bdd();
 	$user=list_user_u($id);
 	$user=$user[0];
-	$o=date('W-Y',$date);
-	$contrat=hourtosec((($user[0]['pourcent']/100)*35).':0');
-	$total=0;
-	$all=0;
+	if(isset($user[0]['begin'])){
+		$o=date('W-Y',$date);
+		$contrat=hourtosec((($user[0]['pourcent']/100)*35).':0');
+		$total=0;
+		$all=0;
 
 
-	for($a=1;$a<=50;$a++){
-		$o=date('YW',$date);
-		$ooo=date('Y-W',$date);
-		$oo=date('Y-m-d',$date);
-		$Yo=date('Y',$date);
-		$Wo=date('W',$date);
-		if($Wo==53)$Yo--; //gestion des anné bixextile
-		$dfweek= fnl_of_week($Yo,$Wo);
-		$Yo++;
-		$nbnonferie=datediff($dfweek[0],$dfweek[1]);
-		$ui=((7*$nbnonferie)*$user[0]['pourcent'])/100;
-		$contrat=hourtosec(($ui).':0');
-		$nbnonferie=datediff($dfweek[0],$dfweek[1]); //nombre de jour non ferié dans la semaien traitée
-        $hourcontrat=$ui;
-		$now = new DateTime( $oo); 
-		$now = $now->format('Ymd'); 
-		$next = new DateTime($user[0]['begin'] ); 
-		$next = $next->format('Ymd'); 
-			if($now>$next){
-						$tab0="";
-						$tab0=array(date('YW',$date),$id);
-						$dates=$bdd->tab("select sum(nb) as nb from heure where yearweek(date)=? and id_user=?",$tab0);
-						$total=$dates[0][0]['nb']-$contrat;
-						$all=$all+$total;
-					}
-		$date=$date+$moins;
-	}
-	$tab4=array($id);
-	$test=$bdd->tab('select * from heure_sup where id_user=?', $tab4);
-	echo'<br><br>';
-	if(!isset($test[0][0]['id'])){
-
-		$tab3=array($id, $all, $dateformat);
-		$bdd->tab('insert into heure_sup ( `id_user`, `heure`, `date_refresh`) VALUES ( ?, ?, ?)',$tab3 );
-	}else{
-		$tab2=array($all, $dateformat, $id);
-		$bdd->tab('update heure_sup set heure=?, date_refresh=? where id_user=?',$tab2);
-	}
-
-
-	//partie congé
-
-	$conge_mensuel=25; // toute les entré seront avec des fraction sur 12 sous entendu ici 25/12
-	$result=$bdd->tab('select nb_jour,maj from credit_conge where id_user=?',array($id));
-	$result=$result[0][0];
-	$now = new DateTime(date('Ym')); 
-	$nowM=$now->format('m');
-	$nowY=$now->format('Y');
-	$next = new DateTime( $result['maj'] );
-	$nextM=$next->format('m');
-	$nextY=$next->format('Y');
-
-	///-------------------------------------------------------------->if($nextY.$nextM<$nowY.$nowM){ check si un mois est passer depyuis la de'rnière réactualisation ou alor l'utilisteur n'est pas connu
-	if($nextY.$nextM<$nowY.$nowM or empty($result['maj'])){
-		if(isset($result['nb_jour'])){
-				$solde=check_conge($id,'1','0');
-				$nbmois=(($nowY-$nextY)*12)+($nowM-$nextM); //calcul du nombre de mois sans mise ajour du compteur
-				
-				if($nbmois>0) $solde=$solde+($conge_mensuel*$nbmois);
-				else $solde=$solde+$conge_mensuel;
-				
-				$bdd->tab('UPDATE `credit_conge` SET `nb_jour`=?, maj=? where `id_user`=?',array($solde,date('Y-m-d'),$id));
-		}else{ //si c'est un nouvel employé qui n'a pas encore d'entré en base pour ces congé on check son contrat pour savoir 
-			$solde=0;
-			$contrat=$bdd->tab('select begin from users where id=?',array($id));
-			$contrat = new DateTime( $contrat[0][0]['begin'] );
-			$contratD=$contrat->format('d');
-			$contratY=$contrat->format('Y');
-			$contratM=$contrat->format('m');
-			$solde=(($nowY-$contratY)*12)+($nowM-$contratM);
-			$solde=$solde*$conge_mensuel;
-			if($contratD>15 and $solde>0) $solde=$solde-$conge_mensuel; /// si le solde est supérieure a 0 et que la personne est arrivé après le 15 on enlève 2.083 jour
+		for($a=1;$a<=50;$a++){
+			$o=date('YW',$date);
+			$ooo=date('Y-W',$date);
+			$oo=date('Y-m-d',$date);
+			$Yo=date('Y',$date);
+			$Wo=date('W',$date);
+			if($Wo==53)$Yo--; //gestion des anné bixextile
+			$dfweek= fnl_of_week($Yo,$Wo);
+			$Yo++;
+			$nbnonferie=datediff($dfweek[0],$dfweek[1]);
+			$ui=((7*$nbnonferie)*$user[0]['pourcent'])/100;
+			$contrat=hourtosec(($ui).':0');
+			$nbnonferie=datediff($dfweek[0],$dfweek[1]); //nombre de jour non ferié dans la semaien traitée
+	        $hourcontrat=$ui;
+			$now = new DateTime( $oo); 
+			$now = $now->format('Ymd'); 
 			
-			 $i= $bdd->tab('INSERT INTO `credit_conge`(nb_jour, id_user, maj) VALUES (?,?,?) ',array($solde,$id, date('Y-m-d')));
-			 //var_dump(array($solde,$id, date('Y-m-d')));
+			$next = new DateTime($user[0]['begin'] ); 
+			$next = $next->format('Ymd'); 
+				if($now>$next){
+							$tab0="";
+							$tab0=array(date('YW',$date),$id);
+							$dates=$bdd->tab("select sum(nb) as nb from heure where yearweek(date)=? and id_user=?",$tab0);
+							$total=$dates[0][0]['nb']-$contrat;
+							$all=$all+$total;
+						}
+			$date=$date+$moins;
 			}
+			$tab4=array($id);
+			$test=$bdd->tab('select * from heure_sup where id_user=?', $tab4);
+			echo'<br><br>';
+			if(!isset($test[0][0]['id'])){
+
+				$tab3=array($id, $all, $dateformat);
+				$bdd->tab('insert into heure_sup ( `id_user`, `heure`, `date_refresh`) VALUES ( ?, ?, ?)',$tab3 );
+			}else{
+				$tab2=array($all, $dateformat, $id);
+				$bdd->tab('update heure_sup set heure=?, date_refresh=? where id_user=?',$tab2);
+			}
+
+
+			//partie congé
+
+			$conge_mensuel=25; // toute les entré seront avec des fraction sur 12 sous entendu ici 25/12
+			$result=$bdd->tab('select nb_jour,maj from credit_conge where id_user=?',array($id));
+			$result=$result[0][0];
+			$now = new DateTime(date('Ym')); 
+			$nowM=$now->format('m');
+			$nowY=$now->format('Y');
+			$next = new DateTime( $result['maj'] );
+			$nextM=$next->format('m');
+			$nextY=$next->format('Y');
+
+			///-------------------------------------------------------------->if($nextY.$nextM<$nowY.$nowM){ check si un mois est passer depyuis la de'rnière réactualisation ou alor l'utilisteur n'est pas connu
+			if($nextY.$nextM<$nowY.$nowM or empty($result['maj'])){
+				if(isset($result['nb_jour'])){
+						$solde=check_conge($id,'1','0');
+						$nbmois=(($nowY-$nextY)*12)+($nowM-$nextM); //calcul du nombre de mois sans mise ajour du compteur
+						
+						if($nbmois>0) $solde=$solde+($conge_mensuel*$nbmois);
+						else $solde=$solde+$conge_mensuel;
+						
+						$bdd->tab('UPDATE `credit_conge` SET `nb_jour`=?, maj=? where `id_user`=?',array($solde,date('Y-m-d'),$id));
+				}else{ //si c'est un nouvel employé qui n'a pas encore d'entré en base pour ces congé on check son contrat pour savoir 
+					$solde=0;
+					$contrat=$bdd->tab('select begin from users where id=?',array($id));
+					$contrat = new DateTime( $contrat[0][0]['begin'] );
+					$contratD=$contrat->format('d');
+					$contratY=$contrat->format('Y');
+					$contratM=$contrat->format('m');
+					$solde=(($nowY-$contratY)*12)+($nowM-$contratM);
+					$solde=$solde*$conge_mensuel;
+					if($contratD>15 and $solde>0) $solde=$solde-$conge_mensuel; /// si le solde est supérieure a 0 et que la personne est arrivé après le 15 on enlève 2.083 jour
+					
+					 $i= $bdd->tab('INSERT INTO `credit_conge`(nb_jour, id_user, maj) VALUES (?,?,?) ',array($solde,$id, date('Y-m-d')));
+					 //var_dump(array($solde,$id, date('Y-m-d')));
+					}
+		}
 	}
 }
 function addzero($month){
