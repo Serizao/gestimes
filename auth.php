@@ -9,7 +9,7 @@
         header('location: index.php');
         exit;
     }
-    if ($_POST and !empty( $_POST['password']) and !empty( $_POST['username'])){
+    if (!empty( $_POST['password']) and !empty( $_POST['username'])){
         $bdd=new bdd;
         $data=array($_POST['username'], hash('sha512', $_POST['password']));
         $result=$bdd->tab("select id, acl from users where username=? and password=?",$data);
@@ -17,8 +17,8 @@
            
             $_SESSION['username']=$_POST['username'];
             $_SESSION['userid']=$result[0][0]['id'];
-			 $_SESSION['acl']=$result[0][0]['acl'];
-
+            $_SESSION['acl']=$result[0][0]['acl'];
+            
             header('location: index.php');
             exit;
         }elseif($ad->login($_POST['username'], $_POST['password'])){
@@ -48,7 +48,9 @@
             $errMsg='<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">Nom d´utilisateur ou mot de passe invalide.</div>';
         }
     }
+
 ?>
+
 <!DOCTYPE html>
     <html>
         <head>
@@ -56,6 +58,7 @@
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <link rel="stylesheet" type="text/css" href="css/auth.css">
+          
         </head>
         <body>
            
@@ -63,14 +66,15 @@
                 <div class="content">
                     <h1>Connexion</h1>
                     <?php if (isset($errMsg)) { print $errMsg;} ?>
-                    <p class="free_sans">Please, logon to use</p>
-                    <input type="text" class="free_sans" name="username" placeholder="Nom d'utilisateur">
+                    <p class="free_sans">Please, login to use</p>
+                    <input type="text" class="free_sans" name="username" placeholder="username" >
                     <br>
                     <input class="free_sans" name="password" placeholder="Mot de passe" type="password">
                     <br>
                     <input class="input" type="submit" value="Valider">
                     <br>
-                    <a href="subscribe.php"> s'inscrire</a>
+                    
                 </div>
             </form>
-            
+</body>
+</html>            

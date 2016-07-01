@@ -21,7 +21,7 @@
 		<div class="col-md-12">
 			<br>
 
-			<button id="generate" class="col-md-12">generer un graphique</button>
+			<button id="generate"  class="col-md-12 btn btn-primary">generer un graphique</button>
 		</div>
 	</div>
 </div>

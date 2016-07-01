@@ -114,13 +114,16 @@ class ad
   {
 	public function __construct() //connection a la base de donnée dans la classe
 	{
+
 		if(file_exists('config/config.php'))include 'config/config.php';
 		if(file_exists('../config/config.php'))include '../config/config.php';
+
 	     //variable de connexion a la bdd
 	    $this->_host = $host_bdd;
 	    $this->_user = $user_bdd;
 	    $this->_pass = $pass_bdd;
 	    $this->_base = $base_bdd; 
+        
 		$this->_pdo = new PDO(
 		'mysql:host='.$this->_host.';dbname='.$this->_base,
 		$this->_user,
@@ -157,7 +160,7 @@ class ad
 
     public function lastid()
     {
-		return  $this->_pdo->lastInsertId();
+		return $this->_pdo->lastInsertId();
     }
 	public function countcol($i)
 	{

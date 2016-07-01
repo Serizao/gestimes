@@ -21,7 +21,7 @@ $user=$bdd->tab('select * from users','');
 		<input type="month" id="begindate">
 		date de fin
 		<input type="month" id="enddate">	
-		<button class="col-md-6" id="userview">envoyer</button>
+		<button class="col-md-6 btn btn-primary" id="userview">envoyer</button>
 	</div>
 </div>
 <br>

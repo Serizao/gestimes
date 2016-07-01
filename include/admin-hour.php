@@ -41,7 +41,7 @@
 		<div class="col-md-12">
 			<br>
 
-			<a id="export" href="#"><button class="col-md-12">exporter sur exel</button></a>
+			<a id="export" href="#"><button class="col-md-12 btn btn-primary">exporter sur exel</button></a>
 		</div>
 	</div>
 </div>

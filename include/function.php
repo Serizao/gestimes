@@ -1,14 +1,10 @@
 <?php
-
-
-function secureAccess(){                                                                                         
-                                                                                               
+function secureAccess(){                                                                                                                                                                              
     if (!checkaccess()){                                                                                         
         header('location: auth.php'); // on redirige vers index.php                                                 
     exit;                                                                                                       
     }                                                                                                            
-} 
-                                                                                                           
+}                                                                                                 
 function checkAccess(){
 	$bdd=new bdd;
 	$username=array('serizao');
@@ -23,10 +19,11 @@ function check_admin(){
 	 return false;
 	 }
 }
+
 function last_time($id, $date){
 	$bdd=new bdd;
 	$data=array($id);
-	$result=$bdd->tab("SELECT es, DATE_FORMAT(`temps`, '%d %M %Y') AS date, DATE_FORMAT(temps, '%H:%i') AS time, temps FROM `es` WHERE cast(temps as date)='".$date."' and id_user=? order by temps asc", $data);
+	$result=$bdd->tab("SELECT id, es, DATE_FORMAT(`temps`, '%d %M %Y') AS date, DATE_FORMAT(temps, '%H:%i') AS time, temps FROM `es` WHERE cast(temps as date)='".$date."' and id_user=? order by temps asc", $data);
 	return $result;
 }
 
@@ -74,6 +71,62 @@ function current_semaine($n, $o){
 	
 	
 }
+
+function transfere($date,$id,$provenance){
+			$bdd=new bdd();
+			$array=array($id,$date);
+			$result=$bdd->tab("select a.nb as nb, b.nom as cat, a.id as id from heure a, categorie b where a.id_cat=b.id and id_user=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?  ", $array);
+			$result=$result[0];
+			if(isset($result[0]['nb'])){
+				echo '<div class="col-md-6"><input type="date" value="'.$date.'" class="form-control" id="changetimeuser" ></div><div class="col-md-6"><input type="time" class="form-control" id="nb_transf"/></div><br><br>';
+				echo '<div class="col-md-6"><select id="de" class="form-control">';
+				for($i=0;$i<count($result);$i++){
+						$nb=sectohour($result[$i]['nb']);
+						echo '<option value="'.$result[$i]['id'].'" max="'.$nb['h'].':'.$nb['m'].'">de '.$result[$i]['cat'].' ( '.$nb['h'].'h'.$nb['m'].' disponible ) </option>';
+				}
+				echo '</select></div>';
+				
+				$cat=$bdd->tab('select * from categorie','');
+
+
+				echo '<div class="col-md-6"><select id="vers" class="form-control">';
+				for($i=0;$i<count($cat);$i++){
+						echo '<option value="'.$cat[$i]['id'].'">vers '.$cat[$i]['nom'].'</option>';
+
+				}
+				echo '</select></div><br><br>';
+				if($provenance==1)$v='onclick="valid_transfere_user();"' ;
+				if($provenance==10)$v='onclick="valid_transfere();"' ;
+				echo '<input id="valid_transfere" '.$v.' type="button" value="valider le changement" class="col-md-offset-4 col-md-4 btn btn-primary">';
+			}else{
+				echo '<div class="col-md-6"><input type="date" value="'.$date.'" class="form-control" id="changetimeuser" ></div><br>pas de temps sur ce jour la avec cet utilisateur';
+			}
+			
+		}
+		function transfere_v($id,$date,$user,$time,$vers,$de){
+			$bdd= new bdd();
+			$array=array($de);
+			$result=$bdd->tab("select nb from heure where id=?", $array);
+			$time=hourtosec($time);
+			if($time<=$result[0][0]['nb']){
+				$futur=$result[0][0]['nb']-$time;
+				
+				$array2=array($user,$time,$vers,$date);
+				
+				if($futur>0){
+					$array1=array($futur,$de);
+				}else{
+					$array1=array('0',$de);
+				}
+				$bdd->tab('update heure set nb=? where id=?',$array1);
+				$bdd->tab("INSERT INTO `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",$array2);
+				echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> heure modifié avec succès</div>';
+
+			}else{
+				echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">le temps est sans doute trop élevé</div>';
+			}
+
+		}
 function month($i){
 	$mois = array("","Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre");
 	return $mois[$i];
@@ -86,16 +139,18 @@ function jour($m, $year){
 function arriver($id,$time){
 	date_default_timezone_set('Europe/Paris');
 	$bdd=new bdd;
-	$data=array('','e',$id,$time);
-	$result=$bdd->tab('insert into `es`(`id`, `es`, `id_user`, `temps`) VALUES( ?, ?, ?, ?) ', $data);
+	$data=array('e',$id,$time);
+	$result=$bdd->tab('insert into `es`( `es`, `id_user`, `temps`) VALUES(  ?, ?, ?) ', $data);
+ 
 	
 
 }
 function partir($id,$time){
 	date_default_timezone_set('Europe/Paris');
 	$bdd=new bdd;
-	$data=array('','s',$id,$time);
-	$result=$bdd->tab('insert into `es`(`id`, `es`, `id_user`, `temps`) VALUES( ?, ?, ?, ?) ', $data);
+	$data=array('s',$id,$time);
+	$result=$bdd->tab('insert into `es`( `es`, `id_user`, `temps`) VALUES(  ?, ?, ?) ', $data);
+
 }
 
 
@@ -140,26 +195,44 @@ function number_day($month,$year,$a){
 }
 
 function add_mouvement($id,$sens,$heure,$url){
-	$mouv=last_mouvement($id, $heure);
-	
-	if($sens=="e" and ($mouv=='s' or empty($mouv))){
-		arriver($_SESSION['userid'],$heure);
-		echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> horaires mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL='.$url.'">';
-	}
-	elseif($sens=="s"and $mouv=='e') {
-		partir($_SESSION['userid'],$heure);
-		echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> horaires mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL='.$url.'">';
-	} else {
-		echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">erreur : il est possible que le sens ne soit pas correct</div>';
+	$mouv=last_mouvement($id, $heure); //recuperation du dernier mouvement
+
+	$bdd=new bdd();//check que le dernier mouvement passer n'était pas identique 
+	$array=array($_SESSION['userid']);
+	$verif=$bdd->tab('select es, temps from es where id_user=? ORDER BY id DESC  limit 1',$array);
+	$verif=$verif[0];
+	$invalid=false;
+		if($verif[0]['es']==$sens and strtotime($verif[0]['temps'])==strtotime($heure)){
+			$invalid=true;
+		}
+	if(!$invalid){  //check identique
+		if($sens=="e" and ($mouv=='s' or empty($mouv))){ //check coérence du mouvement
+			arriver($_SESSION['userid'],$heure);
+	   
+	  	echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> horaires mis à jour avec succès'.$url.'</div><meta http-equiv="refresh" content="2; URL='.$url.'">';
+		}
+		elseif($sens=="s"and $mouv=='e') {
+			partir($_SESSION['userid'],$heure);
+			echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> horaires mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL='.$url.'">';
+		} else {
+			echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">erreur : il est possible que le sens ne soit pas correct</div>';
+		}
 	}
 }
 function last_mouvement($id, $date){
 	$bdd=new bdd();
-	$array=array($id);
-	$result=$bdd->tab("select es from es where id_user=? and cast(temps as date)<'".$date."' and DATE_FORMAT(temps, '%d-%m-%Y')=DATE_FORMAT('".$date."', '%d-%m-%Y') and DATE_FORMAT(temps, '%d-%m-%Y %H:%i:%s')<DATE_FORMAT('".$date."', '%d-%m-%Y %H:%i:%s') order by temps desc limit 0, 1", $array);
+	$array=array($id,$date,$date,$date);
+	$result=$bdd->tab("select es from es where id_user=? and cast(temps as date)<? and DATE_FORMAT(temps, '%d-%m-%Y')=DATE_FORMAT(?, '%d-%m-%Y') and DATE_FORMAT(temps, '%d-%m-%Y %H:%i:%s')<DATE_FORMAT(?, '%d-%m-%Y %H:%i:%s') order by temps desc limit 0, 1", $array);
 	if(isset( $result[0][0]['es']))return $result[0][0]['es'];
 	else return '';
 	
+}
+function del_mouvement($id_mouv,$id_user,$url){
+  $bdd=new bdd();
+  $array=array($id_mouv,$id_user);
+  $bdd->tab('delete from es where id=? and id_user=?',$array);
+ 	echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> horaires mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL='.$url.'">';
+
 }
 function check_exist($o){
 	$bdd=new bdd();
@@ -168,10 +241,19 @@ function check_exist($o){
 	if(count($p[0])>=1) return true;
 	if(count($p[0])<1) return false;
 }
-function list_cat(){
+function list_cat($v=1, $user=NULL){
 	$bdd=new bdd();
-	$result=$bdd->tab('select * from categorie','');
-	return $result;
+	if($v==1){
+		$result=$bdd->tab('select * from categorie','');
+		return $result;
+	}
+	if($v==2){
+
+		$result=$bdd->tab('SELECT * FROM categorie a left outer join (SELECT a.id_cat as id_cat, count(a.id_cat)*100/(select count(id_cat) from heure where id_user=? and now() > (NOW() - INTERVAL 2 WEEK)) as val FROM `heure` a, categorie b WHERE id_user=? and a.id_cat=b.id group by id_cat order by val desc) b on a.id=b.id_cat where 1 order by val desc',array($user,$user));
+		return $result[0];
+	}
+	
+	
 }
 function count_hour($date,$version){
 	$bdd=new bdd();
@@ -203,6 +285,12 @@ function count_hour($date,$version){
 		if($version==2){
 			return $tempspasser;
 		}
+		if($version==3){
+			if(strlen($tempspasser['heure'])<2)$tempspasser['heure']='0'.$tempspasser['heure'];
+			if(strlen($tempspasser['minutes'])<2)$tempspasser['minutes']='0'.$tempspasser['minutes'];
+			echo json_encode(array('hs'=>$tempspasser['heure'].':'.$tempspasser['minutes']));
+			
+		}
 	}
 	else{
 		if($version==0){
@@ -213,6 +301,10 @@ function count_hour($date,$version){
 		}
 		if($version==2){
 			return 0;
+		}
+		if($version==3){
+			echo json_encode(array('hs'=>"00:00"));
+			
 		}
 	}
 }
@@ -228,15 +320,16 @@ function sectohour($init){
 	$result['s'] = $init % 60;
 	return $result;
 }
-function cat_hour($date,$cathour,$nb,$url){
+function cat_hour($date,$cathour,$nb,$url,$comment){
 	$nb=hourtosec($nb);
 	$i=count_hour($date,'1');
 	$a=$i-$nb;
 	if($i>0 and $a>=0){
 		$bdd=new bdd();
-		$array=array($_SESSION['userid'],$nb, $cathour,$date);
-		$bdd->tab('insert into heure set id="", id_user=?, nb=?, id_cat=?, date=?',$array);
-		echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> modification effectuée avec succès</div><meta http-equiv="refresh" content="2; URL='.$url.'">';
+		if($comment=='')$comment=NULL;
+		$array=array($_SESSION['userid'],$nb, $cathour,$date,$comment);
+		$bdd->tab('insert into heure set  id_user=?, nb=?, id_cat=?, date=? ,comment=?',$array);
+		echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> modification effectuée avec succès</div><meta http-equiv="refresh" content="2; URL=index.php'.$url.'">';
 	}
 	
 	else{
@@ -269,7 +362,7 @@ function getHolidays($year = null)
                 // Jour feries qui dependent de paques
                 mktime(0, 0, 0, $easterMonth, $easterDay + 1, $easterYear),// Lundi de paques
                 mktime(0, 0, 0, $easterMonth, $easterDay + 39, $easterYear),// Ascension
-                mktime(0, 0, 0, $easterMonth, $easterDay + 50, $easterYear), // Pentecote
+                //mktime(0, 0, 0, $easterMonth, $easterDay + 50, $easterYear), // Pentecote
         );
 
         sort($holidays);
@@ -298,15 +391,70 @@ function isHoliday($timestamp)
 
         return false;
 }
+
+function datediff($date1,$date2){
+	$now = new DateTime($date2);
+	$dateBdd = new DateTime($date1); //Date de début du type YYYY-MM-DD (date("Y-m-d");
+	$Nbrejours = $dateBdd->diff($now)->days;
+	$compteur=0;
+	for($i=0;$i<=$Nbrejours;$i++){
+		if(!isHoliday(strtotime($date1. ' + '.$i.' days'))) $compteur++;
+	}
+	return $compteur;
+}
 function mintodec($min){
 	return intval(($min*100)/60);
 }
-function majhs($id){
-	$date=strtotime("now");
-	$dateformat=date('Y-m-d',$date);
+function check_conge($id,$idmotif,$raison=1){
+
+	$bdd=new bdd;
+	$type=$bdd->tab('select type from motif where id=? ',array($idmotif));
+	if($type[0][0]['type']==1){
+		$solde=$bdd->tab('select nb_jour from credit_conge where id_user=?',array($id));
+		if($raison==0) return $solde[0][0]['nb_jour'];
+		if($raison==1){
+			$a=$solde[0][0]['nb_jour'];
+			if($a!=0) $a=$a/12;
+			return $a;	
+		} 
+	}elseif ($type[0][0]['type']==0) {
+		$solde=$bdd->tab('select heure from heure_sup where id_user=?',array($id));
+		return $solde[0][0]['heure']*3600*7;
+	}
 	
+}
+function fnl_of_week($annee,$num){
+	$dernier_jour=31; 
+	do 
+	{ 
+		$nb_semaine=date("W",mktime(0,0,0,12,$dernier_jour,$annee)); 
+		$dernier_jour=$dernier_jour-1; 
+	} 
+	while($nb_semaine=='01'); 
+	//La première semaine officielle est celle qui comprend le 4 janvier. 
+	$semaine=mktime(0,0,0,1,4,$annee); 
+	//On cherche quel jour est le 4 janvier pour trouver le lundi et le dimanche 
+	$num_jour_quatre_janvier=date("w",mktime(0,0,0,1,4,$annee)); 
+	//Correction, si le jour est un dimanche, on dit qu'il vaut 7 
+	if($num_jour_quatre_janvier=='0') $num_jour_quatre_janvier=7; 
+	$ecart_lundi=$num_jour_quatre_janvier-1; 
+	$ecart_dimanche=7-$num_jour_quatre_janvier; 
+	for($i=1;$i<=$nb_semaine;$i++) 
+	{ 
+		$lundi=$semaine-($ecart_lundi*86400); 
+		$dimanche=$semaine+($ecart_dimanche*86400); 
+		if($num==$i) return array(strftime("%d-%m-%Y",$lundi),strftime("%d-%m-%Y",$dimanche)); 
+		$semaine=$semaine+604800; 
+	};
+}
+
+function majhs($id){
+	//partie heure sup
+	$date=strtotime("now");
+	$dateformat=date('Y-m-d',strtotime('now'));
 	$date=$date-(604800*50);
 	$moins= '604800'; //une semaine en seconde
+	$daywork='25200';
 	//echo strtotime('50W');
 	$bdd=new bdd();
 	$user=list_user_u($id);
@@ -315,39 +463,85 @@ function majhs($id){
 	$contrat=hourtosec((($user[0]['pourcent']/100)*35).':0');
 	$total=0;
 	$all=0;
+
+
 	for($a=1;$a<=50;$a++){
 		$o=date('YW',$date);
+		$ooo=date('Y-W',$date);
 		$oo=date('Y-m-d',$date);
-		if(($date)>=strtotime($user[0]['begin'])){
-			$tab0="";
-			//echo '<br>';
-			$tab0=array($o,$id);
-			$dates=$bdd->tab("select sum(nb) as nb from heure where yearweek(date)=? and id_user=?",$tab0);
-			//print_r(sectohour($dates[0][0]['nb'])).'<br>';
-			$total=$dates[0][0]['nb']-$contrat;
-			//echo $dates[0][0]['nb'].'<br>';
-			//echo $dates[0][0]['nb']-$contrat.'<br>';
-			
-			$all=$all+$total;
-		}
+		$Yo=date('Y',$date);
+		$Wo=date('W',$date);
+		if($Wo==53)$Yo--; //gestion des anné bixextile
+		$dfweek= fnl_of_week($Yo,$Wo);
+		$Yo++;
+		$nbnonferie=datediff($dfweek[0],$dfweek[1]);
+		$ui=((7*$nbnonferie)*$user[0]['pourcent'])/100;
+		$contrat=hourtosec(($ui).':0');
+		$nbnonferie=datediff($dfweek[0],$dfweek[1]); //nombre de jour non ferié dans la semaien traitée
+        $hourcontrat=$ui;
+		$now = new DateTime( $oo); 
+		$now = $now->format('Ymd'); 
+		$next = new DateTime($user[0]['begin'] ); 
+		$next = $next->format('Ymd'); 
+			if($now>$next){
+						$tab0="";
+						$tab0=array(date('YW',$date),$id);
+						$dates=$bdd->tab("select sum(nb) as nb from heure where yearweek(date)=? and id_user=?",$tab0);
+						$total=$dates[0][0]['nb']-$contrat;
+						$all=$all+$total;
+					}
 		$date=$date+$moins;
-		
 	}
-	//echo $all;
 	$tab4=array($id);
 	$test=$bdd->tab('select * from heure_sup where id_user=?', $tab4);
 	echo'<br><br>';
-	//print_r($test);
 	if(!isset($test[0][0]['id'])){
 
 		$tab3=array($id, $all, $dateformat);
-		$bdd->tab('insert into heure_sup (`id`, `id_user`, `heure`, `date_refresh`) VALUES ("", ?, ?, ?)',$tab3 );
+		$bdd->tab('insert into heure_sup ( `id_user`, `heure`, `date_refresh`) VALUES ( ?, ?, ?)',$tab3 );
 	}else{
 		$tab2=array($all, $dateformat, $id);
 		$bdd->tab('update heure_sup set heure=?, date_refresh=? where id_user=?',$tab2);
 	}
-	
 
+
+	//partie congé
+
+	$conge_mensuel=25; // toute les entré seront avec des fraction sur 12 sous entendu ici 25/12
+	$result=$bdd->tab('select nb_jour,maj from credit_conge where id_user=?',array($id));
+	$result=$result[0][0];
+	$now = new DateTime(date('Ym')); 
+	$nowM=$now->format('m');
+	$nowY=$now->format('Y');
+	$next = new DateTime( $result['maj'] );
+	$nextM=$next->format('m');
+	$nextY=$next->format('Y');
+
+	///-------------------------------------------------------------->if($nextY.$nextM<$nowY.$nowM){ check si un mois est passer depyuis la de'rnière réactualisation ou alor l'utilisteur n'est pas connu
+	if($nextY.$nextM<$nowY.$nowM or empty($result['maj'])){
+		if(isset($result['nb_jour'])){
+				$solde=check_conge($id,'1','0');
+				$nbmois=(($nowY-$nextY)*12)+($nowM-$nextM); //calcul du nombre de mois sans mise ajour du compteur
+				
+				if($nbmois>0) $solde=$solde+($conge_mensuel*$nbmois);
+				else $solde=$solde+$conge_mensuel;
+				
+				$bdd->tab('UPDATE `credit_conge` SET `nb_jour`=?, maj=? where `id_user`=?',array($solde,date('Y-m-d'),$id));
+		}else{ //si c'est un nouvel employé qui n'a pas encore d'entré en base pour ces congé on check son contrat pour savoir 
+			$solde=0;
+			$contrat=$bdd->tab('select begin from users where id=?',array($id));
+			$contrat = new DateTime( $contrat[0][0]['begin'] );
+			$contratD=$contrat->format('d');
+			$contratY=$contrat->format('Y');
+			$contratM=$contrat->format('m');
+			$solde=(($nowY-$contratY)*12)+($nowM-$contratM);
+			$solde=$solde*$conge_mensuel;
+			if($contratD>15 and $solde>0) $solde=$solde-$conge_mensuel; /// si le solde est supérieure a 0 et que la personne est arrivé après le 15 on enlève 2.083 jour
+			
+			 $i= $bdd->tab('INSERT INTO `credit_conge`(nb_jour, id_user, maj) VALUES (?,?,?) ',array($solde,$id, date('Y-m-d')));
+			 //var_dump(array($solde,$id, date('Y-m-d')));
+			}
+	}
 }
 function addzero($month){
 	if(strlen($month)<2){
@@ -381,7 +575,74 @@ function half_day($hday,$debut){
 	
 
 }
+function compte_day_conge($debut,$fin){
+
+			$jour='86400'; //jour en seconde
+			$end=explode(" ",$fin);
+			$begin=explode(" ",$debut);
+			$begins=strtotime($begin[0]);
+			$ends=strtotime($end[0]);
+			$nb=sectohour($ends-$begins);
+			$nbj=intval($nb['h']/24);
+			$compteur=$begins;
+			$nbjt=0;
+
+	for($i=0;$i<$nbj+1;$i++){
+					if(isHoliday($compteur)!=1){  //check si c'est un jour de cong
+						$conge=$conge[0];
+						if($begins==$ends){  //si la personne a pris une demie journé
+							if($begin[1]=='8:30:00')$begin[1]='9:30';
+							if($begin[1]=='08:30:00')$begin[1]='9:30';
+							if($begin[1]=='13:00:00')$begin[1]='13:30';
+							$nbh=hourtosec($end[1])-hourtosec($begin[1]); //nombre de seconde
+							//$nbh=($nbh*3600)/7;
+							$nbjt=$nbjt+$nbh;
+							$aftersous=$conge[0]['nb_jour'];
+						}else{
+							if($begins==$compteur or $ends==$compteur){ //si on arrive au debut ou la fin de la periode demandée
+								if($begins==$compteur){
+									echo $nbh."<br>";
+									$n=$begin[1];
+									if($begin[1]=='8:30:00')$n='9:30';//on enleve 1h le soir pour compenser la pause dejeuner
+									if($begin[1]=='08:30:00')$n='9:30';
+									if($begin[1]=='13:00:00')$n='13:30';
+									$nbh=hourtosec('16:30')-hourtosec($n); 
+									//echo $n;
+									$nbjt=$nbjt+$nbh;
+									//echo $begin[1]."<br>";
+								}else{
+									$n=$end[1];
+									if($end[1]=='12:00:00')$n='12:00';//on enleve 1h le soir pour compenser la pause dejeuner
+									if($end[1]=='16:30:00')$n='15:30';
+									$nbh=hourtosec($n)-hourtosec('08:30');
+									//var_dump($end);
+									$nbjt=$nbjt+$nbh;
+								}
+							}else{//sinon
+								$nbjt=$nbjt+'25200';
+							}
+						}
+					}//fin check jour de congé
+					$compteur=$compteur+$jour;
+					//echo $nbjt;
+				}//fin boucle for
+				//echo $nbjt;
+				return $nbjt/25200;		
+}
+
+
+function get_take_conge($id){
+	$bdd=new bdd();
+	$holi=$bdd->tab('SELECT begin, end FROM conge WHERE id_user=? and state=0 and `begin` >=CURDATE()',array($id));
+	$compteur=0;
+	for($i=0;$i<count($holi[0]);$i++){
+		$compteur=$compteur+compte_day_conge($holi[0][0]['begin'],$holi[0][0]['end']);
+	}
+	return $compteur;
+}
+
 function addconge($id_motif,$id_user,$begin,$end,$jbegin,$jend){
+
 	$bdd=new bdd();
 	$array=array($id_motif);
 	$result=$bdd->tab('select * from motif where id=?', $array);
@@ -391,9 +652,20 @@ function addconge($id_motif,$id_user,$begin,$end,$jbegin,$jend){
 	$debut=$begin.' '.$jbegin;
 	$fin=$end.' '.$jend;
 	$array2=array($id_motif,$id_user,$debut,$fin);
-	//print_r($array2);
-	$bdd->tab("INSERT INTO `conge`(`id`, `id_motif`, `id_user`, `state`, `begin`, `end`) VALUES ('', ?, ?, '0', ? ,?)",$array2);
-	echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> conge ajouté avec succès</div><meta http-equiv="refresh" content="2; URL=index.php">';
+	$nbjc=compte_day_conge($debut,$fin);
+	$nbjrc=check_conge($id_user,$id_motif);
+	$conge_deja_demande=get_take_conge($id_user);
+	$nbjc=$nbjc+$conge_deja_demande;
+
+	if($nbjc<=$nbjrc or $type==2){
+		//print_r($array2);
+		$bdd->tab("INSERT INTO `conge`( `id_motif`, `id_user`, `state`, `begin`, `end`) VALUES ( ?, ?, '0', ? ,?)",$array2);
+		
+		echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> conge ajouté avec succès</div><meta http-equiv="refresh" content="2; URL=index.php">';
+	}else{
+		echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">vous n\'avez sans doute pas assez de congé pour faire sa</div>';
+	}
+	
 }
 function delconge($id, $user_id){
 	$bdd=new bdd();
@@ -447,10 +719,9 @@ function del_heure_conge($id, $id_user){
 									
 									$bdd->tab("delete from `heure` where id_cat=34 and id_user=? and nb=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?",array($type[0]['id_user'], $nbh,$begin[0]));
 								}else{
-									if($end[1]=='12:00')$n='12:00';//on enleve 1h le soir pour compenser la pause dejeuner
-									if($end[1]=='16:30')$n='15:30';
-									$nbh=hourtosec($n)-hourtosec('09:30'); 
-									
+									if($end[1]=='12:00:00')$n='12:00';//on enleve 1h le soir pour compenser la pause dejeuner
+									if($end[1]=='16:30:00')$n='15:30';
+									$nbh=hourtosec($n)-hourtosec('08:30'); 
 									 $bdd->tab("delete from `heure` where id_cat=34 and id_user=? and nb=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?",array($type[0]['id_user'], $nbh,$end[0]));
 								}
 							}else{//sinon
@@ -507,7 +778,7 @@ function del_heure_conge($id, $id_user){
 				
 				if($type[0]['state']==1){ //si il a déja été valider on recredite le solde de congé de l'utilisateur
 				$nbjt=($nbjt/3600)/7;
-				$nbjt=$conge[0]['nb_jour']+$nbjt;
+				$nbjt=$conge[0]['nb_jour']+$nbjt*12;
 				$bdd->tab('update credit_conge set nb_jour=? where id_user=?',array($nbjt,$type[0]['id_user']));
 
 				}

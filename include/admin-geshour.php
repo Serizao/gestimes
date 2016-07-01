@@ -19,7 +19,7 @@ echo '<input type="date" id="changetime" class="col-md-4">';
 	
 	
 ?>
-<input type="button" value="voir les heures" id="okchangetime" >
+<input type="button" class="btn btn-primary" value="voir les heures" id="okchangetime" >
 <div id="transfretour"></div>
 </div>
 

@@ -162,8 +162,11 @@ $(document).ready(function() {
 						var id=$this.attr('alt');
 						var content=$("#catname"+id ).text();
 						var alldom=$('#catdom').html();
+						var cir=$('#cir'+id).html();
+						if(cir=="oui") var chk="checked";
+						else var chk ="";
 						
-						  $("#catname"+id ).html( '<input type="text" id="cat'+id+'" value="'+content+'"/><select id="catdom'+id+'">'+alldom+'</select><button onclick="vrcat('+id+');" alt="'+id+'" class="vrcat">valider</button>' );
+						  $("#catname"+id ).html( '<input type="text" id="cat'+id+'" value="'+content+'"/><select id="catdom'+id+'">'+alldom+'</select><br>Eligible au CIR <input type="checkbox" '+chk+' id="cir'+id+'"/><br><button onclick="vrcat('+id+');" alt="'+id+'" class="vrcat btn btn-primary">valider</button>' );
 					 });
 	//gestion des domaine
 					$('.deldom').on('click', function(e) {
@@ -504,6 +507,31 @@ $(document).ready(function() {
 				        }
 
 					});
+				$('#valid-proj-cir').on('click', function(e){
+						e.preventDefault(); // J'empêche le comportement par défaut du navigateur, c-à-d de soumettre le formulaire
+				        var _this = this;
+				        var $this = $(this); // L'objet jQuery du formulaire
+				        var id =$("#cir-proj-select").val();
+				      
+				         if(id==='') {
+				            alert('erreur');
+				        } else {
+				        
+				            // Envoi de la requête HTTP en mode asynchrone
+				            $.ajax({
+				                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
+				                type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
+				                data: 'action=timeline&id='+id, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+				                success: function(html) {
+				                  // Je récupère la réponse du fichier PHP
+				                 
+				                          $("#time-line" ).html( html ); // J'affiche cette réponse
+				                        
+				                }
+				            });
+				        }
+
+					});
 					$('#export').on('click', function(e){
 						var id= $('#export').attr('alt');
 						var begindate=$('#begindate').val();
@@ -527,7 +555,7 @@ $(document).ready(function() {
 				        var $this = $(this); // L'objet jQuery du formulaire
 						var id=$this.attr('alt');
 						var content=$("#domname"+id ).text();
-						  $("#domname"+id ).html( '<input type="text" id="dom'+id+'" value="'+content+'"/><button onclick="vrdom('+id+');" alt="'+id+'" class="vrcat">valider</button>' );
+						  $("#domname"+id ).html( '<input type="text" id="dom'+id+'" value="'+content+'"/><button onclick="vrdom('+id+');" alt="'+id+'" class="vrcat btn btn-primary">valider</button>' );
 					 });
 					 
 				
@@ -543,10 +571,11 @@ $(document).ready(function() {
 						 
 						var cat=$('#cat'+id).val();
 						var catdom=$('#catdom'+id).val();
+						var cir=$('#cir'+id).val();
 				        // Je récupère les valeurs
 				        // Je vérifie une première fois pour ne pas lancer la requête HTTP
 				        // si je sais que mon PHP renverra une erreur
-				        if(cat==='' || id===''||catdom=='') {
+				        if(cat==='' || id===''||catdom==''||cir=='') {
 				            alert('erreur');
 				        } else {
 				        
@@ -554,7 +583,7 @@ $(document).ready(function() {
 				            $.ajax({
 				                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
 				                type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
-				                data: 'action=renamecat&id='+id+'&nom='+cat+'&catdom='+catdom, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+				                data: 'action=renamecat&id='+id+'&nom='+cat+'&catdom='+catdom+'&cir='+cir, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
 				                 

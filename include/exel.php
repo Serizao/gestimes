@@ -1,14 +1,39 @@
 <?php
 session_start();
-$cachem=explode("-",$_REQUEST['begindate']);
-$cachem2=explode("-",$_REQUEST['enddate']);
+
 //print_r($cachem);
 
  include_once('bdd.php');
  include_once('function.php');
+ secureAccess();
+
+if($_REQUEST['begindate'] and check_admin()){
+	$d1b=$_REQUEST['begindate'];
+	$d2e=$_REQUEST['enddate'];
+	$cachem=explode("-",$_REQUEST['begindate']);
+	$cachem2=explode("-",$_REQUEST['enddate']);
+	$user=$_REQUEST['userid'];
+}else{
+	if(!isset($_GET['m']) and empty($_GET['m'])){
+		$user=$_SESSION['userid'];
+		$d1b=date("Y-m");
+		$d2e=date("Y-m");
+		$cachem=explode("-",date("Y-m"));
+		$cachem2=explode("-",date("Y-m"));
+	}
+	echo date('Y-m', strtotime('-1 month'));
+	if(isset($_GET['m']) and !empty($_GET['m']) and $_GET['m']==1){
+		$onemonthago=date('Y-m', strtotime('-1 month'));
+		$d1b=$onemonthago;
+		$d2e=$onemonthago;
+		$user=$_SESSION['userid'];
+		$cachem=explode("-",$onemonthago);
+		$cachem2=explode("-",$onemonthago);
+	}
+	
+}
 $month=array($cachem[1],$cachem2[1]);
 $year=array($cachem[0], $cachem2[0]);
-$user=$_REQUEST['userid'];
 $f=1;
 $g=1;
 $mem=1;
@@ -17,7 +42,7 @@ $m=0;
 //$moissans=ltrim($mois,0);
 $moissans="3";
 
-    secureAccess();
+    
    // include_once ('include/top-barre.php');
     include_once ('ajax.php');
 error_reporting(E_ALL);
@@ -45,7 +70,7 @@ $array=array($user);
 $username=$bdd->tab('select username from user where id=?',$array);
 
 $objPHPExcel->getProperties()->setCreator($_SESSION['username'])
-							 ->setTitle("Fiche de temps ")
+							 ->setTitle("Fiche de temps du ".$cachem.'-'.$cachem2.'')
 							 ->setSubject("PHPExcel Test Document")
 							 ->setDescription("fiche de temps pour le mois de de l\'année")
 							 ->setKeywords("fiche de temps")
@@ -352,5 +377,5 @@ $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 ob_end_clean();
 // We'll be outputting an excel file
 header('Content-type: application/vnd.ms-excel');
-header('Content-Disposition: attachment; filename="fiche de temps.xlsx"');
+header('Content-Disposition: attachment; filename="fiche de temps du '.$d1b.' au '.$d2e.'.xlsx"');
 $objWriter->save('php://output');

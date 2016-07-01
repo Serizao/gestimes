@@ -67,6 +67,7 @@
 					            <li><a href="admin.php?action=statuser">statistiques utilisateur</a></li>
 					            <li><a href="admin.php?action=hour">les exports excel</a></li>
 					            <li><a href="admin.php?action=view">les graphiques</a></li>
+					            <li><a href="admin.php?action=timeline">les projets eligible cir</a></li>
 					          </ul>
 					        </li>
 					      
@@ -101,7 +102,7 @@
 					      </ul>
 					     
 					      <ul class="nav navbar-nav navbar-right">
-					       <li><a href="include/ajax.php?action=disconnect">deconnection</a></li>
+					       <li><a href="include/ajax.php?action=disconnect">deconnexion</a></li>
 					      </ul>
 					    </div><!-- /.navbar-collapse -->
 					  </div><!-- /.container-fluid -->
@@ -157,6 +158,9 @@
 						break;
 						case "importldap":
 							include('include/admin-ildap.php');
+						break;
+						case "timeline":
+							include('include/admin-cir-proj.php');
 						break;
 						}
 					}	

@@ -49,6 +49,24 @@ $(document).ready(function(){
                     });
             }
     }));
+        $('#changetimeuser').on('change', function(e){
+                            var date = $('#changetimeuser').val();
+                         
+
+                            $.ajax({
+                                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
+                                type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
+                                data: 'action=transferehuser&date='+date, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+                                success: function(html) {
+                                  // Je récupère la réponse du fichier PHP
+                                 
+                                          $("#transfretour" ).html( html ); // J'affiche cette réponse
+                               }         
+                                
+                            });
+                        
+
+                    });
     $('.delconge').on("click",(function(e){
         e.preventDefault(); // J'empêche le comportement par défaut du navigateur, c-à-d de soumettre le formulaire
         var _this = this;
@@ -71,7 +89,29 @@ $(document).ready(function(){
                     });
             }
     }));
+    $('.delmouv').on("click",(function(e){
+        e.preventDefault(); // J'empêche le comportement par défaut du navigateur, c-à-d de soumettre le formulaire
+        var _this = this;
+        var $this = $(this);
+        var id = $this.attr('alt')
+        var url = $('#url').val();
+          if(id==''|| url=='') {
+            alert('Les champs doivent êtres remplis');
+        } else {
+             $.ajax({
+                        url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
+                        type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
+                        data: 'action=del_mouv&id='+id+'&url='+url, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+                        success: function(html) {
+                          // Je récupère la réponse du fichier PHP
+                        
+                                  $("#retourtop" ).html( html ); // J'affiche cette réponse
+                                
 
+                        }
+                    });
+            }
+    }));
     // Lorsque je soumets le formulaire
     $('.popup').on('submit', function(e) {
         e.preventDefault(); // J'empêche le comportement par défaut du navigateur, c-à-d de soumettre le formulaire
@@ -85,6 +125,7 @@ $(document).ready(function(){
         var sens = $('.sens'+id).val();
         var date = $('.date'+id).val();
         var url = $('#url').val();
+      
         
         // Je vérifie une première fois pour ne pas lancer la requête HTTP
         // si je sais que mon PHP renverra une erreur
@@ -122,10 +163,20 @@ $(document).ready(function(){
                 }
             });
 	}));
+
+    $('#cathour').on("change",(function(e){
+        if($('#cathour').children('option:selected').attr("alt")=='1'){
+            $('#cir-detail').html('<div class="col-md-12"><textarea style="resize:vertical;" id="catdetail" name="catdetail" class="col-md-12 form-control"></textarea></div>');
+    }else{
+        $('#cir-detail').html('');
+    }        
+    }));
+
 	$('#okhour').click(function(e){
 		var date=$('#datecathour').val();
 		var cathour=$('#cathour').val();
 		var nb=$('#timecathour').val();
+        var catdetail=$('#catdetail').val();
         var url=$('#url').val();
 		if(date === '' || nb === '' || cathour===''||url=='') {
             alert('Les champs doivent êtres remplis');
@@ -133,10 +184,10 @@ $(document).ready(function(){
 	   		$.ajax({
 	                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
 	                type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
-	                data: 'action=categorize&date='+date+'&cathour='+cathour+'&nb='+nb+'&url='+url, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+	                data: 'action=categorize&date='+date+'&cathour='+cathour+'&nb='+nb+'&url='+url+'&comment='+catdetail, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 	                success: function(html) {
 	                  // Je récupère la réponse du fichier PHP
-	                
+	                           
 	                          $("#catretour" ).html( html ); // J'affiche cette réponse
 	                        
 
@@ -144,4 +195,48 @@ $(document).ready(function(){
 	            });
 		}
 	});
-});
+}); //fin du document ready
+
+function auto_complete_hs(date){
+    $("#datecathour").val(date);
+    $.ajax({
+                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
+                type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
+                data: 'action=gethour2&date='+date, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+                success: function(html) {
+                  // Je récupère la réponse du fichier PHP
+                         var objJSON = JSON.parse(html);
+                        $("#timecathour" ).val(objJSON.hs); // J'affiche cette réponse
+                }
+    });
+}
+function valid_transfere_user(){
+                        
+                        var _this = this;
+                        var $this = $(this); // L'objet jQuery du formulaire
+                        var id =$this.attr('alt');
+                        var date =$('#changetimeuser').val();
+                        var de =$('#de').val();
+                        var vers =$('#vers').val();
+                        var time =$('#nb_transf').val();
+                        
+                        
+                         if(id==='' || date===''||de===''|| vers===''||time==='') {
+                            alert('erreur');
+                        } else {
+                        
+                            // Envoi de la requête HTTP en mode asynchrone
+                            $.ajax({
+                                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
+                                type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
+                                data: 'action=valid_transf_user&id='+id+'&date='+date+'&vers='+vers+'+&de='+de+'&time='+time, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+                                success: function(html) {
+                                  // Je récupère la réponse du fichier PHP
+                                 
+                                          $("#transfretour" ).html( html ); // J'affiche cette réponse
+                                        
+                                }
+                            });
+                        }
+
+                    }

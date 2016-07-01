@@ -20,8 +20,8 @@ echo '<div id="retour"></div>';
 	                        <td>'.$result[$i]['end'].'</td>
 	                        <td>'.$result[$i]['type'].'</td>
 	                        <th>'.$result[$i]['nom'].' '.$result[$i]['prenom'].'</th>
-	                        <td><input type="button" class="admconge" alt="'.$result[$i]['id'].'" value="accepter"/>
-	                        	<input type="button" class="admconge" alt="'.$result[$i]['id'].'" value="refuser"/>
+	                        <td><input type="button" class="admconge btn btn-primary" alt="'.$result[$i]['id'].'" value="accepter"/>
+	                        	<input type="button" class="admconge btn btn-danger" alt="'.$result[$i]['id'].'" value="refuser"/>
 	                        </td>
                       	</tr>';
               }

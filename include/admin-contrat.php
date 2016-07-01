@@ -6,7 +6,7 @@
 	echo '<a href="#" data-width="500" data-rel="addcontrat" class="poplight" style="color:black">
 			    <button>ajouter un contrat</button>
 			</a><br><br>';
-			echo '<input type="button" id="creditconge" value="crediter les contrat de leur congé annuel"/>';
+			//echo '<input type="button" id="creditconge" value="crediter les contrat de leur congé annuel"/>';
 	echo '<table class="table table-striped">
 		    <thead>
 		      <tr>
@@ -22,9 +22,9 @@
 			        <td>'.$result[$i]['nom'].'</td>
 			        <td>'.$result[$i]['pourcent'].'</td>
 			        <td>'.$result[$i]['conge'].'</td>
-			        <td><input type="button" id="'.$result[$i]['id'].'" class="delcontrat" value="effacer">
+			        <td><input type="button" id="'.$result[$i]['id'].'" class="delcontrat btn btn-danger" value="effacer">
 			        	<a href="#" data-width="500" data-rel="popup'.$result[$i]['id'].'" class="poplight" style="color:black"> 
-			        		<button>modifier le contrat</button>
+			        		<button class="btn btn-primary">modifier le contrat</button>
 			        	</a>
 			        </td>
 		    	</tr>';
@@ -42,7 +42,7 @@
 						<input name="conge" class="conge'.$result[$i]['id'].'" placeholder="Nombre des congés annuel" type="text" value="'.$result[$i]['conge'].'"><br>
 						<br>
 
-						<input class="input-btn in" type="submit" value="Valider">
+						<input class="input-btn in btn btn-primary" type="submit" value="Valider">
 					</form>      
 				    <div id="retour'.$result[$i]['id'].'"></div>
 				</div>';
@@ -58,7 +58,7 @@
 						<input name="conge" class="conge-1" placeholder="Nombre des congés annuel" type="text"><br>
 						<br>
 
-						<input class="input-btn in" type="submit" value="Valider">
+						<input class="input-btn in btn btn-primary" type="submit" value="Valider">
 					</form>      
 				    <div id="retour-1"></div>
 				</div>';

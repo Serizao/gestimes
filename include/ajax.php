@@ -37,7 +37,7 @@ switch($action){
 		add_cat($_REQUEST['cat'],$_REQUEST['catdom']);
 		break;
 	case "renamecat":
-		rename_cat($_REQUEST['id'],$_REQUEST['nom'],$_REQUEST['catdom']);
+		rename_cat($_REQUEST['id'],$_REQUEST['nom'],$_REQUEST['catdom'],$_REQUEST['cir']);
 		break;
 	case "deldom":
 		delete_dom($_REQUEST['id']);
@@ -49,10 +49,13 @@ switch($action){
 		rename_dom($_REQUEST['id'],$_REQUEST['nom']);
 		break;
 	case "categorize":
-		cat_hour($_REQUEST['date'],$_REQUEST['cathour'],$_REQUEST['nb'],$_REQUEST['url']);
+		cat_hour($_REQUEST['date'],$_REQUEST['cathour'],$_REQUEST['nb'],$_REQUEST['url'],$_REQUEST['comment']);
 		break;
 	case "gethour":
 		count_hour($_REQUEST['date'], '0');
+		break;
+	case "gethour2":
+		count_hour($_REQUEST['date'], '3');
 		break;
 	case "delcontrat":
 		delcontrat($_REQUEST['id']);
@@ -87,11 +90,23 @@ switch($action){
 		credit_conge();
 		break;
 	case "transfere":
-		transfere($_REQUEST['date'],$_REQUEST['id']);
+		transfere($_REQUEST['date'],$_REQUEST['id'],'10');
+		break;
+		case "transferehuser":
+		transfere($_REQUEST['date'],$_SESSION['userid'],'1');
 		break;
 	case "valid_transf":
 		transfere_v($_REQUEST['id'],$_REQUEST['date'],$_REQUEST['user'],$_REQUEST['time'],$_REQUEST['vers'],$_REQUEST['de']);
 		break;
+	case "valid_transf_user":
+		transfere_v($_REQUEST['id'],$_REQUEST['date'],$_SESSION['userid'],$_REQUEST['time'],$_REQUEST['vers'],$_REQUEST['de']);
+		break;
+	case "del_mouv":
+	    del_mouvement($_REQUEST['id'],$_SESSION['userid'],$_REQUEST['url']);
+	    break;
+	case "timeline":
+	    gentimeline($_REQUEST['id']);
+	  break;
 
 	
 	}
