@@ -154,7 +154,6 @@
 		function add_cat($cat, $catdom, $intern=0){
 			$bdd=new bdd();
 			$array=array($cat,$catdom);
-<<<<<<< HEAD
 			$bdd->tab('insert into categorie set  nom=?, id_domaine=?, cir=0',$array);
 			if($intern==0){
 				echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> catégorie ajoutée avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=categorie">';
@@ -162,10 +161,6 @@
 				return $bdd->lastid();
 			}
 			
-=======
-			$bdd->tab('insert into categorie set  nom=?, id_domaine=?',$array);
-			echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> catégorie ajoutée avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=categorie">';
->>>>>>> origin/master
 		}
 		function rename_cat($cat,$name, $catdom, $cir){
 			$bdd=new bdd();
@@ -261,14 +256,9 @@
 		}
 		function addmotif($nom,$type){
 			$bdd=new bdd();
-<<<<<<< HEAD
 			$idcat=add_cat($nom,'7','1');
 			$array=array($type,$nom,$idcat);
 			$bdd->tab("INSERT INTO `motif`( `type`, `nom`, `id_cat`) VALUES (?,?,?)", $array);
-=======
-			$array=array($type,$nom);
-			$bdd->tab("INSERT INTO `motif`( `type`, `nom`) VALUES (?,?)", $array);
->>>>>>> origin/master
 			echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> motif ajouté avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=motif">';
 			
 		}
@@ -311,11 +301,7 @@
 		function admconge($id, $state){
 			$bdd=new bdd();
 			$bdd->tab("update conge set state= ? where id=?",array($state,$id));
-<<<<<<< HEAD
 			$type=$bdd->tab('select a.state as state, a.id_motif as motif, b.type as type,b.id_cat as id_cat, a.end as end, a.begin as begin, a.id_user as id_user from conge a , motif b where b.id=a.id_motif and a.id=?',array($id));
-=======
-			$type=$bdd->tab('select a.state as state, a.id_motif as motif, b.type as type, a.end as end, a.begin as begin, a.id_user as id_user from conge a , motif b where b.id=a.id_motif and a.id=?',array($id));
->>>>>>> origin/master
 			$type=$type[0];
 			
 			
@@ -333,11 +319,7 @@
 					if(isHoliday($compteur)!=1){  //check si c'est un jour de congé
 						if($begins==$ends){  //si la personne a pris une demie journé
 							$nbh=hourtosec($end[1])-hourtosec($begin[1]); //nombre de seconde
-<<<<<<< HEAD
 							 $bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,$type[0]['id_cat'],$begin[0]));
-=======
-							 $bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,'34',$begin[0]));
->>>>>>> origin/master
 						}else{
 							
 							if($begins==$compteur or $ends==$compteur){ //si on arrive au debut ou la fin de la periode demandée
@@ -345,31 +327,19 @@
 									if($begin[1]=='08:30:00')$n='9:30';//on enleve 1h le soir pour compenser la pause dejeuner
 									if($begin[1]=='13:00:00')$n='13:30';
 									$nbh=hourtosec('16:30')-(hourtosec($n)); 
-<<<<<<< HEAD
 									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,$type[0]['id_cat'],$begin[0]));
-=======
-									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,'34',$begin[0]));
->>>>>>> origin/master
 								}else{
 
 									if($end[1]=='12:00:00')$n='12:00';//on enleve 1h le soir pour compenser la pause dejeuner
 									if($end[1]=='16:30:00')$n='15:30';
 									$nbh=hourtosec($n)-hourtosec('08:30'); 
 
-<<<<<<< HEAD
 									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,$type[0]['id_cat'],$end[0]));
-=======
-									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,'34',$end[0]));
->>>>>>> origin/master
 								
 								}
 							}else{//sinon
 								
-<<<<<<< HEAD
 								$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], '25200',$type[0]['id_cat'],date('Y-m-d',$compteur)));
-=======
-								$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], '25200','34',date('Y-m-d',$compteur)));
->>>>>>> origin/master
 							}
 
 						}
@@ -396,30 +366,18 @@
 									//echo $n;
 									$nbh=hourtosec('16:30')-hourtosec($n); 
 									$nbjt=$nbjt+$nbh;
-<<<<<<< HEAD
 									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,$type[0]['id_cat'],$begin[0]));
-=======
-									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,'33',$begin[0]));
->>>>>>> origin/master
 								}else{
 									
 									if($end[1]=='12:00:00')$n='12:00';//on enleve 1h le soir pour compenser la pause dejeuner
 									if($end[1]=='16:30:00')$n='15:30';
 									$nbh=hourtosec($n)-hourtosec('08:30');
 									$nbjt=$nbjt+$nbh;
-<<<<<<< HEAD
 									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,$type[0]['id_cat'],$end[0]));
 								}
 							}else{//sinon
 								$nbjt=$nbjt+$nbh;
 								$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], '25200',$type[0]['id_cat'],date('Y-m-d',$compteur)));
-=======
-									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,'33',$end[0]));
-								}
-							}else{//sinon
-								$nbjt=$nbjt+$nbh;
-								$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], '25200','33',date('Y-m-d',$compteur)));
->>>>>>> origin/master
 							}
 
 						}

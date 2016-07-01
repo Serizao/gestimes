@@ -101,18 +101,12 @@ switch($action){
 	case "valid_transf_user":
 		transfere_v($_REQUEST['id'],$_REQUEST['date'],$_SESSION['userid'],$_REQUEST['time'],$_REQUEST['vers'],$_REQUEST['de']);
 		break;
-<<<<<<< HEAD
 	case "del_mouv":
 	    del_mouvement($_REQUEST['id'],$_SESSION['userid'],$_REQUEST['url']);
 	    break;
 	case "timeline":
 	    gentimeline($_REQUEST['id']);
 	  break;
-=======
-  case "del_mouv":
-    del_mouvement($_REQUEST['id'],$_SESSION['userid'],$_REQUEST['url']);
-    break;
->>>>>>> origin/master
 
 	
 	}

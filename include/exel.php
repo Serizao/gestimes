@@ -7,18 +7,13 @@ session_start();
  include_once('function.php');
  secureAccess();
 
-<<<<<<< HEAD
 if($_REQUEST['begindate'] and check_admin()){
 	$d1b=$_REQUEST['begindate'];
 	$d2e=$_REQUEST['enddate'];
-=======
-if($_REQUEST and check_admin()){
->>>>>>> origin/master
 	$cachem=explode("-",$_REQUEST['begindate']);
 	$cachem2=explode("-",$_REQUEST['enddate']);
 	$user=$_REQUEST['userid'];
 }else{
-<<<<<<< HEAD
 	if(!isset($_GET['m']) and empty($_GET['m'])){
 		$user=$_SESSION['userid'];
 		$d1b=date("Y-m");
@@ -36,11 +31,6 @@ if($_REQUEST and check_admin()){
 		$cachem2=explode("-",$onemonthago);
 	}
 	
-=======
-	$user=$_SESSION['userid'];
-	$cachem=explode("-",date("Y-m"));
-	$cachem2=explode("-",date("Y-m"));
->>>>>>> origin/master
 }
 $month=array($cachem[1],$cachem2[1]);
 $year=array($cachem[0], $cachem2[0]);

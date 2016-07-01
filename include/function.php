@@ -78,51 +78,28 @@ function transfere($date,$id,$provenance){
 			$result=$bdd->tab("select a.nb as nb, b.nom as cat, a.id as id from heure a, categorie b where a.id_cat=b.id and id_user=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?  ", $array);
 			$result=$result[0];
 			if(isset($result[0]['nb'])){
-<<<<<<< HEAD
 				echo '<div class="col-md-6"><input type="date" value="'.$date.'" class="form-control" id="changetimeuser" ></div><div class="col-md-6"><input type="time" class="form-control" id="nb_transf"/></div><br><br>';
 				echo '<div class="col-md-6"><select id="de" class="form-control">';
-=======
-				echo '<br><input type="time" id="nb_transf"/><br><br>';
-				echo '<select id="de" >';
->>>>>>> origin/master
 				for($i=0;$i<count($result);$i++){
 						$nb=sectohour($result[$i]['nb']);
 						echo '<option value="'.$result[$i]['id'].'" max="'.$nb['h'].':'.$nb['m'].'">de '.$result[$i]['cat'].' ( '.$nb['h'].'h'.$nb['m'].' disponible ) </option>';
 				}
-<<<<<<< HEAD
 				echo '</select></div>';
 				
 				$cat=$bdd->tab('select * from categorie','');
 
 
 				echo '<div class="col-md-6"><select id="vers" class="form-control">';
-=======
-				echo '</select><br>';
-				
-				$cat=$bdd->tab('select * from categorie','');
-				echo '<br>';
-
-				echo '<select id="vers" >';
->>>>>>> origin/master
 				for($i=0;$i<count($cat);$i++){
 						echo '<option value="'.$cat[$i]['id'].'">vers '.$cat[$i]['nom'].'</option>';
 
 				}
-<<<<<<< HEAD
 				echo '</select></div><br><br>';
 				if($provenance==1)$v='onclick="valid_transfere_user();"' ;
 				if($provenance==10)$v='onclick="valid_transfere();"' ;
 				echo '<input id="valid_transfere" '.$v.' type="button" value="valider le changement" class="col-md-offset-4 col-md-4 btn btn-primary">';
 			}else{
 				echo '<div class="col-md-6"><input type="date" value="'.$date.'" class="form-control" id="changetimeuser" ></div><br>pas de temps sur ce jour la avec cet utilisateur';
-=======
-				echo '</select><br><br>';
-				if($provenance==1)$v='onclick="valid_transfere_user();"' ;
-				if($provenance==10)$v='onclick="valid_transfere();"' ;
-				echo '<input id="valid_transfere" '.$v.' type="button" value="valider le changement" class="col-md-offset-4 col-md-4">';
-			}else{
-				echo 'pas de temps sur ce jour la avec cet utilisateur';
->>>>>>> origin/master
 			}
 			
 		}
@@ -232,11 +209,7 @@ function add_mouvement($id,$sens,$heure,$url){
 		if($sens=="e" and ($mouv=='s' or empty($mouv))){ //check coérence du mouvement
 			arriver($_SESSION['userid'],$heure);
 	   
-<<<<<<< HEAD
 	  	echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> horaires mis à jour avec succès'.$url.'</div><meta http-equiv="refresh" content="2; URL='.$url.'">';
-=======
-	  	echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> horaires mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL='.$url.'">';
->>>>>>> origin/master
 		}
 		elseif($sens=="s"and $mouv=='e') {
 			partir($_SESSION['userid'],$heure);
@@ -353,16 +326,10 @@ function cat_hour($date,$cathour,$nb,$url,$comment){
 	$a=$i-$nb;
 	if($i>0 and $a>=0){
 		$bdd=new bdd();
-<<<<<<< HEAD
 		if($comment=='')$comment=NULL;
 		$array=array($_SESSION['userid'],$nb, $cathour,$date,$comment);
 		$bdd->tab('insert into heure set  id_user=?, nb=?, id_cat=?, date=? ,comment=?',$array);
 		echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> modification effectuée avec succès</div><meta http-equiv="refresh" content="2; URL=index.php'.$url.'">';
-=======
-		$array=array($_SESSION['userid'],$nb, $cathour,$date);
-		$bdd->tab('insert into heure set  id_user=?, nb=?, id_cat=?, date=?',$array);
-		echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> modification effectuée avec succès</div><meta http-equiv="refresh" content="2; URL='.$url.'">';
->>>>>>> origin/master
 	}
 	
 	else{
