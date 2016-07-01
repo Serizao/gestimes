@@ -13,6 +13,7 @@
 		<ul class="nav navbar-nav">
 			<li><a href="#" id="arriver" class="esbutton">Arriver</a></li>
 			<li><a href="#" id="sortir" class="esbutton">Sortir</a></li>
+<<<<<<< HEAD
 			<li class="dropdown">
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Mes exports Excel<span class="caret"></span></a>
 					<ul class="dropdown-menu">
@@ -20,6 +21,9 @@
 					    <li><a href="include/exel.php?m=1">le mois dernier</a></li>
 					</ul>
 			</li>
+=======
+			<li><a href="include/exel.php" >Ma fiche de temps</a></li>
+>>>>>>> origin/master
 			<li><a href="?function=cal" >Le calendrier</a></li>
 			<li><a href="include/ajax.php?action=disconnect" id="diconnect" name="disconnect"> Déconnexion</a>
 			<?php

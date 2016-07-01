@@ -45,7 +45,11 @@ echo '<br><br><br><br><a href="#" data-width="500" data-rel="popup" class="popli
 								if(!isset($result[0]['acl']))$user="";$admin="";
 								if(isset($result[0]['acl']) and $result[0]['acl']=='1')$user="selected";$admin="";
 								if(isset($result[0]['acl']) and $result[0]['acl']=='10')$admin="selected";$user="";
+<<<<<<< HEAD
 								echo '<tr><th>'.$result2[$i]['username'].'</th><th>'.$result2[$i]['nom'].'</th><th>'.$result2[$i]['prenom'].'</th><th><h4><a href="#" data-width="500" data-rel="popup'.$result2[$i]['id'].'" class="poplight" style="color:black"> <button class="btn btn-primary " >fiche de '.$result2[$i]['prenom'].'</button></a>'; if(!isset($result[0]['contrat'])) echo '  <span class="label label-danger">Utilisateur desactivé</span></h4>';
+=======
+								echo '<tr><th>'.$result2[$i]['username'].'</th><th>'.$result2[$i]['nom'].'</th><th>'.$result2[$i]['prenom'].'</th><th><h4><a href="#" data-width="500" data-rel="popup'.$result2[$i]['id'].'" class="poplight" style="color:black"> <button >fiche de '.$result2[$i]['prenom'].'</button></a>'; if(!isset($result[0]['contrat'])) echo '  <span class="label label-danger">Utilisateur desactivé</span></h4>';
+>>>>>>> origin/master
 								echo '</th></tr>';
 								
 								echo'

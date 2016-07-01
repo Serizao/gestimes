@@ -36,7 +36,9 @@ CREATE TABLE IF NOT EXISTS `categorie` (
 -- Contenu de la table `categorie`
 --
 
-
+INSERT INTO `categorie` (`id`, `nom`, `id_domaine`) VALUES
+(33, 'conge', 7),
+(34, 'deplacement', 7);
 
 -- --------------------------------------------------------
 
@@ -194,10 +196,6 @@ CREATE TABLE IF NOT EXISTS `users` (
 --
 -- Contenu de la table `users`
 --
-
-INSERT INTO `users` (`id`, `username`, `nom`, `prenom`, `password`, `acl`, `mail`, `id_contrat`, `begin`, `state`) VALUES
-(1, 'admin', 'admin', 'admin', 'c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b931dd472634dfac71cd34ebc35d16ab7fb8a90c81f975113d6c7538dc69dd8de9077ec', '10', 'admin@admin.fr', '3', '2016-04-25', 1);
-
 
 INSERT INTO `users` (`id`, `username`, `nom`, `prenom`, `password`, `acl`, `mail`, `id_contrat`, `begin`, `state`) VALUES
 (1, 'admin', 'admin', 'admin', 'c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b931dd472634dfac71cd34ebc35d16ab7fb8a90c81f975113d6c7538dc69dd8de9077ec', '10', 'admin@admin.fr', '3', '2016-04-25', 1);

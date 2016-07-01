@@ -107,7 +107,11 @@ date_default_timezone_set('Europe/Paris');
     if(isset($tempspasser)  and $tempspasser['heure']<7) $finaltime='<b style="color:red">'.$tempspasser['heure'].'h'.$tempspasser['minutes'].'min'.$tempspasser['second'].'</b>';
     //affichage des case du tableau et de leur contenu
       echo'<td '.$color.' onclick=" auto_complete_hs(\''.$result['date2'][$i].'\')">';
+<<<<<<< HEAD
         if($past[$i]){echo '<br><a href="#" data-width="450" data-rel="popup'.$i.'" class="poplight" style="color:black">ajouter un mouvement</a>';}
+=======
+        if($past[$i]){echo '<br><a href="#" data-width="300" data-rel="popup'.$i.'" class="poplight" style="color:black">ajouter un mouvement</a>';}
+>>>>>>> origin/master
         echo'<br><br>'. $result['jour'][$i].' '.$result['numero'][$i].' '.$result['mois'][$i].'<br>('.$result['annee'][$i].')<br><br>'.$time.'<div '.$now1.' id="arrive"></div><br><div '.$now2.' id="depart"></div><div  id="total">';
         if($past[$i]) {echo $finaltime;}
         $aoaa=count_hour($result['date2'][$i], '2');
@@ -144,7 +148,11 @@ date_default_timezone_set('Europe/Paris');
         </div>';
     }
     echo '</tr></table>';
+<<<<<<< HEAD
      $hs=$bdd->tab('select * from heure_sup where id_user=?',array($_SESSION['userid']));
+=======
+     $hs=$bdd->tab('select * from heure_sup where id_user=?',$userid);
+>>>>>>> origin/master
        $hs=sectohour($hs[0][0]['heure']);
        $cong=check_conge($_SESSION['userid'],'1');
       echo ' <div class="col-md-4"><h4> '.$hs['h'].'h'.$hs['m'].' heure à récupérer</h4></div><div class="col-md-4"><h4> '.round($cong,2).' jour(s) de congé(s)</h4></div>';
@@ -156,6 +164,7 @@ date_default_timezone_set('Europe/Paris');
 <hr  class="col-md-10 col-md-offset-1" style="height: 100%; height:2px; background-color:black;margin-top:10px;" />
 <div class="col-md-4">
 <div class="row">
+<<<<<<< HEAD
 <H4>Catégoriser ces heures</H4> 
   <?php
   echo '<div class="col-md-4"><input type="date" name="date" class="form-control" id="datecathour"/></div>'; //selection de la date
@@ -178,12 +187,40 @@ date_default_timezone_set('Europe/Paris');
 echo '';
 ?>
 <div id="transfretour"><div class="col-md-6"><input type="date" class="form-control" id="changetimeuser" ></div></div>
+=======
+<H2>Catégoriser ces heures</H2> 
+  <?php
+  echo '<input type="date" name="date" id="datecathour"/><br>'; //selection de la date
+  echo '<div id="nbhour"></div>';
+  echo '<input type="time" name="time" id="timecathour"/>';
+  //on liste les catégorie dans un select
+    echo '<select id="cathour">';
+    $cat=list_cat('2',$_SESSION['userid']);
+    for($i=0;$i<count($cat);$i++){
+      echo '<option value="'.$cat[$i]['id'].'">'.$cat[$i]['nom'].'</option>';
+    }
+    echo '</select><button id="okhour">valider</button>';
+    echo '<div id="catretour"></div>';
+  ?>
+</div>
+<div class="row">
+<h2>Transfert d'heure</h2>
+<?php
+echo '<input type="date" id="changetimeuser" >';
+?>
+<div id="transfretour"></div>
+>>>>>>> origin/master
 </div>
 
 </div>
 </div>
+<<<<<<< HEAD
 <div class="col-md-3 col-md-offset-1">
   <h4>Congé / Récupération</h4><br>
+=======
+<div class="col-md-4">
+  <h2>Congé / Récupération</h2><br>
+>>>>>>> origin/master
   <form id="addconge" method="POST">
     <?php
     $userid=array($_SESSION['userid']);
@@ -263,6 +300,9 @@ echo '';
 </div>
 <script src="./js/user.js"></script>
 <script src="./js/popup.js"></script>
+<<<<<<< HEAD
 <script src="./js/bootstrap.min.js"></script>
+=======
+>>>>>>> origin/master
 </body>
 </html>
