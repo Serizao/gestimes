@@ -1,5 +1,5 @@
 # gestimes
-application de gestion du temps principalement entré sortie
+application de gestion du temps basé sur les entrées sorties orienté laboratoire gestion des CIR
 
 -cette application gère les heures suplémentaires
 
