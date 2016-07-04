@@ -1,12 +1,8 @@
 <?php
 session_start();
-
-//print_r($cachem);
-
- include_once('bdd.php');
- include_once('function.php');
- secureAccess();
-
+include_once('bdd.php');
+include_once('function.php');
+secureAccess();
 if($_REQUEST['begindate'] and check_admin()){
 	$d1b=$_REQUEST['begindate'];
 	$d2e=$_REQUEST['enddate'];
@@ -30,7 +26,6 @@ if($_REQUEST['begindate'] and check_admin()){
 		$cachem=explode("-",$onemonthago);
 		$cachem2=explode("-",$onemonthago);
 	}
-	
 }
 $month=array($cachem[1],$cachem2[1]);
 $year=array($cachem[0], $cachem2[0]);
@@ -38,43 +33,33 @@ $f=1;
 $g=1;
 $mem=1;
 $m=0;
-
-//$moissans=ltrim($mois,0);
 $moissans="3";
-
-    
-   // include_once ('include/top-barre.php');
-    include_once ('ajax.php');
+include_once ('ajax.php');
 error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 date_default_timezone_set('Europe/Paris');
-
 define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
-
 /** Include PHPExcel */
 require_once '../Classes/PHPExcel.php';
 require_once '../Classes/PHPExcel/Writer/Excel2007.php';
 $alphabet[] = '';
 for($x = 'B'; $x < 'ZZZ'; $x++) $alphabet[] = $x;
-
 // Create new PHPExcel object
-
 $objPHPExcel = new PHPExcel();
 $moisname= month($moissans);
 $numberj=number_day($month, $year, 'a');
-
 // Set document properties
 $bdd=new bdd();
 $array=array($user);
 $username=$bdd->tab('select username from user where id=?',$array);
 
 $objPHPExcel->getProperties()->setCreator($_SESSION['username'])
-							 ->setTitle("Fiche de temps du ".$cachem.'-'.$cachem2.'')
-							 ->setSubject("PHPExcel Test Document")
-							 ->setDescription("fiche de temps pour le mois de de l\'année")
-							 ->setKeywords("fiche de temps")
-							 ->setCategory("administratif");
+								->setTitle("Fiche de temps du ".$cachem.'-'.$cachem2.'')
+								->setSubject("PHPExcel Test Document")
+								->setDescription("fiche de temps pour le mois de de l\'année")
+								->setKeywords("fiche de temps")
+								->setCategory("administratif");
 
 $moisname= month($moissans);
 
