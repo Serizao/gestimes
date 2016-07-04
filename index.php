@@ -38,7 +38,6 @@ date_default_timezone_set('Europe/Paris');
     include_once('include/function.php');
     secureAccess();
     include_once ('include/top-barre.php');
-    //include_once ('include/ajax.php');
     if(empty($_GET["function"])){ //si pas de post on affiche la page normal
     $nav=0;
     $bdd=new bdd;
