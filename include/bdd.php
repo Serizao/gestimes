@@ -9,9 +9,9 @@ class ad
 	public function __construct(){
 		if(file_exists('config/config.php'))include 'config/config.php';
 		if(file_exists('../config/config.php'))include '../config/config.php';
-		$this->_host=$host_ldap;
-		$this->_domain=$domain_ldap;
-		$this->_dn=$dn_ldap;
+		$this->_host=$hostldap;
+		$this->_domain=$domainldap;
+		$this->_dn=$dnldap;
 		$this->_ldap = ldap_connect($this->_host);
 	}
 
@@ -119,10 +119,10 @@ class ad
 		if(file_exists('../config/config.php'))include '../config/config.php';
 
 	     //variable de connexion a la bdd
-	    $this->_host = $host_bdd;
-	    $this->_user = $user_bdd;
-	    $this->_pass = $pass_bdd;
-	    $this->_base = $base_bdd; 
+	    $this->_host = $hostbdd;
+	    $this->_user = $userbdd;
+	    $this->_pass = $passbdd;
+	    $this->_base = $basebdd; 
         
 		$this->_pdo = new PDO(
 		'mysql:host='.$this->_host.';dbname='.$this->_base,
