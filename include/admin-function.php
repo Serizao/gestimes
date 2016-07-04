@@ -9,7 +9,7 @@
 				$array=array($id);
 				$result=$bdd->tab("select  a.begin as begin, a.id as id, a.username as username, a.nom as nom, a.prenom as prenom, a.acl as acl, a.mail as mail, b.nom as contrat , b.pourcent as pourcent, a.state as state  from users a, contrat b where a.id_contrat=b.id and a.id=?", $array);
 			}
-			
+
 			return $result;
 		}
 		function add_user($nom,$prenom,$password,$acl, $mail, $contrat,$begin){
@@ -24,7 +24,7 @@
 				else{
 					echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">erreur : utilisateur déja existant</div>';
 				}
-				
+
 		}
 		function gentimeline($id){
 			$content='';
@@ -43,7 +43,9 @@
 				    </div>
 				    <ul class="timeline">';
 			for($i=0;$i<count($result);$i++){
-				if($i==0 or end($mem2)!=date('Y-m',strtotime($result[$i]['date']))) $mem2[]=date('Y-m',strtotime($result[$i]['date']));
+				if($i==0 or end($mem2)!=date('Y-m',strtotime($result[$i]['date']))){
+                    $mem2[]=date('Y-m',strtotime($result[$i]['date']));
+                }
 				$user=$result[$i]['nom'].' '.$result[$i]['prenom'];
 				if(!in_array($user, $mem3)){
 					$mem3[]=$user;
@@ -66,7 +68,7 @@
 					        </li>';
 			 		}
 			 			$c++;
-						$mem=$result[$i]['date'];	
+						$mem=$result[$i]['date'];
 						if($c%2==0) $class='timeline-inverted';
 						else $class='timeline';
 						$content.='<li class="'.$class.'">
@@ -114,11 +116,11 @@
 								        $tt=sectohour($mem5);
 								        $content.='<td>'.$tt['h'].' H '.$tt['m'].'</td>';
 								     $content.=' </tr>';
-								   
+
 						    }
 			$content.='</table>
 								</div>';
-						      
+
 			echo $content;
 
 
@@ -129,9 +131,20 @@
 			$bdd->tab("DELETE FROM `users` WHERE id=?", $array);
 			echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> utilisateur supprimé avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=user">';
 		}
-		function update_user($nom,$prenom,$password,$acl, $mail, $contrat,$id,$begin){
+
+        /**
+         * @param $nom
+         * @param $prenom
+         * @param $password
+         * @param $acl
+         * @param $mail
+         * @param $contrat
+         * @param $id
+         * @param $begin
+         */
+        function update_user($nom, $prenom, $password, $acl, $mail, $contrat, $id, $begin){
 			$array=array();
-			$req='UPDATE `users` SET ';	
+			$req='UPDATE `users` SET ';
 			if(!empty($password)){$req.="password=?,";$array[]=hash('sha512', $password);}
 			if(!empty($nom)){$req.="nom= ?, ";$array[]=$nom;}
 			if(!empty($prenom)){$req.="prenom= ?, ";$array[]=$prenom;}
@@ -145,10 +158,10 @@
   			$bdd=new bdd();
 
   			$bdd->tab($req, $array);
-  			echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> utilisateur mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=user">';	
+  			echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> utilisateur mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=user">';
       }else{
         	echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">erreur : vous n\'avez probablement pas remplity les champs obligatoire : -contrat<br>-niveau de droit<br>-date de debut</div>';
-      }		
+      }
 		}
 		//gestion des catégories
 		function add_cat($cat, $catdom, $intern=0){
@@ -160,7 +173,7 @@
 			}else{
 				return $bdd->lastid();
 			}
-			
+
 		}
 		function rename_cat($cat,$name, $catdom, $cir){
 			$bdd=new bdd();
@@ -182,7 +195,7 @@
 			else{
 				echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">Catégorie nessessaire au fonctionnement de l\'application</div>';
 			}
-			
+
 		}
 		//gestion des domaine
 		function add_dom($dom){
@@ -206,7 +219,7 @@
 			}else{
 				echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">Domaine nessessaire au fonctionnement de l\'application</div>';
 			}
-			
+
 		}
 		function delcontrat($id){
 			$bdd=new bdd();
@@ -260,9 +273,9 @@
 			$array=array($type,$nom,$idcat);
 			$bdd->tab("INSERT INTO `motif`( `type`, `nom`, `id_cat`) VALUES (?,?,?)", $array);
 			echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> motif ajouté avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=motif">';
-			
+
 		}
-		
+
 		function credit_conge(){
 			$bdd=new bdd();
 			$user=$bdd->tab('select a.id as id, b.conge as conge, a.begin as begin from users a, contrat b where a.id_contrat=b.id ','');
@@ -303,8 +316,8 @@
 			$bdd->tab("update conge set state= ? where id=?",array($state,$id));
 			$type=$bdd->tab('select a.state as state, a.id_motif as motif, b.type as type,b.id_cat as id_cat, a.end as end, a.begin as begin, a.id_user as id_user from conge a , motif b where b.id=a.id_motif and a.id=?',array($id));
 			$type=$type[0];
-			
-			
+
+
 			$jour='86400'; //jour en seconde
 			$end=explode(" ",$type[0]['end']);
 			$begin=explode(" ",$type[0]['begin']);
@@ -321,24 +334,24 @@
 							$nbh=hourtosec($end[1])-hourtosec($begin[1]); //nombre de seconde
 							 $bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,$type[0]['id_cat'],$begin[0]));
 						}else{
-							
+
 							if($begins==$compteur or $ends==$compteur){ //si on arrive au debut ou la fin de la periode demandée
 								if($begins==$compteur){
 									if($begin[1]=='08:30:00')$n='9:30';//on enleve 1h le soir pour compenser la pause dejeuner
 									if($begin[1]=='13:00:00')$n='13:30';
-									$nbh=hourtosec('16:30')-(hourtosec($n)); 
+									$nbh=hourtosec('16:30')-(hourtosec($n));
 									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,$type[0]['id_cat'],$begin[0]));
 								}else{
 
 									if($end[1]=='12:00:00')$n='12:00';//on enleve 1h le soir pour compenser la pause dejeuner
 									if($end[1]=='16:30:00')$n='15:30';
-									$nbh=hourtosec($n)-hourtosec('08:30'); 
+									$nbh=hourtosec($n)-hourtosec('08:30');
 
 									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,$type[0]['id_cat'],$end[0]));
-								
+
 								}
 							}else{//sinon
-								
+
 								$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], '25200',$type[0]['id_cat'],date('Y-m-d',$compteur)));
 							}
 
@@ -360,15 +373,15 @@
 						}else{
 							if($begins==$compteur or $ends==$compteur){ //si on arrive au debut ou la fin de la periode demandée
 								if($begins==$compteur){
-									
+
 									if($begin[1]=='08:30:00')$n='9:30';//on enleve 1h le soir pour compenser la pause dejeuner
 									if($begin[1]=='13:00:00')$n='13:30';
 									//echo $n;
-									$nbh=hourtosec('16:30')-hourtosec($n); 
+									$nbh=hourtosec('16:30')-hourtosec($n);
 									$nbjt=$nbjt+$nbh;
 									$bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)",array($type[0]['id_user'], $nbh,$type[0]['id_cat'],$begin[0]));
 								}else{
-									
+
 									if($end[1]=='12:00:00')$n='12:00';//on enleve 1h le soir pour compenser la pause dejeuner
 									if($end[1]=='16:30:00')$n='15:30';
 									$nbh=hourtosec($n)-hourtosec('08:30');
@@ -385,7 +398,7 @@
 
 					$compteur=$compteur+$jour;
 				}//fin boucle for
-					
+
 				if($type[0]['state']==1){ //si il a déja été valider on recredite le solde de congé de l'utilisateur
 				$nbjt=($nbjt/3600)/7;
 				//echo $nbjt."<br>".$conge[0]['nb_jour']."<br>";
