@@ -43,7 +43,7 @@ if(empty($_GET['function'])){ //si pas de post on affiche la page normal
     $bdd=new bdd;
     $data=array($_SESSION['userid']);
     majhs($_SESSION['userid']);
-    $actual_link =$_SERVER[REQUEST_URI];
+    $actual_link =$_SERVER['REQUEST_URI'];
     echo '<input type="hidden" value="'.$actual_link.'" id="url"/>';
     $result=$bdd->tab('select * from es where id_user=? order by temps asc ', $data);
     if(count($result[0])>0){
@@ -162,36 +162,45 @@ if(empty($_GET['function'])){ //si pas de post on affiche la page normal
     }
     echo '</tr></table>';
     $hs=$bdd->tab('select * from heure_sup where id_user=?',array($_SESSION['userid']));
-    $hs=sectohour($hs[0][0]['heure']);
+    if(isset($hs[0][0]['heure'])){
+      $hs=sectohour($hs[0][0]['heure']);
+    }else{
+      $hs=array(
+        'h'=>'0',
+        'm'=>'0');
+    }
+    
     $cong=check_conge($_SESSION['userid'],'1');
     echo ' <div class="col-md-4"><h4> '.$hs['h'].'h'.$hs['m'].' heure à récupérer</h4></div><div class="col-md-4"><h4> '.round($cong,2).' jour(s) de congé(s)</h4></div>';
     $current_week_time=sectohour($current_week_time);
     if(isset($current_week_time['m'])){
       echo '<div class="col-md-4"><h4>'.$current_week_time['h'].' h '.$current_week_time['m'].' min '.$current_week_time['s'] .' au total sur la semaine affichée</h4></div>';
     }
-?>
-<hr  class="col-md-10 col-md-offset-1" style="height: 100%; height:2px; background-color:black;margin-top:10px;" />
-<div class="col-md-4">
-<div class="row">
-<H4>Catégoriser ces heures</H4>
-<?php
-echo '<div class="col-md-4"><input type="date" name="date" class="form-control" id="datecathour"/></div>'; //selection de la date
-echo '<div class="col-md-3"><input type="time" name="time" class="form-control" id="timecathour"/></div>';
-  //on liste les catégorie dans un select
-echo '<div class="col-md-5"><select id="cathour" class="form-control">';
-$cat=list_cat('2',$_SESSION['userid']);
-for($i=0;$i<count($cat);$i++){
-  echo '<option alt='.$cat[$i]['cir'].' value="'.$cat[$i]['id'].'">'.$cat[$i]['nom'].'</option>';
-}
-echo '</select><br></div><div id="cir-detail"></div><div class="col-md-12" id="nbhour"></div><button class="btn btn-primary" id="okhour">valider</button>';
-echo '<div id="catretour"></div>';
-?>
-</div>
-<div class="row"><br>
-<h4>Transfert d'heure</h4>
-<div id="transfretour"><div class="col-md-6"><input type="date" class="form-control" id="changetimeuser" ></div></div>
-</div>
-</div>
+    ?>
+    <hr  class="col-md-10 col-md-offset-1" style="height: 100%; height:2px; background-color:black;margin-top:10px;" />
+    <div class="col-md-4">
+      <div class="row">
+        <H4>Catégoriser ces heures</H4>
+        <?php
+        echo '<div class="col-md-4"><input type="date" name="date" class="form-control" id="datecathour"/></div>'; //selection de la date
+        echo '<div class="col-md-3"><input type="time" name="time" class="form-control" id="timecathour"/></div>';
+          //on liste les catégorie dans un select
+        echo '<div class="col-md-5"><select id="cathour" class="form-control">';
+        $cat=list_cat('2',$_SESSION['userid']);
+        for($i=0;$i<count($cat);$i++){
+          echo '<option alt='.$cat[$i]['cir'].' value="'.$cat[$i]['id'].'">'.$cat[$i]['nom'].'</option>';
+        }
+        echo '</select><br></div><div id="cir-detail"></div><div class="col-md-12" id="nbhour"></div><button class="btn btn-primary" id="okhour">valider</button>';
+        echo '<div id="catretour"></div>';
+        ?>
+      </div>
+      <div class="row"><br>
+        <h4>Transfert d'heure</h4>
+        <div id="transfretour"><div class="col-md-6"><input type="date" class="form-control" id="changetimeuser" >
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 <div class="col-md-3 col-md-offset-1">
   <h4>Congé / Récupération</h4><br>
@@ -209,21 +218,39 @@ echo '<div id="catretour"></div>';
       <div class=" col-md-6" style="float:left;" >
         <h5> DU</h5>
         <input type="date"  class="form-control" id="beginholliday"/><br>
-        <div style="text-align: left;"><input type="radio"  name="bh" value="matin" checked><label> matin</label></div>
-        <div style="text-align: left;"><input type="radio"  name="bh" value="amidi"><label> après-midi</label></div>
-        <div style="text-align: left;"><input type="radio"  name="bh" value="day"><label> la journée</label> </div>
+        <div style="text-align: left;">
+          <input type="radio"  name="bh" value="matin" checked>
+          <label> matin</label>
         </div>
-        <div class="col-md-6 " >
-          <h5>AU</h5>
-          <input type="date" class="form-control" id="endholliday"/><br>
-          <div style="text-align: right;"><label>matin</label> <input  type="radio" name="eh" value="matin" checked> </div>
-          <div style="text-align: right;"><label>après-midi</label> <input type="radio" name="eh" value="amidi"></div>
-          <div style="text-align: right;"><label>la journée</label> <input type="radio" name="eh" value="day"> </div>
+        <div style="text-align: left;">
+          <input type="radio"  name="bh" value="amidi">
+          <label> après-midi</label>
+        </div>
+        <div style="text-align: left;">
+          <input type="radio"  name="bh" value="day">
+          <label> la journée</label>
         </div>
       </div>
-      <div class="col-md-offset-3 col-md-6">
-         <input type="submit" class="btn btn-primary" id="validh" value="valider"/>
+      <div class="col-md-6 " >
+        <h5>AU</h5>
+        <input type="date" class="form-control" id="endholliday"/><br>
+        <div style="text-align: right;">
+          <label>matin</label>
+          <input  type="radio" name="eh" value="matin" checked>
+        </div>
+        <div style="text-align: right;">
+          <label>après-midi</label>
+          <input type="radio" name="eh" value="amidi">
+        </div>
+        <div style="text-align: right;">
+          <label>la journée</label>
+          <input type="radio" name="eh" value="day">
+        </div>
       </div>
+    </div>
+    <div class="col-md-offset-3 col-md-6">
+      <input type="submit" class="btn btn-primary" id="validh" value="valider"/>
+    </div>
   </form>
   <div id="congestate"></div>
 </div>
@@ -271,7 +298,7 @@ echo '<table class="table table-bordered">
             include('include/calendar.php');
           break;
             }
-      }
+}
   ?>
 </div>
 <script src="./js/user.js"></script>
