@@ -1,9 +1,12 @@
 <?php
-session_start();
+if(isset($_SESSION)){
+	session_start();
+}
 include_once('bdd.php');
 include_once('function.php');
 secureAccess();
-if($_REQUEST['begindate'] and check_admin()){
+date_default_timezone_set('Europe/Paris');
+if(isset($_REQUEST['begindate']) and check_admin()){
     $d1b=$_REQUEST['begindate'];
     $d2e=$_REQUEST['enddate'];
     $cachem=explode("-",$_REQUEST['begindate']);
@@ -38,7 +41,7 @@ include_once ('ajax.php');
 error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
-date_default_timezone_set('Europe/Paris');
+
 define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
 /** Include PHPExcel */
 require_once '../Classes/PHPExcel.php';
