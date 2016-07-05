@@ -1,5 +1,3 @@
-
-
 <nav class="navbar navbar-default"> 
 	<div class="container-fluid"> <div class="navbar-header">
 		<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-7" aria-expanded="false">
@@ -23,10 +21,10 @@
 			<li><a href="?function=cal" >Le calendrier</a></li>
 			<li><a href="include/ajax.php?action=disconnect" id="diconnect" name="disconnect"> Déconnexion</a>
 			<?php
-				if(check_admin()){
-					echo '<li><a href="admin.php" id >Panneau d\'administration</a></li>';
-				}
-			?>
+if (check_admin()) {
+    echo '<li><a href="admin.php" id >Panneau d\'administration</a></li>';
+}
+?>
 			
 		</ul>
 		

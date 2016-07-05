@@ -400,19 +400,19 @@ function cat_hour($date, $cathour, $nb, $url, $comment)
         $bdd = new bdd();
         if ($comment == '') {
             $comment = NULL;
-            $array   = array(
-                $_SESSION['userid'],
-                $nb,
-                $cathour,
-                $date,
-                $comment
-            );
-            $bdd->tab('insert into heure set  id_user=?, nb=?, id_cat=?, date=? ,comment=?', $array);
-            echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> modification effectuée avec succès</div><meta http-equiv="refresh" content="2; URL=index.php' . $url . '">';
-        } else {
-            echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">erreur : le nombre d\'heure entré est probablement trop grand</div>';
         }
-    }
+        $array   = array(
+            $_SESSION['userid'],
+            $nb,
+            $cathour,
+            $date,
+            $comment
+        );
+        $bdd->tab('insert into heure set  id_user=?, nb=?, id_cat=?, date=? ,comment=?', $array);
+        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> modification effectuée avec succès</div><meta http-equiv="refresh" content="2; URL=index.php' . $url . '">';
+    } else {
+        echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">erreur : le nombre d\'heure entré est probablement trop grand</div>';
+    } 
 }
 function getHolidays($year = null)
 {

@@ -6,7 +6,6 @@ include_once('admin-function.php');
 date_default_timezone_set('Europe/Paris');
 if(isset($_REQUEST['action']))$action=$_REQUEST['action'];
 else $action="";
-
 switch($action){
 	case "arriver":
 		add_mouvement($_SESSION['userid'],'e',date('Y-m-d H:i:s'),$_REQUEST['url']);
@@ -107,7 +106,5 @@ switch($action){
 	case "timeline":
 	    gentimeline($_REQUEST['id']);
 	  break;
-
-	
 	}
 ?>

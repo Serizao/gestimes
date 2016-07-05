@@ -13,7 +13,6 @@ echo '<div id="retour"></div>';
                     </tr>
                 </thead> 
                 <tbody>';
-
      for($i=0;$i<count($result);$i++){
                 echo '	<tr>
 	                        <td>'.$result[$i]['begin'].'</td>
@@ -24,10 +23,7 @@ echo '<div id="retour"></div>';
 	                        	<input type="button" class="admconge btn btn-danger" alt="'.$result[$i]['id'].'" value="refuser"/>
 	                        </td>
                       	</tr>';
-              }
-
-
-                
+      }       
      echo '     </tbody> 
             </table>';
 

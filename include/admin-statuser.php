@@ -1,11 +1,9 @@
-	<meta charset="utf-8">
+<meta charset="utf-8">
 <script src="./js/jquery-1.12.0.min.js"></script>
 <script src="./js/jquery-migrate-1.2.1.min.js"></script>
 <script src="./js/highcharts.js"></script>
 <script src="./js/modules/exporting.js"></script>
-
 <?php
-
 $bdd=new bdd();
 $user=$bdd->tab('select * from users','');
 		echo '<div class="col-md-12" style=margin-top:40px;"><select class="col-md-6"  id="chooseuser" >';
@@ -16,7 +14,6 @@ $user=$bdd->tab('select * from users','');
 ?>
 </select>
 <div class="row">
-
 		date de début
 		<input type="month" id="begindate">
 		date de fin

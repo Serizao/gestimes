@@ -14,13 +14,11 @@
 		<div class="col-md-12">date de début
 			<input type="month" id="begindate">
 					</div>
-
 		<div class="col-md-12"><br>date de fin
 			<input type="month" id="enddate">
 		</div>
 		<div class="col-md-12">
 			<br>
-
 			<button id="generate"  class="col-md-12 btn btn-primary">generer un graphique</button>
 		</div>
 	</div>

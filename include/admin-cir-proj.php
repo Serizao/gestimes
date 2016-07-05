@@ -8,8 +8,4 @@ foreach ($projet as $key) {
 echo '</select><br>';
 echo '<button id="valid-proj-cir" class="btn btn-primary"> envoyer</button></div>';
 ?>
-
-
-<div id="time-line">
-   
-</div>
+<div id="time-line"></div>
