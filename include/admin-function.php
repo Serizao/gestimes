@@ -57,8 +57,9 @@ if (check_admin()) {
                     </div>
                     <ul class="timeline">';
         for ($i = 0; $i < count($result); $i++) {
-            if ($i == 0 or end($mem2) != date('Y-m', strtotime($result[$i]['date'])))
+            if ($i == 0 or end($mem2) != date('Y-m', strtotime($result[$i]['date']))) {
                 $mem2[] = date('Y-m', strtotime($result[$i]['date']));
+            }
             $user = $result[$i]['nom'] . ' ' . $result[$i]['prenom'];
             if (!in_array($user, $mem3)) {
                 $mem3[] = $user;
@@ -88,10 +89,11 @@ if (check_admin()) {
                 }
                 $c++;
                 $mem = $result[$i]['date'];
-                if ($c % 2 == 0)
+                if ($c % 2 == 0) {
                     $class = 'timeline-inverted';
-                else
+                } else {
                     $class = 'timeline';
+                }
                 $content .= '<li class="' . $class . '">
                                 <div class="timeline-badge success">
                                     <i class="glyphicon glyphicon-check"></i>
@@ -212,10 +214,11 @@ if (check_admin()) {
     function rename_cat($cat, $name, $catdom, $cir)
     {
         $bdd = new bdd();
-        if ($cir == 'on')
+        if ($cir == 'on') {
             $cir = 1;
-        else
+        } else {
             $cir = 0;
+        }
         $array = array(
             $name,
             $catdom,
@@ -542,8 +545,10 @@ if (check_admin()) {
                                 date('Y-m-d', $compteur)
                             ));
                         }
+                        
                     }
                 } //fin check jour de congé
+                
                 $compteur = $compteur + $jour;
             } //fin boucle for
             
@@ -556,9 +561,12 @@ if (check_admin()) {
                     $nbjt,
                     $type[0]['id_user']
                 ));
+                
             }
         } //fin du type congé paye
         echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> conge mis à jour avec succès</div>';
     } //fin fonction
     //<meta http-equiv="refresh" content="2; URL=admin.php?action=conge">
+    
 } //fin de la verif admin
+    
