@@ -16,9 +16,9 @@ echo '
 						            <br>
 									<p>date debut du contrat</p>
 						            <input type="date" class="begin"><br>
-						            <p>nombre de jour de congé</p>
-						            <input type="number" class=""><br>
-									 <p>nombre d\'heures du contrat de cet utilisateur</p>
+                                    <p>Nombre de jour de congé</p>
+						            <input type="number" min="0" step="0.0000000000001" class="nbconge"><br>
+                                    <p>nombre d\'heures du contrat de cet utilisateur</p>
 						            <select class="hour">';
 $bdd    = new bdd();
 $bdd->cache('select * from contrat', '');
@@ -92,9 +92,20 @@ for ($i = 0; $i < count($result2); $i++) { //liste de utilisateur pour cr�� 
     } else {
         $pp = "";
     }
+    $bdd->cache('select nb_jour from credit_conge where id_user=?',array(
+        $result2[$i]['id']
+    ));
+    $jourc  = $bdd->exec();
+    if (isset($jourc[0][0]['nb_jour'])) {
+        $jc = $jourc[0][0]['nb_jour']/12;
+    } else {
+        $jc = "";
+    } 
     echo '
 						            <p>date debut du contrat</p>
 						            <input type="date" class="begin' . $result2[$i]['id'] . '" value="' . $pp . '"><br>
+                                    <p>Nombre de jour de congé</p>
+                                    <input type="number" min="0" step="0.0000000000001" class="nbconge' . $result2[$i]['id'] . '" value="' . $jc . '" ><br>
 									 <p>nombre d\'heures du contrat de cet utilisateur</p>
 						            <select class="hour' . $result2[$i]['id'] . '">';
     $bdd    = new bdd();

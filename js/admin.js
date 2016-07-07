@@ -15,11 +15,12 @@ $(document).ready(function() {
 						var prenom = $('.prenom'+id).val();
 						var mail = $('.mail'+id).val();
 						var begin = $('.begin'+id).val();
+						var nbconge= $('.nbconge'+id).val();
 				
 				        // Je vérifie une première fois pour ne pas lancer la requête HTTP
 				        // si je sais que mon PHP renverra une erreur
 						if(id==''){
-							if(hour=== '' || acl === '' || password === '' || nom === '' || prenom === '' || mail === '' ||begin==='') {
+							if(hour=== '' || acl === '' || password === '' || nom === '' || prenom === '' || mail === '' ||begin===''||nbconge==='') {
 				            alert('Les champs doivent êtres remplis');
 					        } else {
 					        ;
@@ -27,7 +28,7 @@ $(document).ready(function() {
 					            $.ajax({
 					                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
 					                type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
-					                data: 'action=adduser&nom='+nom+'&prenom='+prenom+'&password='+password+'&mail='+mail+'&acl='+acl+'&hour='+hour+'&begin='+begin, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+					                data: 'action=adduser&nom='+nom+'&prenom='+prenom+'&password='+password+'&mail='+mail+'&acl='+acl+'&hour='+hour+'&begin='+begin+'&nbconge='+nbconge, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 					                success: function(html) {
 					                  // Je récupère la réponse du fichier PHP
 					                  if(html==1)
@@ -42,7 +43,7 @@ $(document).ready(function() {
 					            });
 					        }
 						}else{
-						if(hour=== '' || acl === '' || nom === '' || id=='' || prenom === '' || mail === '') {
+						if(hour=== '' || acl === '' || nom === '' || id=='' || prenom === '' || mail === ''||nbconge==='') {
 				            alert('Les champs doivent êtres remplis');
 					        } else {
 					        ;
@@ -50,7 +51,7 @@ $(document).ready(function() {
 					            $.ajax({
 					                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
 					                type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
-					                data: 'action=updateuser&nom='+nom+'&prenom='+prenom+'&password='+password+'&mail='+mail+'&acl='+acl+'&hour='+hour+"&id="+id+'&begin='+begin, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+					                data: 'action=updateuser&nom='+nom+'&prenom='+prenom+'&password='+password+'&mail='+mail+'&acl='+acl+'&hour='+hour+"&id="+id+'&begin='+begin+'&nbconge='+nbconge, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 					                success: function(html) {
 					                  // Je récupère la réponse du fichier PHP
 					                  if(html==1)

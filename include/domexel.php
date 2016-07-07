@@ -18,7 +18,7 @@ $mem   = 1;
 $m     = 0;
 $domid = $_REQUEST['domid'];
 $moissans = "3";
-secureAccess();
+user::check_admin();
 include_once('ajax.php');
 error_reporting(E_ALL);
 ini_set('display_errors', TRUE);

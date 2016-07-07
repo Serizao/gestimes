@@ -21,13 +21,13 @@ switch($action){
   		header('location: ../auth.php');
   		break;
 	case "adduser":
-		add_user($_REQUEST['nom'], $_REQUEST['prenom'], $_REQUEST['password'], $_REQUEST['acl'], $_REQUEST['mail'], $_REQUEST['hour'], $_REQUEST['begin']);
+		add_user($_REQUEST['nom'], $_REQUEST['prenom'], $_REQUEST['password'], $_REQUEST['acl'], $_REQUEST['mail'], $_REQUEST['hour'], $_REQUEST['begin'],$_REQUEST['nbconge']);
 		break;
 	case "deluser":
 		delete_user($_REQUEST['id']);
 		break;
 	case "updateuser":
-		update_user($_REQUEST['nom'], $_REQUEST['prenom'], $_REQUEST['password'], $_REQUEST['acl'], $_REQUEST['mail'], $_REQUEST['hour'], $_REQUEST['id'], $_REQUEST['begin']);
+		update_user($_REQUEST['nom'], $_REQUEST['prenom'], $_REQUEST['password'], $_REQUEST['acl'], $_REQUEST['mail'], $_REQUEST['hour'], $_REQUEST['id'], $_REQUEST['begin'],$_REQUEST['nbconge']);
 		break;
 	case "delcat":
 		delete_cat($_REQUEST['id']);

@@ -5,20 +5,22 @@ $ad                  = new ad();
 $util                = new user;
 $bdd               = new bdd;
 $page['windowTitle'] = 'Connexion';
-if (isset($_SESSION['uid'])) {
+if (isset($_SESSION['uid'])) { //si deja connecté
     $util->check_login();
     header('location: index.php');
     exit;
 }
-if (!empty($_POST['password']) and !empty($_POST['username'])) {
+if (!empty($_POST['password']) and !empty($_POST['username'])) { //auth dans la bdd
     $result = $util->auth($_POST['password'], $_POST['username']);
     if ($result) {
         header('location: index.php');
         exit;
-    } elseif ($ad->login($_POST['username'], $_POST['password'])) {
+    } elseif ($ad->login($_POST['username'], $_POST['password'])) { //auth ad
         $data2 = array(
             $_POST['username']
         );
+        setcookie ("username", $_POST['username'], time() + 432000);
+        //on verifie que le user exite dans notre table
         $bdd->cache("select id, acl, state from users where username=?", $data2);
         $result = $bdd->exec();
         if (isset($result[0][0]['id'])) {
@@ -30,12 +32,13 @@ if (!empty($_POST['password']) and !empty($_POST['username'])) {
                 $_SESSION['ip']=user::ip();                
                 $_SESSION['expires_on']=time()+INACTIVITY_TIMEOUT;
                 header('location: index.php');
+                exit();
             } else {
                 echo 'compte en cour de validation';
                 exit;
             }
             
-        } else {
+        } else {// on l'ajout si il n'est pas present en temps qu'utilisateur desactivé
             $info  = $ad->get_info($_POST['username'], $_POST['password']);
             $array = array(
                 $_POST['username'],
@@ -59,7 +62,11 @@ if (!empty($_POST['password']) and !empty($_POST['username'])) {
         $errMsg = '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">Nom d´utilisateur ou mot de passe invalide.</div>';
     }
 }
-
+if(isset($_COOKIE['username'])){
+    $value='value="' . $_COOKIE['username'] . '"';
+} else {
+    $value="";
+}
 ?>
 
 <!DOCTYPE html>
@@ -82,7 +89,7 @@ if (isset($errMsg)) {
 }
 ?>
                     <p class="free_sans">Please, login to use</p>
-                    <input type="text" class="free_sans" name="username" placeholder="username" >
+                    <input type="text" class="free_sans" <?php echo $value; ?> name="username" placeholder="username" >
                     <br>
                     <input class="free_sans" name="password" placeholder="Mot de passe" type="password">
                     <br>

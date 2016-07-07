@@ -3,7 +3,7 @@ include_once('bdd.php');
 include_once('function.php');
 user::session();
 date_default_timezone_set('Europe/Paris');
-if (isset($_REQUEST['begindate']) and check_admin()) {
+if (isset($_REQUEST['begindate']) and user::check_admin()) {
     $d1b     = $_REQUEST['begindate'];
     $d2e     = $_REQUEST['enddate'];
     $cachem  = explode("-", $_REQUEST['begindate']);

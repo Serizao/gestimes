@@ -216,6 +216,7 @@ class user
         $this->_bdd->cache('SELECT '.$this->_coluserid.' as nb, acl FROM '.$this->_tabuser.' where '.$this->_colusername.'=? and '.$this->_colpassword.'=?',array($user,$password));
         $var=$this->_bdd->exec();
         if(isset($var[0][0]['nb']) and $var[0][0]['nb']!=''){
+            setcookie ("username", $_POST['username'], time() + 432000);
             $_SESSION['id']=$var[0][0]['nb'];
             $_SESSION['acl']=$var[0][0]['acl'];
             $_SESSION['userid']=$var[0][0]['nb'];

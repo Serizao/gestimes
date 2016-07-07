@@ -18,7 +18,7 @@ $mem      = 1;
 $m        = 0;
 $catid    = $_REQUEST['catid'];
 $moissans = "3";
-secureAccess();
+user::check_admin();
 include_once('ajax.php');
 error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
@@ -41,11 +41,13 @@ $moisname    = month($moissans);
 $numberj     = number_day($month, $year, 'a');
 // Set document properties
 $bdd         = new bdd();
-$username    = $bdd->tab('select * from users', '');
+$bdd->cache('select * from users', '');
+$username    = $bdd->exec();
 $array       = array(
     $catid
 );
-$cat         = $bdd->tab('select nom from categorie where id=?', $array);
+$bdd->cache('select nom from categorie where id=?', $array);
+$cat         = $bdd->exec();
 $begindate   = $cachem[1] . '-' . $cachem[0];
 $enddate     = $cachem2[1] . '-' . $cachem2[0];
 $array       = array(

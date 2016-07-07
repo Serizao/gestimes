@@ -172,7 +172,7 @@ if (user::check_admin()) {
         $bdd->exec();
         echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> utilisateur supprimé avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=user">';
     }
-    function update_user($nom, $prenom, $password, $acl, $mail, $contrat, $id, $begin)
+    function update_user($nom, $prenom, $password, $acl, $mail, $contrat, $id, $begin,$nbjour)
     {
         $array = array();
         $req   = 'UPDATE `users` SET ';
@@ -199,9 +199,25 @@ if (user::check_admin()) {
             $array[] = $begin;
             $array[] = $id;
             $bdd     = new bdd();
-            
             $bdd->cache($req, $array);
             $bdd->exec();
+            $nbjour=$nbjour*12;
+            $bdd->cache('select nb_jour as jour from credit_conge where id_user=?',array($id));
+            $jour = $bdd->exec();
+            if(isset($jour[0][0]['jour'])){
+                 $bdd->cache('update credit_conge set nb_jour=? where id_user=?', array(
+                    $nbjour,
+                    $id
+                ));
+                 $bdd->exec();
+            }else{
+                $bdd->cache('INSERT INTO `credit_conge`(nb_jour, id_user, maj) VALUES (?,?,?) ',array(
+                    $nbjour,
+                    $id,
+                    date('Y-m-d')
+                ));
+                $bdd->exec();
+            }
             echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> utilisateur mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=user">';
         } else {
             echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">erreur : vous n\'avez probablement pas remplity les champs obligatoire : -contrat<br>-niveau de droit<br>-date de debut</div>';

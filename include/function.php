@@ -88,7 +88,7 @@ function transfere($date, $id, $provenance)
         }
         echo '<input id="valid_transfere" ' . $v . ' type="button" value="valider le changement" class="col-md-offset-4 col-md-4 btn btn-primary">';
     } else {
-        echo '<div class="col-md-6"><input type="date" value="' . $date . '" class="form-control user-success" id="changetimeuser" ></div><br>pas de temps sur ce jour la avec cet utilisateur';
+        echo '<br>pas de temps sur ce jour la avec cet utilisateur';
     }
 }
 function transfere_v($id, $date, $user, $time, $vers, $de)
@@ -733,7 +733,11 @@ function compte_day_conge($debut, $fin)
     $nbjt     = 0;
     for ($i = 0; $i < $nbj + 1; $i++) {
         if (isHoliday($compteur) != 1) { //check si c'est un jour de cong
-            $conge = $conge[0];
+            if(isset($conge[0])){
+                $conge = $conge[0];
+            } else {
+                $conge= 0;
+            }
             if ($begins == $ends) { //si la personne a pris une demie journé
                 if ($begin[1] == '8:30:00') {
                     $begin[1] = '9:30';
