@@ -5,7 +5,8 @@
 echo '<input type="date" id="changetime" class="col-md-4">';
 $bdd    = new bdd();
 $user   = list_user();
-$result = $bdd->tab("select id, nom from categorie", '');
+$bdd->cache("select id, nom from categorie", '');
+$result = $bdd->exec();
 echo '<select id="user" class="col-md-4" style="height: 24px">';
 for ($i = 0; $i < count($user); $i++) {
     echo '<option value="' . $user[$i]['id'] . '">' . $user[$i]['nom'] . ' ' . $user[$i]['prenom'] . '</option>';

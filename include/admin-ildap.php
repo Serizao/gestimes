@@ -1,4 +1,5 @@
 <?php
+user::check_admin();
 include 'config/config.php';
 if (isset($_REQUEST['admin'])) {
     $ad_admin = $_REQUEST['admin'];
@@ -57,7 +58,8 @@ if (isset($ad_admin) and isset($ad_password) and !empty($ad_admin) and !empty($a
                 $user[$z]['last_name'],
                 $user[$z]['first_name']
             );
-            $ifexist = $bdd->tab('select * from users where username=? and nom=? and prenom=?', $array);
+            $bdd->cache('select * from users where username=? and nom=? and prenom=?', $array);
+            $ifexist = $bdd->exec();
             if (isset($ifexist[0][0]['id'])) {
                 $show = '<span class="label label-danger">Utilisateur déja existant</span>';
             }

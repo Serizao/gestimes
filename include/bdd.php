@@ -1,6 +1,13 @@
  <?php
 
-
+ if (file_exists('config/config.php')){
+   include_once 'config/config.php'; 
+ }
+ if (file_exists('../config/config.php')){
+    include_once '../config/config.php';
+ }       
+       
+            
 /**
  * Created by Joe of ExchangeCore.com
  */
@@ -8,13 +15,9 @@ class ad
 {
     public function __construct()
     {
-        if (file_exists('config/config.php'))
-            include 'config/config.php';
-        if (file_exists('../config/config.php'))
-            include '../config/config.php';
-        $this->_host   = $hostldap;
-        $this->_domain = $domainldap;
-        $this->_dn     = $dnldap;
+        $this->_host   = HOST_LDAP;
+        $this->_domain = DOMAIN_LDAP;
+        $this->_dn     = DN_LDAP;
         $this->_ldap   = ldap_connect($this->_host);
     }
     public function connect($user, $password)
@@ -104,40 +107,70 @@ class ad
     }
 }
 class bdd
-{
+  {
     public function __construct() //connection a la base de donnée dans la classe
     {
-        if (file_exists('config/config.php'))
-            include 'config/config.php';
-        if (file_exists('../config/config.php'))
-            include '../config/config.php';
-        //variable de connexion a la bdd
-        $this->_host = $hostbdd;
-        $this->_user = $userbdd;
-        $this->_pass = $passbdd;
-        $this->_base = $basebdd;
-        $this->_pdo = new PDO('mysql:host=' . $this->_host . ';dbname=' . $this->_base, $this->_user, $this->_pass);
+        $this->_data=array();
+        $this->_cache=array();
+        $this->_result=array();
+        $this->_pdo = new PDO('mysql:host='.HOST_BDD.';dbname='.BASE_BDD,USER_BDD,PASS_BDD, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING));
     }
-    public function tab($sql, $data)
+    public function cache($requete,$data){
+        $this->_cache[]=$requete;
+        $this->_data[]=$data;
+    }
+    public function exec()
     {
-        $i = 0;
-        if (isset($data) and !empty($data)) {
-            $stmt   = $this->_pdo->prepare($sql);
-            $taille = count($data);
-            for ($s = 0; $s < $taille; $s++) {
-                $i++;
-                $stmt->bindParam($i, $data[$s], PDO::PARAM_STR);
+        $number_req = count($this->_cache);
+        for($r=0;$r<$number_req;$r++)
+        {   
+            $exclude_fetch = array('update', 'delete','insert');
+            $req=explode(" ",$this->_cache[$r]);
+            $i=0;
+            if(isset($this->_data[$r]) and !empty($this->_data[$r]) and $this->_data[$r]!='')
+            {
+                $stmt = $this->_pdo->prepare($this->_cache[$r]);
+                $taille=count($this->_data[$r]);
+                for($s=0;$s<$taille;$s++)
+                {
+                    $i++;
+                    $stmt->bindParam($i, $this->_data[$r][$s], PDO::PARAM_STR);
+                }
+                try {
+                    $stmt->execute();
+                } catch (PDOException $e) {
+                    echo 'Echec de la connexion : ' . $e->getMessage();
+                    exit;
+                }
+                if(isset($req[0]) and !in_array(strtolower($req[0]), $exclude_fetch)){ //on verifie que la requete ne commence pas pas update delete etc...
+                    $result[$r]=$stmt->fetchAll(); 
+                } else {
+                    $result= 'ok';
+                }
+                $this->_result=$result;
+            }else{
+                $stmt = $this->_pdo->prepare($this->_cache[$r]);
+                $stmt->execute();
+                if ($number_req>1){
+                    $result[$r]=$stmt->fetchAll();
+                } else {
+                    if(isset($req[0]) and !in_array(strtolower($req[0]), $exclude_fetch)){ //on verifie que la requete ne commence pas pas update delete etc...
+                    $result=$stmt->fetchAll();
+                    } else {
+                        $result= 'ok';
+                    }
+                } 
+                $this->_result=$result;
             }
-            $stmt->execute();
-            $result[] = $stmt->fetchAll();
-            $result[] = $stmt;
-            return $result;
-        } else {
-            $stmt = $this->_pdo->prepare($sql);
-            $stmt->execute();
-            $result = $stmt->fetchAll();
-            return $result;
         }
+        $result=$this->_result;
+        $this->clear_cache();
+        return $result;
+    }
+    public function clear_cache(){
+        unset($this->_cache);
+        unset($this->_result);
+        unset($this->_data);
     }
     public function lastid()
     {
@@ -154,4 +187,87 @@ class bdd
     
     
 }
-?>
+class user
+  {
+    public function __construct(){
+        user::session();
+        $this->_bdd=new bdd;
+        $this->_colusername='username';  //username colonne
+        $this->_colpassword='password';  //password colonne
+        $this->_coluserid='id';  //user id colonne
+        $this->_tabuser='users';  //user table
+        if(isset($_SESSION['id']) and $_SESSION['id']!=''){
+            $this->_userid=$_SESSION['id'];
+        }
+        else $this->_userid='';
+        $this->_userid='';  //id de l'utilisateur il sera initaliser après l'auth
+        $this->_password_type='sha512';  //type d'encodage du password user dans la bdd
+    }
+    public static function ip(){
+         $ip = $_SERVER["REMOTE_ADDR"];
+        // empechement du hijaking de session
+        if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip=$ip.'_'.$_SERVER['HTTP_X_FORWARDED_FOR']; }
+        if (isset($_SERVER['HTTP_CLIENT_IP'])) { $ip=$ip.'_'.$_SERVER['HTTP_CLIENT_IP']; }
+        return $ip;
+    }
+    public function auth($user,$password){
+        user::session();
+        $password=hash($this->_password_type, $password);
+        $this->_bdd->cache('SELECT '.$this->_coluserid.' as nb, acl FROM '.$this->_tabuser.' where '.$this->_colusername.'=? and '.$this->_colpassword.'=?',array($user,$password));
+        $var=$this->_bdd->exec();
+        if(isset($var[0][0]['nb']) and $var[0][0]['nb']!=''){
+            $_SESSION['id']=$var[0][0]['nb'];
+            $_SESSION['acl']=$var[0][0]['acl'];
+            $_SESSION['userid']=$var[0][0]['nb'];
+            $_SESSION['uid'] = sha1(uniqid('',true).'_'.mt_rand()); // générer un numero unique different du php id                                                               // which can be used to hmac forms and form token (to prevent XSRF)
+            $_SESSION['ip']=$this->ip();                // stockage de l'ip deu visiteur
+            $_SESSION['username']=$user;
+            $_SESSION['expires_on']=time()+INACTIVITY_TIMEOUT;  // Set session expiration.
+            return True;
+        }
+        else{
+            return False;
+        }
+    }
+    public function inscription($username,$password){
+        $password=hash($this->_password_type, $password);
+        $this->_bdd->cache('INSERT INTO '.$this->_tabuser.' set '.$this->_colpassword.'=?, '.$this->_colusername.'=?',array($username,$password));
+        $this->_bdd->exec();
+    }
+    public function getinfo(){
+        $this->_bdd->cache('select * from '.$this->_tabuser.' where '.$this->_coluserid.' = '.$this->_userid,'');
+        $var=$this->_bdd->exec();
+        return $var;
+    }
+    public static function check_login(){
+        user::session();
+        // si la session n'existe pas ou qu l'ip a changer -> logout
+        if (!isset ($_SESSION['uid']) || !$_SESSION['uid'] || $_SESSION['ip']!=user::ip() || time()>=$_SESSION['expires_on'])
+        {
+            user::logout();
+        }
+        $_SESSION['expires_on']=time()+INACTIVITY_TIMEOUT;  // mise a jour de la dte d'expiration
+    }
+    public static function check_admin(){
+        user::session();
+        user::check_login();
+        if(isset($_SESSION['acl']) and $_SESSION['acl']==10){
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public static function logout()
+    // forcer la deconnexion
+    {
+        user::session();
+        session_destroy();
+        header('Location: auth.php');
+        exit();
+    }
+    public static function session(){
+        if(!isset($_SESSION)){
+           session_start(); 
+        } 
+    }
+}

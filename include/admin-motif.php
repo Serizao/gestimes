@@ -1,6 +1,13 @@
 <?php
-$bdd   = new bdd();
-$motif = $bdd->tab('select * from motif where 1', '');
+user::check_admin();
+$bdd      = new bdd();
+$bdd->cache('select * from motif where 1', '');
+$motif    = $bdd->exec();
+if(isset($motif[0]['id'])){
+	$compteur = count($motif);
+} else {
+	$compteur = 0;
+}
 echo '<div class="col-md-12">
 			<div class="col-md-6">
 				<h4 style="text-align:left">Les type:<br>
@@ -18,7 +25,7 @@ echo '<div class="col-md-12">
 			<table class="table table-bordered">
 				<thead> <tr> <th>nom</th> <th>type</th> <th>action</th> </tr> </thead>
 				<tbody>';
-for ($i = 0; $i < count($motif); $i++) {
+for ($i = 0; $i < $compteur ; $i++) {
     echo '	<tr>
 					<th id="nom' . $motif[$i]['id'] . '">' . $motif[$i]['nom'] . '</th>
 					<th>' . $motif[$i]['type'] . '</th>
@@ -33,7 +40,7 @@ for ($i = 0; $i < count($motif); $i++) {
 
 
 echo '</tbody></div>';
-for ($i = 0; $i < count($motif); $i++) {
+for ($i = 0; $i < $compteur; $i++) {
     echo '
 							        <div id="popup' . $motif[$i]['id'] . '" alt="" class="popup_block">
 							        	<form action="test.html"  method="POST" class="modifmotif" id="' . $motif[$i]['id'] . '" alt="' . $motif[$i]['id'] . '">

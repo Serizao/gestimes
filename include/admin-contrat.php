@@ -1,7 +1,9 @@
 <?php
+user::check_admin();
 echo '<h1> gestion des contrats</h1>';
 $bdd    = new bdd();
-$result = $bdd->tab('select * from contrat', '');
+$bdd->cache('select * from contrat', '');
+$result = $bdd->exec();
 echo '<div id="retour"></div>';
 echo '<a href="#" data-width="500" data-rel="addcontrat" class="poplight" style="color:black">
 			    <button>ajouter un contrat</button>

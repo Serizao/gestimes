@@ -1,4 +1,5 @@
 <?php
+user::check_admin();
 echo '<br><br><br><br><a href="#" data-width="500" data-rel="popup" class="poplight" style="color:black"> <button class="btn btn-primary ">ajouter un utilisateur</button></a>'; //bouton pour faire apparaitre le popup
 echo '
 						        <div id="popup" alt="" class="popup_block popup">
@@ -15,10 +16,13 @@ echo '
 						            <br>
 									<p>date debut du contrat</p>
 						            <input type="date" class="begin"><br>
+						            <p>nombre de jour de congé</p>
+						            <input type="number" class=""><br>
 									 <p>nombre d\'heures du contrat de cet utilisateur</p>
 						            <select class="hour">';
 $bdd    = new bdd();
-$contra = $bdd->tab('select * from contrat', '');
+$bdd->cache('select * from contrat', '');
+$contra = $bdd->exec();
 for ($p = 0; $p < count($contra); $p++) {
     
     echo '<option  value="' . $contra[$p]['id'] . '" selected>' . $contra[$p]['nom'] . '</option> ';
@@ -31,12 +35,14 @@ echo '
 						          <div id="retour"></div>
 						        </div>'; //popu qui apparaitra au clique pour le add user
 
-$result = list_user('');
+$result = list_user();
 
-$result2 = $bdd->tab('select a.begin as begin, a.id as id, a.username as username, a.nom as nom, a.prenom as prenom, a.acl as acl, a.mail as mail , a.state as state  from users a', '');
+$bdd->cache('select a.begin as begin, a.id as id, a.username as username, a.nom as nom, a.prenom as prenom, a.acl as acl, a.mail as mail , a.state as state  from users a', '');
+$result2 = $bdd->exec();
 echo '<table style="width:100%;margin-top:40px;"><tr><th>login</th><th>nom</th><th>prenom</th><th>fiche utilisateur<s/th><tr>'; //header du tableau
 for ($i = 0; $i < count($result2); $i++) { //liste de utilisateur pour cr�� la table et les popup
     //var_dump($result);
+
     $result = list_user($result2[$i]['id']);
     $result = $result[0];
     if (!isset($result[0]['contrat'])) {
@@ -92,7 +98,8 @@ for ($i = 0; $i < count($result2); $i++) { //liste de utilisateur pour cr�� 
 									 <p>nombre d\'heures du contrat de cet utilisateur</p>
 						            <select class="hour' . $result2[$i]['id'] . '">';
     $bdd    = new bdd();
-    $contra = $bdd->tab('select * from contrat', '');
+    $bdd->cache('select * from contrat', '');
+    $contra = $bdd->exec();
     for ($p = 0; $p < count($contra); $p++) {
         $state = "";
         if (isset($result[0]['contrat']) and $result[0]['contrat'] == $contra[$p]['nom']) {

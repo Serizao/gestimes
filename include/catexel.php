@@ -53,7 +53,8 @@ $array       = array(
     $enddate,
     $catid
 );
-$usercat     = $bdd->tab("select sum(nb) as nb, id_user from heure where DATE_FORMAT(date, '%m-%Y')>=? and DATE_FORMAT(date, '%m-%Y')<=? and id_cat=? group by `id_user`", $array);
+$bdd->cache("select sum(nb) as nb, id_user from heure where DATE_FORMAT(date, '%m-%Y')>=? and DATE_FORMAT(date, '%m-%Y')<=? and id_cat=? group by `id_user`", $array);
+$usercat     = $bdd->exec();
 $objPHPExcel->getProperties()->setCreator($_SESSION['username'])->setTitle("Fiche de temps ")->setSubject("PHPExcel Test Document")->setDescription("fiche de temps pour le mois de de l\'année")->setKeywords("fiche de temps")->setCategory("administratif");
 //ecriture ce la catégorie et autosize de la colomne
 $objPHPExcel->setActiveSheetIndex(0)->setCellValue('A2', $cat[0][0]['nom']);
@@ -73,7 +74,8 @@ for ($i = 0; $i < count($username); $i++) {
                 $enddate,
                 $usercat[0][$aa]['id_user']
             );
-            $userpurcent = $bdd->tab("select sum(nb) as nb from heure where DATE_FORMAT(date, '%m-%Y')>=? and DATE_FORMAT(date, '%m-%Y')<=? and id_user=?  ", $array2);
+            $bdd->cache("select sum(nb) as nb from heure where DATE_FORMAT(date, '%m-%Y')>=? and DATE_FORMAT(date, '%m-%Y')<=? and id_user=?  ", $array2);
+            $userpurcent = $bdd->exec();
             $k           = 0;
             $k           = sectohour($usercat[0][$aa]['nb']);
             

@@ -1,10 +1,7 @@
 <?php
-if (isset($_SESSION)) {
-    session_start();
-}
 include_once('bdd.php');
 include_once('function.php');
-secureAccess();
+user::session();
 date_default_timezone_set('Europe/Paris');
 if (isset($_REQUEST['begindate']) and check_admin()) {
     $d1b     = $_REQUEST['begindate'];
@@ -65,8 +62,9 @@ $bdd         = new bdd();
 $array       = array(
     $user
 );
-$username    = $bdd->tab('select username from user where id=?', $array);
-$objPHPExcel->getProperties()->setCreator($_SESSION['username'])->setTitle("Fiche de temps du " . $cachem . '-' . $cachem2 . '')->setSubject("PHPExcel Test Document")->setDescription("fiche de temps pour le mois de de l\'année")->setKeywords("fiche de temps")->setCategory("administratif");
+$bdd->cache('select username from users where id=?', $array);
+$username    = $bdd->exec();
+$objPHPExcel->getProperties()->setCreator($_SESSION['username'])->setTitle("Fiche de temps du " . $d1b . '-' . $d2e . '')->setSubject("PHPExcel Test Document")->setDescription("fiche de temps pour le mois de de l\'année")->setKeywords("fiche de temps")->setCategory("administratif");
 $moisname = month($moissans);
 $wday     = $numberj;
 // Add some data
@@ -83,8 +81,10 @@ $z          = 2;
 $y          = 2;
 $mm         = 0;
 $bdd        = new bdd();
-$domaine    = $bdd->tab('select * from domaine', '');
-$categories = $bdd->tab('select * from categorie', '');
+$bdd->cache('select * from domaine', '');
+$domaine    = $bdd->exec();
+$bdd->cache('select * from categorie', '');
+$categories = $bdd->exec();
 for ($j = 0; $j < count($domaine); $j++) {
     for ($i = 0; $i < count($categories); $i++) {
         if ($domaine[$j]['id'] == $categories[$i]['id_domaine']) {
@@ -162,7 +162,8 @@ for ($y = $yy; $y <= end($year); $y++) { //list des année
                 $user,
                 $i . '-' . $pp . '-' . $y
             );
-            $usercat = $bdd->tab("select * from heure where id_user=? and DATE_FORMAT(date, '%d-%m-%Y')=?", $array);
+            $bdd->cache("select * from heure where id_user=? and DATE_FORMAT(date, '%d-%m-%Y')=?", $array);
+            $usercat = $bdd->exec();
             $objPHPExcel->setActiveSheetIndex(0)->setCellValue($alphabet[$compteur] . '1', $i . '-' . substr($moisname, 0, 4) . '-' . substr($y, -2));
             $objPHPExcel->getActiveSheet()->getColumnDimension($alphabet[$compteur])->setAutoSize(true);
             $oao    = mktime(0, 0, 0, $pp, $i, $year[0]);
@@ -223,6 +224,7 @@ for ($y = $yy; $y <= end($year); $y++) { //list des année
             $objPHPExcel->getActiveSheet()->getStyle('B' . $inc . ':' . $alphabet[$number] . $inc)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
             $objPHPExcel->getActiveSheet()->getStyle('B1')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDD2);
             //insertion des heure effectuées
+           
             for ($m = 0; $m < count($catbyname); $m++) {
                 $h = '';
                 for ($l = 0; $l <= count($usercat[0]); $l++) {

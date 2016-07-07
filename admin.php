@@ -1,9 +1,8 @@
 <?php
-    session_start();
     include_once('include/function.php');
     include_once('include/bdd.php'); 
 	include_once('include/admin-function.php');
-	if(check_admin()){
+	if(user::check_admin()){
 		?>
 		<!DOCTYPE html>
     	<html>
@@ -34,8 +33,9 @@
 			</head>
 			<body>
 				<?php
-					$bdd=new bdd();
-					$a=$bdd->tab('select id from conge where state=0','');
+					$bdd = new bdd();
+					$bdd->cache('select id from conge where state=0','');
+					$a   = $bdd->exec();
 					if(count($a)>0){
 						$not='<span class="badge">'.count($a).' </span>';
 					}else{

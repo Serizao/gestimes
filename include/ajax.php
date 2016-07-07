@@ -1,6 +1,6 @@
 <?php
-session_start();
 include_once('bdd.php');
+user::session();
 include_once('function.php');
 include_once('admin-function.php');
 date_default_timezone_set('Europe/Paris');

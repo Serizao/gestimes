@@ -1,8 +1,8 @@
 <?php
-session_start();
 include_once('function.php');
 include_once('bdd.php');
 include_once('admin-function.php');
+user::check_admin();
 $userid    = $_REQUEST['user'];
 $cachem    = explode("-", $_REQUEST['begindate']);
 $cachem2   = explode("-", $_REQUEST['enddate']);
@@ -25,11 +25,14 @@ $array     = array(
 $array2    = array(
     $userid
 );
-$result    = $bdd->tab("select sum(a.nb) as nb, a.id_cat, b.nom from heure a, categorie b where DATE_FORMAT(a.date, '%m-%Y')>=? and DATE_FORMAT(a.date, '%m-%Y')<=? and a.id_user=? and b.id=a.id_cat group by a.id_cat ", $array);
-$domaine   = $bdd->tab("select sum(a.nb) as nb, a.id_cat, c.nom from heure a, categorie b , domaine c where DATE_FORMAT(a.date, '%m-%Y')>=? and DATE_FORMAT(a.date, '%m-%Y')<=? and a.id_user=? and b.id=a.id_cat and b.id_domaine=c.id group by c.id", $array);
+$bdd->cache("select sum(a.nb) as nb, a.id_cat, b.nom from heure a, categorie b where DATE_FORMAT(a.date, '%m-%Y')>=? and DATE_FORMAT(a.date, '%m-%Y')<=? and a.id_user=? and b.id=a.id_cat group by a.id_cat ", $array);
+$result    = $bdd->exec();
+$bdd->cache("select sum(a.nb) as nb, a.id_cat, c.nom from heure a, categorie b , domaine c where DATE_FORMAT(a.date, '%m-%Y')>=? and DATE_FORMAT(a.date, '%m-%Y')<=? and a.id_user=? and b.id=a.id_cat and b.id_domaine=c.id group by c.id", $array);
+$domaine   = $bdd->exec();
 $user      = list_user($userid);
 $user      = $user[0][0];
-$hs        = $bdd->tab('select * from heure_sup where id_user=?', $array2);
+$bdd->cache('select * from heure_sup where id_user=?', $array2);
+$hs        = $bdd->exec();
 
 ?>
 
@@ -166,8 +169,8 @@ for ($i = 0; $i < count($domaine); $i++) {
     </script>
     <?php
 
-$result = $bdd->tab("select sum(nb) as nb from heure where DATE_FORMAT(date, '%m-%Y')>=? and DATE_FORMAT(date, '%m-%Y')<=? and id_user=?", $array);
-
+$bdd->cache("select sum(nb) as nb from heure where DATE_FORMAT(date, '%m-%Y')>=? and DATE_FORMAT(date, '%m-%Y')<=? and id_user=?", $array);
+$result    = $bdd->exec();
 $nbj       = number_day($month, $year, 'a');
 $bm        = $cachem[1];
 $by        = $cachem[0];
@@ -258,8 +261,12 @@ if ($_REQUEST['begindate'] == $_REQUEST['enddate']) {
 } else {
     $week[$compt - 1]['end'] = $y . '-' . $bm . '-' . addzero($e);
 }
+if(isset($hs[0][0]['heure']) and $hs[0][0]['heure']!=''){
 $hs = $hs[0][0]['heure'];
-//print_r($hs);
+} else {
+    $hs=0; 
+}
+
 $hs = sectohour($hs);
 ?>
    
@@ -300,7 +307,8 @@ for ($e = 0; $e <= count($week) - 2; $e++) {
         $week[$e]['end']
     );
     //print_r($array).'<br>';
-    $week_hour   = $bdd->tab("select sum(nb) as nb from heure where id_user=? and date between ? and ?", $array);
+    $bdd->cache("select sum(nb) as nb from heure where id_user=? and date between ? and ?", $array);
+    $week_hour   = $bdd->exec();
     
     
     $hour    = sectohour($week_hour[0][0]['nb']);
@@ -352,7 +360,8 @@ for ($e = 0; $e <= count($week) - 2; $e++) {
 $t       = array(
     $userid
 );
-$all_moy = $bdd->tab("select avg(nb) as nb from heure where id_user=? ", $t);
+$bdd->cache("select avg(nb) as nb from heure where id_user=? ", $t);
+$all_moy = $bdd->exec();
 $z       = 0;
 for ($n = 0; $n < $e; $n++) {
     $z += $hour_seq2[$n];

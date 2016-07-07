@@ -1,30 +1,13 @@
 <?php
-function secureAccess()
-{
-    if (!checkaccess()) {
-        header('location: auth.php'); // on redirige vers index.php                                                 
-        exit();
-    }
-}
-function checkAccess()
-{
-    return ($_SESSION['username']);
-}
-function check_admin()
-{
-    if (isset($_SESSION['acl']) and $_SESSION['acl'] == 10) {
-        return true;
-    } else {
-        return false;
-    }
-}
+
 function last_time($id, $date)
 {
     $bdd    = new bdd;
     $data   = array(
         $id
     );
-    $result = $bdd->tab("SELECT id, es, DATE_FORMAT(`temps`, '%d %M %Y') AS date, DATE_FORMAT(temps, '%H:%i') AS time, temps FROM `es` WHERE cast(temps as date)='" . $date . "' and id_user=? order by temps asc", $data);
+     $bdd->cache("SELECT id, es, DATE_FORMAT(`temps`, '%d %M %Y') AS date, DATE_FORMAT(temps, '%H:%i') AS time, temps FROM `es` WHERE cast(temps as date)='" . $date . "' and id_user=? order by temps asc", $data);
+     $result = $bdd->exec();
     return $result;
 }
 function current_semaine($n, $o)
@@ -78,19 +61,22 @@ function transfere($date, $id, $provenance)
         $id,
         $date
     );
-    $result = $bdd->tab("select a.nb as nb, b.nom as cat, a.id as id from heure a, categorie b where a.id_cat=b.id and id_user=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?  ", $array);
+    $bdd->cache("select a.nb as nb, b.nom as cat, a.id as id from heure a, categorie b where a.id_cat=b.id and id_user=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?  ", $array); 
+    $result = $bdd->exec();
     $result = $result[0];
     if (isset($result[0]['nb'])) {
-        echo '<div class="col-md-6"><input type="date" value="' . $date . '" class="form-control" id="changetimeuser" ></div><div class="col-md-6"><input type="time" class="form-control" id="nb_transf"/></div><br><br>';
+        echo '<div class="col-md-6"></div><div class="col-md-6"><input type="time" class="form-control" id="nb_transf"/></div><br><br>';
         echo '<div class="col-md-6"><select id="de" class="form-control">';
-        for ($i = 0; $i < count($result); $i++) {
+        $compteur = count($result);
+        for ($i = 0; $i < $compteur; $i++) {
             $nb = sectohour($result[$i]['nb']);
             echo '<option value="' . $result[$i]['id'] . '" max="' . $nb['h'] . ':' . $nb['m'] . '">de ' . $result[$i]['cat'] . ' ( ' . $nb['h'] . 'h' . $nb['m'] . ' disponible ) </option>';
         }
         echo '</select></div>';
-        $cat = $bdd->tab('select * from categorie', '');
+        $cat = $bdd->cache('select * from categorie', '');
         echo '<div class="col-md-6"><select id="vers" class="form-control">';
-        for ($i = 0; $i < count($cat); $i++) {
+        $compteur2 = count($cat);
+        for ($i = 0; $i < $compteur2; $i++) {
             echo '<option value="' . $cat[$i]['id'] . '">vers ' . $cat[$i]['nom'] . '</option>';
         }
         echo '</select></div><br><br>';
@@ -102,7 +88,7 @@ function transfere($date, $id, $provenance)
         }
         echo '<input id="valid_transfere" ' . $v . ' type="button" value="valider le changement" class="col-md-offset-4 col-md-4 btn btn-primary">';
     } else {
-        echo '<div class="col-md-6"><input type="date" value="' . $date . '" class="form-control" id="changetimeuser" ></div><br>pas de temps sur ce jour la avec cet utilisateur';
+        echo '<div class="col-md-6"><input type="date" value="' . $date . '" class="form-control user-success" id="changetimeuser" ></div><br>pas de temps sur ce jour la avec cet utilisateur';
     }
 }
 function transfere_v($id, $date, $user, $time, $vers, $de)
@@ -111,7 +97,8 @@ function transfere_v($id, $date, $user, $time, $vers, $de)
     $array  = array(
         $de
     );
-    $result = $bdd->tab("select nb from heure where id=?", $array);
+    $bdd->cache("select nb from heure where id=?", $array);
+    $result = $bdd->exec();
     $time   = hourtosec($time);
     if ($time <= $result[0][0]['nb']) {
         $futur  = $result[0][0]['nb'] - $time;
@@ -132,8 +119,9 @@ function transfere_v($id, $date, $user, $time, $vers, $de)
                 $de
             );
         }
-        $bdd->tab('update heure set nb=? where id=?', $array1);
-        $bdd->tab("INSERT INTO `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", $array2);
+        $bdd->cache('update heure set nb=? where id=?', $array1);
+        $bdd->cache("INSERT INTO `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", $array2);
+        $bdd->exec();
         echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> heure modifié avec succès</div>';
     } else {
         echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">le temps est sans doute trop élevé</div>';
@@ -181,7 +169,8 @@ function arriver($id, $time)
         $id,
         $time
     );
-    $result = $bdd->tab('insert into `es`( `es`, `id_user`, `temps`) VALUES(  ?, ?, ?) ', $data);
+    $bdd->cache('insert into `es`( `es`, `id_user`, `temps`) VALUES(  ?, ?, ?) ', $data);
+    $result = $bdd->exec();
 }
 function partir($id, $time)
 {
@@ -192,7 +181,8 @@ function partir($id, $time)
         $id,
         $time
     );
-    $result = $bdd->tab('insert into `es`( `es`, `id_user`, `temps`) VALUES(  ?, ?, ?) ', $data);
+    $bdd->cache('insert into `es`( `es`, `id_user`, `temps`) VALUES(  ?, ?, ?) ', $data);
+    $result = $bdd->exec();
 }
 function calcul_time($h1)
 {
@@ -237,11 +227,14 @@ function add_mouvement($id, $sens, $heure, $url)
     $array   = array(
         $_SESSION['userid']
     );
-    $verif   = $bdd->tab('select es, temps from es where id_user=? ORDER BY id DESC  limit 1', $array);
+    $bdd->cache('select es, temps from es where id_user=? ORDER BY id DESC  limit 1', $array);
+    $verif   = $bdd->exec();
     $verif   = $verif[0];
     $invalid = false;
-    if ($verif[0]['es'] == $sens and strtotime($verif[0]['temps']) == strtotime($heure)) {
-        $invalid = true;
+    if(isset($verif[0]['es']) and isset($verif[0]['temps'])){
+        if ($verif[0]['es'] == $sens and strtotime($verif[0]['temps']) == strtotime($heure)) {
+            $invalid = true;
+        }
     }
     if (!$invalid) { //check identique
         if ($sens == "e" and ($mouv == 's' or empty($mouv))) { //check coérence du mouvement
@@ -264,7 +257,8 @@ function last_mouvement($id, $date)
         $date,
         $date
     );
-    $result = $bdd->tab("select es from es where id_user=? and cast(temps as date)<? and DATE_FORMAT(temps, '%d-%m-%Y')=DATE_FORMAT(?, '%d-%m-%Y') and DATE_FORMAT(temps, '%d-%m-%Y %H:%i:%s')<DATE_FORMAT(?, '%d-%m-%Y %H:%i:%s') order by temps desc limit 0, 1", $array);
+    $bdd->cache("select es from es where id_user=? and cast(temps as date)<? and DATE_FORMAT(temps, '%d-%m-%Y')=DATE_FORMAT(?, '%d-%m-%Y') and DATE_FORMAT(temps, '%d-%m-%Y %H:%i:%s')<DATE_FORMAT(?, '%d-%m-%Y %H:%i:%s') order by temps desc limit 0, 1", $array);
+    $result = $bdd->exec();
     if (isset($result[0][0]['es'])) {
         return $result[0][0]['es'];
     } else {
@@ -278,7 +272,8 @@ function del_mouvement($id_mouv, $id_user, $url)
         $id_mouv,
         $id_user
     );
-    $bdd->tab('delete from es where id=? and id_user=?', $array);
+    $bdd->cache('delete from es where id=? and id_user=?', $array);
+    $bdd->exec();
     echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> horaires mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL=' . $url . '">';
 }
 function check_exist($o)
@@ -287,7 +282,8 @@ function check_exist($o)
     $array = array(
         $o
     );
-    $p     = $bdd->tab('select * from users where username=?', $array);
+    $bdd->cache('select * from users where username=?', $array);
+    $p     = $bdd->exec();
     if (count($p[0]) >= 1) {
         return true;
     }
@@ -299,14 +295,15 @@ function list_cat($v = 1, $user = NULL)
 {
     $bdd = new bdd();
     if ($v == 1) {
-        $result = $bdd->tab('select * from categorie', '');
-        return $result;
+        $bdd->cache('select * from categorie', '');
+        return $bdd->exec();
     }
     if ($v == 2) {
-        $result = $bdd->tab('SELECT * FROM categorie a left outer join (SELECT a.id_cat as id_cat, count(a.id_cat)*100/(select count(id_cat) from heure where id_user=? and now() > (NOW() - INTERVAL 2 WEEK)) as val FROM `heure` a, categorie b WHERE id_user=? and a.id_cat=b.id group by id_cat order by val desc) b on a.id=b.id_cat where 1 order by val desc', array(
+        $bdd->cache('SELECT * FROM categorie a left outer join (SELECT a.id_cat as id_cat, count(a.id_cat)*100/(select count(id_cat) from heure where id_user=? and now() > (NOW() - INTERVAL 2 WEEK)) as val FROM `heure` a, categorie b WHERE id_user=? and a.id_cat=b.id group by id_cat order by val desc) b on a.id=b.id_cat where 1 order by val desc', array(
             $user,
             $user
         ));
+        $result = $bdd->exec();
         return $result[0];
     }
     
@@ -319,12 +316,14 @@ function count_hour($date, $version)
         $_SESSION['userid'],
         $date
     );
-    $hour  = $bdd->tab("select * from heure where  id_user=? and DATE_FORMAT(`date`, '%Y-%m-%d')=? ", $array);
+    $bdd->cache("select * from heure where  id_user=? and DATE_FORMAT(`date`, '%Y-%m-%d')=? ", $array);
+    $hour  = $bdd->exec();
     for ($i = 0; $i < count($hour[0]); $i++) {
         $time[] = $hour[0][$i]['nb'];
         $time[] = 0;
     }
-    $result = $bdd->tab("select temps from es where id_user=? and DATE_FORMAT(`temps`, '%Y-%m-%d')=? order by temps asc", $array);
+    $bdd->cache("select temps from es where id_user=? and DATE_FORMAT(`temps`, '%Y-%m-%d')=? order by temps asc", $array);
+    $result = $bdd->exec();
     for ($i = 0; $i < count($result[0]); $i++) {
         $time[] = strtotime($result[0][$i]['temps']);
     }
@@ -408,7 +407,8 @@ function cat_hour($date, $cathour, $nb, $url, $comment)
             $date,
             $comment
         );
-        $bdd->tab('insert into heure set  id_user=?, nb=?, id_cat=?, date=? ,comment=?', $array);
+        $bdd->cache('insert into heure set  id_user=?, nb=?, id_cat=?, date=? ,comment=?', $array);
+        $bdd->exec();
         echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> modification effectuée avec succès</div><meta http-equiv="refresh" content="2; URL=index.php' . $url . '">';
     } else {
         echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">erreur : le nombre d\'heure entré est probablement trop grand</div>';
@@ -481,14 +481,16 @@ function check_conge($id, $idmotif, $raison = 1)
 {
     
     $bdd  = new bdd;
-    $type = $bdd->tab('select type from motif where id=? ', array(
+    $bdd->cache('select type from motif where id=? ', array(
         $idmotif
     ));
+    $type = $bdd->exec();
     if (isset($type[0][0]['type'])) {
         if ($type[0][0]['type'] == 1) {
-            $solde = $bdd->tab('select nb_jour from credit_conge where id_user=?', array(
+            $bdd->cache('select nb_jour from credit_conge where id_user=?', array(
                 $id
             ));
+            $solde = $bdd->exec();
             if ($raison == 0) {
                 return $solde[0][0]['nb_jour'];
             }
@@ -500,9 +502,10 @@ function check_conge($id, $idmotif, $raison = 1)
                 return $a;
             }
         } elseif ($type[0][0]['type'] == 0) {
-            $solde = $bdd->tab('select heure from heure_sup where id_user=?', array(
+            $bdd->cache('select heure from heure_sup where id_user=?', array(
                 $id
             ));
+            $solde = $bdd->exec();
             return $solde[0][0]['heure'] * 3600 * 7;
         }
     }
@@ -580,7 +583,8 @@ function majhs($id)
                     date('YW', $date),
                     $id
                 );
-                $dates = $bdd->tab("select sum(nb) as nb from heure where yearweek(date)=? and id_user=?", $tab0);
+                $bdd->cache("select sum(nb) as nb from heure where yearweek(date)=? and id_user=?", $tab0);
+                $dates = $bdd->exec();
                 $total = $dates[0][0]['nb'] - $contrat;
                 $all   = $all + $total;
             }
@@ -589,29 +593,38 @@ function majhs($id)
         $tab4 = array(
             $id
         );
-        $test = $bdd->tab('select * from heure_sup where id_user=?', $tab4);
+        $bdd->cache('select * from heure_sup where id_user=?', $tab4);
+        $test = $bdd->exec();
         echo '<br><br>';
-        if (!isset($test[0][0]['id'])) {
+        if (!isset($test[0][0]['id']) or ($test[0][0]['id']=='') ) {
             $tab3 = array(
                 $id,
                 $all,
                 $dateformat
             );
-            $bdd->tab('insert into heure_sup ( `id_user`, `heure`, `date_refresh`) VALUES ( ?, ?, ?)', $tab3);
+            $bdd->cache('insert into heure_sup ( `id_user`, `heure`, `date_refresh`) VALUES ( ?, ?, ?)', $tab3);
+            $bdd->exec();
         } else {
             $tab2 = array(
                 $all,
                 $dateformat,
                 $id
             );
-            $bdd->tab('update heure_sup set heure=?, date_refresh=? where id_user=?', $tab2);
+            $bdd->cache('update heure_sup set heure=?, date_refresh=? where id_user=?', $tab2);
+            $bdd->exec();
         }
         //partie congé
         $conge_mensuel = 25; // toute les entré seront avec des fraction sur 12 sous entendu ici 25/12
-        $result        = $bdd->tab('select nb_jour,maj from credit_conge where id_user=?', array(
+        $bdd->cache('select nb_jour,maj from credit_conge where id_user=?', array(
             $id
         ));
-        $result        = $result[0][0];
+        $result        = $bdd->exec();
+        if(isset($result[0][0])){
+            $result        = $result[0][0];  
+        } else {
+            $result=0;
+        }
+        
         $now           = new DateTime(date('Ym'));
         $nowM          = $now->format('m');
         $nowY          = $now->format('Y');
@@ -628,16 +641,18 @@ function majhs($id)
                 } else {
                     $solde = $solde + $conge_mensuel;
                 }
-                $bdd->tab('UPDATE `credit_conge` SET `nb_jour`=?, maj=? where `id_user`=?', array(
+                $bdd->cache('UPDATE `credit_conge` SET `nb_jour`=?, maj=? where `id_user`=?', array(
                     $solde,
                     date('Y-m-d'),
                     $id
                 ));
+                $bdd->exec();
             } else { //si c'est un nouvel employé qui n'a pas encore d'entré en base pour ces congé on check son contrat pour savoir 
                 $solde    = 0;
-                $contrat  = $bdd->tab('select begin from users where id=?', array(
+                $bdd->cache('select begin from users where id=?', array(
                     $id
                 ));
+                $contrat  = $bdd->exec();
                 $contrat  = new DateTime($contrat[0][0]['begin']);
                 $contratD = $contrat->format('d');
                 $contratY = $contrat->format('Y');
@@ -647,11 +662,12 @@ function majhs($id)
                 if ($contratD > 15 and $solde > 0) {
                     $solde = $solde - $conge_mensuel; /// si le solde est supérieure a 0 et que la personne est arrivé après le 15 on enlève 2.083 jour
                 }
-                $i = $bdd->tab('INSERT INTO `credit_conge`(nb_jour, id_user, maj) VALUES (?,?,?) ', array(
+                $bdd->cache('INSERT INTO `credit_conge`(nb_jour, id_user, maj) VALUES (?,?,?) ', array(
                     $solde,
                     $id,
                     date('Y-m-d')
                 ));
+                $i = $bdd->exec();
             }
         }
     }
@@ -667,13 +683,15 @@ function list_user_u($id = '')
 {
     $bdd = new bdd();
     if ($id == '') {
-        $result = $bdd->tab("select a.begin as begin, a.id as id, a.username as username, a.nom as nom, a.prenom as prenom, a.acl as acl, a.mail as mail, b.nom as contrat , b.pourcent as pourcent, a.state as state from users a, contrat b where a.id_contrat=b.id", '');
+        $bdd->cache("select a.begin as begin, a.id as id, a.username as username, a.nom as nom, a.prenom as prenom, a.acl as acl, a.mail as mail, b.nom as contrat , b.pourcent as pourcent, a.state as state from users a, contrat b where a.id_contrat=b.id", '');
+        $result = $bdd->exec();
     }
     if ($id != '') {
         $array  = array(
             $id
         );
-        $result = $bdd->tab("select a.begin as begin, a.id as id, a.username as username, a.nom as nom, a.prenom as prenom, a.acl as acl, a.mail as mail, b.nom as contrat , b.pourcent as pourcent , a.state as state from users a, contrat b where a.id_contrat=b.id and a.id=?", $array);
+        $bdd->cache("select a.begin as begin, a.id as id, a.username as username, a.nom as nom, a.prenom as prenom, a.acl as acl, a.mail as mail, b.nom as contrat , b.pourcent as pourcent , a.state as state from users a, contrat b where a.id_contrat=b.id and a.id=?", $array);
+        $result = $bdd->exec();
     }
     return $result;
 }
@@ -768,11 +786,13 @@ function compte_day_conge($debut, $fin)
 function get_take_conge($id)
 {
     $bdd      = new bdd();
-    $holi     = $bdd->tab('SELECT begin, end FROM conge WHERE id_user=? and state=0 and `begin` >=CURDATE()', array(
+    $bdd->cache('SELECT begin, end FROM conge WHERE id_user=? and state=0 and `begin` >=CURDATE()', array(
         $id
     ));
+    $holi     = $bdd->exec();
     $compteur = 0;
-    for ($i = 0; $i < count($holi[0]); $i++) {
+    $compt=count($holi[0]);
+    for ($i = 0; $i < $compt; $i++) {
         $compteur = $compteur + compte_day_conge($holi[0][0]['begin'], $holi[0][0]['end']);
     }
     return $compteur;
@@ -784,7 +804,8 @@ function addconge($id_motif, $id_user, $begin, $end, $jbegin, $jend)
     $array              = array(
         $id_motif
     );
-    $result             = $bdd->tab('select * from motif where id=?', $array);
+    $bdd->cache('select * from motif where id=?', $array);
+    $result             = $bdd->exec();
     $type               = $result[0][0]['type'];
     $jend               = half_day($jend, 'f');
     $jbegin             = half_day($jbegin, 'd');
@@ -802,7 +823,8 @@ function addconge($id_motif, $id_user, $begin, $end, $jbegin, $jend)
     $nbjc               = $nbjc + $conge_deja_demande;
     if ($nbjc <= $nbjrc or $type == 2) {
         //print_r($array2);
-        $bdd->tab("INSERT INTO `conge`( `id_motif`, `id_user`, `state`, `begin`, `end`) VALUES ( ?, ?, '0', ? ,?)", $array2);
+        $bdd->cache("INSERT INTO `conge`( `id_motif`, `id_user`, `state`, `begin`, `end`) VALUES ( ?, ?, '0', ? ,?)", $array2);
+        $bdd->exec();
         echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> conge ajouté avec succès</div><meta http-equiv="refresh" content="2; URL=index.php">';
     } else {
         echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">vous n\'avez sans doute pas assez de congé pour faire sa</div>';
@@ -815,12 +837,15 @@ function delconge($id, $user_id)
         $id,
         $user_id
     );
-    $result = $bdd->tab('select b.type as type , a.begin as begin, a.end as end from conge a, motif b where a.id_motif=b.id and a.id=? and a.id_user=?', $array);
+    $bdd->cache('select b.type as type , a.begin as begin, a.end as end from conge a, motif b where a.id_motif=b.id and a.id=? and a.id_user=?', $array);
+    $result = $bdd->exec();
     if ($result[0][0]['type'] == 1 or $result[0][0]['type'] == 2) {
         del_heure_conge($id, $user_id);
-        $bdd->tab('DELETE FROM `conge` WHERE id=? and id_user=?', $array);
+        $bdd->cache('DELETE FROM `conge` WHERE id=? and id_user=?', $array);
+        $bdd->exec();
     } else {
-        $bdd->tab('DELETE FROM `conge` WHERE id=? and id_user=?', $array);
+        $bdd->cache('DELETE FROM `conge` WHERE id=? and id_user=?', $array);
+        $bdd->exec();
         echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> conge supprimé avec succès</div><meta http-equiv="refresh" content="2; URL=index.php">';
     }
 }
@@ -836,9 +861,10 @@ function random_color()
 function del_heure_conge($id, $id_user)
 {
     $bdd      = new bdd();
-    $type     = $bdd->tab('select a.state as state, b.type as type, a.end as end, a.begin as begin, a.id_user as id_user from conge a , motif b where b.id=a.id_motif and a.id=?', array(
+    $bdd->cache('select a.state as state, b.type as type, a.end as end, a.begin as begin, a.id_user as id_user from conge a , motif b where b.id=a.id_motif and a.id=?', array(
         $id
     ));
+    $type     = $bdd->exec();
     $type     = $type[0];
     $jour     = '86400'; //jour en seconde
     $end      = explode(" ", $type[0]['end']);
@@ -853,11 +879,12 @@ function del_heure_conge($id, $id_user)
             if (isHoliday($compteur) != 1) { //check si c'est un jour de congé
                 if ($begins == $ends) { //si la personne a pris une demie journé
                     $nbh = hourtosec($end[1]) - hourtosec($begin[1]); //nombre de seconde
-                    $bdd->tab("delete from `heure` where id_cat=34 and id_user=? and nb=? and DATE_FORMAT(`date`, '%Y-%m-%d')=? ", array(
+                    $bdd->cache("delete from `heure` where id_cat=34 and id_user=? and nb=? and DATE_FORMAT(`date`, '%Y-%m-%d')=? ", array(
                         $type[0]['id_user'],
                         $nbh,
                         $begin[0]
                     ));
+                    $bdd->exec();
                 } else {
                     if ($begins == $compteur or $ends == $compteur) { //si on arrive au debut ou la fin de la periode demandée
                         if ($begins == $compteur) {
@@ -868,11 +895,12 @@ function del_heure_conge($id, $id_user)
                                 $n = '13:30';
                             }
                             $nbh = hourtosec('16:30') - (hourtosec($n));
-                            $bdd->tab("delete from `heure` where id_cat=34 and id_user=? and nb=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?", array(
+                            $bdd->cache("delete from `heure` where id_cat=34 and id_user=? and nb=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?", array(
                                 $type[0]['id_user'],
                                 $nbh,
                                 $begin[0]
                             ));
+                            $bdd->exec();
                         } else {
                             if ($end[1] == '12:00:00') {
                                 $n = '12:00'; //on enleve 1h le soir pour compenser la pause dejeuner
@@ -881,18 +909,20 @@ function del_heure_conge($id, $id_user)
                                 $n = '15:30';
                             }
                             $nbh = hourtosec($n) - hourtosec('08:30');
-                            $bdd->tab("delete from `heure` where id_cat=34 and id_user=? and nb=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?", array(
+                            $bdd->cache("delete from `heure` where id_cat=34 and id_user=? and nb=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?", array(
                                 $type[0]['id_user'],
                                 $nbh,
                                 $end[0]
                             ));
+                            $bdd->exec();
                         }
                     } else { //sinon
-                        $bdd->tab("delete from `heure` where id_cat=34 and id_user=? and nb=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?", array(
+                        $bdd->cache("delete from `heure` where id_cat=34 and id_user=? and nb=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?", array(
                             $type[0]['id_user'],
                             '25200',
                             date('Y-m-d', $compteur)
                         ));
+                        $bdd->exec();
                     }
                 }
             } //fin check jour de congé
@@ -903,9 +933,10 @@ function del_heure_conge($id, $id_user)
         $nbjt = 0;
         for ($i = 0; $i < $nbj + 1; $i++) {
             if (isHoliday($compteur) != 1) { //check si c'est un jour de congé
-                $conge = $bdd->tab('select nb_jour from credit_conge where id_user=?', array(
+                $bdd->cache('select nb_jour from credit_conge where id_user=?', array(
                     $type[0]['id_user']
                 ));
+                $conge = $bdd->exec();
                 $conge = $conge[0];
                 if ($begins == $ends) { //si la personne a pris une demie journé
                     $nbh       = hourtosec($end[1]) - hourtosec($begin[1]); //nombre de seconde
@@ -923,11 +954,12 @@ function del_heure_conge($id, $id_user)
                             }
                             $nbh  = hourtosec('16:30') - hourtosec($n);
                             $nbjt = $nbjt + $nbh;
-                            $bdd->tab("delete from `heure` where id_cat=33 and id_user=? and nb=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?", array(
+                            $bdd->cache("delete from `heure` where id_cat=33 and id_user=? and nb=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?", array(
                                 $type[0]['id_user'],
                                 $nbh,
                                 $begin[0]
                             ));
+                            $bdd->exec();
                         } else {
                             if ($end[1] == '12:00:00') {
                                 $n = '12:00'; //on enleve 1h le soir pour compenser la pause dejeuner
@@ -937,19 +969,21 @@ function del_heure_conge($id, $id_user)
                             }
                             $nbh  = hourtosec($n) - hourtosec('08:30');
                             $nbjt = $nbjt + $nbh;
-                            $bdd->tab("delete from `heure` where id_cat=33 and id_user=? and nb=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?", array(
+                            $bdd->cache("delete from `heure` where id_cat=33 and id_user=? and nb=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?", array(
                                 $type[0]['id_user'],
                                 $nbh,
                                 $end[0]
                             ));
+                            $bdd->exec();
                         }
                     } else { //sinon
                         $nbjt = $nbjt + $nbh;
-                        $bdd->tab("delete from `heure` where id_cat=33 and id_user=? and nb=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?", array(
+                        $bdd->cache("delete from `heure` where id_cat=33 and id_user=? and nb=? and DATE_FORMAT(`date`, '%Y-%m-%d')=?", array(
                             $type[0]['id_user'],
                             '25200',
                             date('Y-m-d', $compteur)
                         ));
+                        $bdd->exec();
                     }
                 }
             } //fin check jour de congé
@@ -958,10 +992,11 @@ function del_heure_conge($id, $id_user)
         if ($type[0]['state'] == 1) { //si il a déja été valider on recredite le solde de congé de l'utilisateur
             $nbjt = ($nbjt / 3600) / 7;
             $nbjt = $conge[0]['nb_jour'] + $nbjt * 12;
-            $bdd->tab('update credit_conge set nb_jour=? where id_user=?', array(
+            $bdd->cache('update credit_conge set nb_jour=? where id_user=?', array(
                 $nbjt,
                 $type[0]['id_user']
             ));
+            $bdd->exec();
         }
     } //fin du type congé paye
     echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> conge mis à jour avec succès</div>';

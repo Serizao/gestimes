@@ -1,7 +1,7 @@
 <?php
-session_start();
 include_once('function.php');
 include_once('bdd.php'); 
+user::check_admin();
 include_once('admin-function.php');
 $cachem=explode("-",$_REQUEST['begindate']);
 $cachem2=explode("-",$_REQUEST['enddate']);
@@ -55,13 +55,15 @@ $(function () {
                     data: [
 
 <?php
-$result=$bdd->tab( $sql, $array);
-$result=$result[0];
-$all=0;
-for($i=0;$i<count($result);$i++){
+$bdd->cache( $sql, $array);
+$result   = $bdd->exec();
+$result   = $result[0];
+$all      = 0;
+$compteur = count($result);
+for($i=0;$i<$compteur;$i++){
  $all=$all+$result[$i]['nb'];
 }
-for($i=0;$i<count($result);$i++){
+for($i=0;$i<$compteur;$i++){
     $percent=0;
     $percent=($result[$i]['nb']*100)/$all;
     echo "

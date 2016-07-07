@@ -1,8 +1,12 @@
+<?php
+user::check_admin();
+?>
 <div id="topdiv" class="row" style="margin-top:40px;">
 	<div class="col-md-3">
 		<?php
 $bdd      = new bdd();
-$domaines = $bdd->tab('select * from domaine', '');
+$bdd->cache('select * from domaine', '');
+$domaines = $bdd->exec();
 echo '<select onchange="change(\'choosedom\');" id="choosedom" class="col-md-12">';
 echo '<option></option>';
 for ($i = 0; $i < count($domaines); $i++) {
@@ -10,7 +14,8 @@ for ($i = 0; $i < count($domaines); $i++) {
 }
 echo '</select>';
 echo '<p>ou</p>';
-$cat = $bdd->tab('select * from categorie', '');
+$bdd->cache('select * from categorie', '');
+$cat = $bdd->exec();
 echo '<select onchange="change(\'choosecat\');" id="choosecat" class="col-md-12">';
 echo '<option></option>';
 for ($i = 0; $i < count($cat); $i++) {
@@ -18,7 +23,8 @@ for ($i = 0; $i < count($cat); $i++) {
 }
 echo '</select>';
 echo '<p>ou</p>';
-$user = $bdd->tab('select * from users', '');
+$bdd->cache('select * from users', '');
+$user = $bdd->exec();
 echo '<select onchange="change(\'chooseuser\');" id="chooseuser" class="col-md-12">';
 echo '<option></option>';
 for ($i = 0; $i < count($user); $i++) {

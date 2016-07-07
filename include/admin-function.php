@@ -1,21 +1,23 @@
 <?php
-if (check_admin()) {
+if (user::check_admin()) {
     function list_user($id = '')
     {
         $bdd = new bdd();
         if ($id == '') {
-            $result = $bdd->tab("select a.begin as begin, a.id as id, a.username as username, a.nom as nom, a.prenom as prenom, a.acl as acl, a.mail as mail, b.nom as contrat , b.pourcent as pourcent, a.state as state  from users a, contrat b where a.id_contrat=b.id", '');
+            $bdd->cache("select a.begin as begin, a.id as id, a.username as username, a.nom as nom, a.prenom as prenom, a.acl as acl, a.mail as mail, b.nom as contrat , b.pourcent as pourcent, a.state as state  from users a, contrat b where a.id_contrat=b.id", '');
+            $result = $bdd->exec();
         }
         if ($id != '') {
             $array  = array(
                 $id
             );
-            $result = $bdd->tab("select  a.begin as begin, a.id as id, a.username as username, a.nom as nom, a.prenom as prenom, a.acl as acl, a.mail as mail, b.nom as contrat , b.pourcent as pourcent, a.state as state  from users a, contrat b where a.id_contrat=b.id and a.id=?", $array);
+            $bdd->cache("select  a.begin as begin, a.id as id, a.username as username, a.nom as nom, a.prenom as prenom, a.acl as acl, a.mail as mail, b.nom as contrat , b.pourcent as pourcent, a.state as state  from users a, contrat b where a.id_contrat=b.id and a.id=?", $array);
+            $result = $bdd->exec();
         }
         
         return $result;
     }
-    function add_user($nom, $prenom, $password, $acl, $mail, $contrat, $begin)
+    function add_user($nom, $prenom, $password, $acl, $mail, $contrat, $begin,$nbconge)
     {
         $password = hash('sha512', $password);
         $username = strtolower(substr($prenom, 0) . $nom);
@@ -31,7 +33,11 @@ if (check_admin()) {
                 $contrat,
                 $begin
             );
-            $bdd->tab("insert into users set username=?, nom=?, prenom=?, password=?, acl=?, mail=?, id_contrat=?, begin=?,state='1'", $array);
+            $bdd->cache("insert into users set username=?, nom=?, prenom=?, password=?, acl=?, mail=?, id_contrat=?, begin=?,state='1'", $array);
+            $bdd->exec();
+            $id = $bdd->lastid();
+            $bdd->cache('INSERT INTO `credit_conge`(nb_jour, id_user, maj) VALUES (?,?,?) ',array($nbconge,$id,date('Y-m-d')));
+            $bdd->exec();
             echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> utilisateur ajouté avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=user">';
         } else {
             echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">erreur : utilisateur déja existant</div>';
@@ -48,9 +54,10 @@ if (check_admin()) {
         $c       = 0;
         $class   = 'timeline';
         $bdd     = new bdd;
-        $result  = $bdd->tab('SELECT a.id as id, a.nom, a.prenom,b.date, b.nb, b.comment FROM users a,heure b WHERE a.id=b.id_user and b.id_cat=? order by b.date desc', array(
+        $bdd->cache('SELECT a.id as id, a.nom, a.prenom,b.date, b.nb, b.comment FROM users a,heure b WHERE a.id=b.id_user and b.id_cat=? order by b.date desc', array(
             $id
         ));
+        $result  = $bdd->exec();
         $result  = $result[0];
         $content = '<div class="col-md-6"><div class="page-header">
                         <h1 id="timeline">Timeline</h1>
@@ -126,24 +133,27 @@ if (check_admin()) {
                               </tr>
                             </thead>
                             <tbody>';
-        foreach ($mem2 as $date) {
-            $content .= '<tr>
-                                        <td>' . $date . '</td>';
-            $mem5 = 0;
-            foreach ($mem4 as $id_user) {
-                $result2 = $bdd->tab("SELECT sum(nb) as nb FROM heure WHERE DATE_FORMAT(date,'%Y-%m')=? and id_user=? and id_cat=?;", array(
-                    $date,
-                    $id_user,
-                    $id
-                ));
-                $mem5 += $result2[0][0]['nb'];
-                $t = sectohour($result2[0][0]['nb']);
-                $content .= '<td>' . $t['h'] . ' H ' . $t['m'] . '</td>';
+        if(isset($mem4) and !empty($mem4) and isset($mem2) and !empty($mem2)){ //check des var pour eviter les warning
+            foreach ($mem2 as $date) {
+                $content .= '<tr>
+                                            <td>' . $date . '</td>';
+                $mem5 = 0;
+                foreach ($mem4 as $id_user) {
+                    $bdd->cache("SELECT sum(nb) as nb FROM heure WHERE DATE_FORMAT(date,'%Y-%m')=? and id_user=? and id_cat=?;", array(
+                        $date,
+                        $id_user,
+                        $id
+                    ));
+                    $result2 = $bdd->exec();
+                    $mem5 += $result2[0][0]['nb'];
+                    $t = sectohour($result2[0][0]['nb']);
+                    $content .= '<td>' . $t['h'] . ' H ' . $t['m'] . '</td>';
+                }
+                $tt = sectohour($mem5);
+                $content .= '<td>' . $tt['h'] . ' H ' . $tt['m'] . '</td>';
+                $content .= ' </tr>';
+                
             }
-            $tt = sectohour($mem5);
-            $content .= '<td>' . $tt['h'] . ' H ' . $tt['m'] . '</td>';
-            $content .= ' </tr>';
-            
         }
         $content .= '</table>
                                 </div>';
@@ -158,7 +168,8 @@ if (check_admin()) {
         $array = array(
             $id
         );
-        $bdd->tab("DELETE FROM `users` WHERE id=?", $array);
+        $bdd->cache("DELETE FROM `users` WHERE id=?", $array);
+        $bdd->exec();
         echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> utilisateur supprimé avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=user">';
     }
     function update_user($nom, $prenom, $password, $acl, $mail, $contrat, $id, $begin)
@@ -189,7 +200,8 @@ if (check_admin()) {
             $array[] = $id;
             $bdd     = new bdd();
             
-            $bdd->tab($req, $array);
+            $bdd->cache($req, $array);
+            $bdd->exec();
             echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> utilisateur mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=user">';
         } else {
             echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">erreur : vous n\'avez probablement pas remplity les champs obligatoire : -contrat<br>-niveau de droit<br>-date de debut</div>';
@@ -203,7 +215,8 @@ if (check_admin()) {
             $cat,
             $catdom
         );
-        $bdd->tab('insert into categorie set  nom=?, id_domaine=?, cir=0', $array);
+        $bdd->cache('insert into categorie set  nom=?, id_domaine=?, cir=0', $array);
+        $bdd->exec();
         if ($intern == 0) {
             echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> catégorie ajoutée avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=categorie">';
         } else {
@@ -225,21 +238,23 @@ if (check_admin()) {
             $cir,
             $cat
         );
-        $bdd->tab('UPDATE categorie SET nom=?, id_domaine=? , cir=? where id=?', $array);
-        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> catégorie ajoutée avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=categorie">';
+        $bdd->cache('UPDATE categorie SET nom=?, id_domaine=? , cir=? where id=?', $array);
+        $bdd->exec();
+       echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> catégorie ajoutée avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=categorie">';
     }
     function delete_cat($id)
     {
         $bdd    = new bdd();
-        $result = $bdd->tab('select id_domaine from categorie where id=?', array(
+        $bdd->cache('select id_domaine from categorie where id=?', array(
             $id
         ));
-        
-        $array = array(
+        $result = $bdd->exec();
+        $array  = array(
             $id
         );
         if ($result[0][0]['id_domaine'] != 7) {
-            $bdd->tab("DELETE FROM `categorie` WHERE id=?", $array);
+            $bdd->cache("DELETE FROM `categorie` WHERE id=?", $array);
+            $bdd->exec();
             echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> catégorie supprimé avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=categorie">';
         } else {
             echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">Catégorie nessessaire au fonctionnement de l\'application</div>';
@@ -253,7 +268,8 @@ if (check_admin()) {
         $array = array(
             $dom
         );
-        $bdd->tab('insert into domaine set  nom=?', $array);
+        $bdd->cache('insert into domaine set  nom=?', $array);
+        $bdd->exec();
         echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> domaine ajoutée avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=domaine">';
     }
     function rename_dom($dom, $name)
@@ -263,7 +279,8 @@ if (check_admin()) {
             $name,
             $dom
         );
-        $bdd->tab('UPDATE domaine SET nom=? where id=?', $array);
+        $bdd->cache('UPDATE domaine SET nom=? where id=?', $array);
+        $bdd->exec();
         echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> domaine ajoutée avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=domaine">';
     }
     function delete_dom($id)
@@ -273,7 +290,8 @@ if (check_admin()) {
             $id
         );
         if ($id != 7) {
-            $bdd->tab("DELETE FROM `domaine` WHERE id=?", $array);
+            $bdd->cache("DELETE FROM `domaine` WHERE id=?", $array);
+            $bdd->exec();
             echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> domaine supprimé avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=domaine">';
         } else {
             echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">Domaine nessessaire au fonctionnement de l\'application</div>';
@@ -286,10 +304,12 @@ if (check_admin()) {
         $array = array(
             $id
         );
-        $user  = $bdd->tab('select * from users where id_contrat=?', $array);
+         $bdd->cache('select * from users where id_contrat=?', $array);
+        $user  = $bdd->exec();
         $user  = $user[0];
         if (empty($user)) {
-            $bdd->tab("DELETE FROM `contrat` WHERE id=?", $array);
+            $bdd->cache("DELETE FROM `contrat` WHERE id=?", $array);
+            $bdd->exec();
             echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> contrat supprimé avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=contrat">';
         } else {
             echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">erreur : un/des utilisateur(s) utilise(nt) ce contrat : <br>
@@ -305,13 +325,15 @@ if (check_admin()) {
     function updatecontrat($array)
     {
         $bdd = new bdd();
-        $bdd->tab("UPDATE `contrat` SET `nom`=?,`pourcent`=?,`conge`=? WHERE id=?", $array);
+        $bdd->cache("UPDATE `contrat` SET `nom`=?,`pourcent`=?,`conge`=? WHERE id=?", $array);
+        $bdd->exec();
         echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> contrat mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=contrat">';
     }
     function addcontrat($array)
     {
         $bdd = new bdd();
-        $bdd->tab("INSERT INTO `contrat`( `nom`, `pourcent`, `conge`) VALUES ( ?, ?, ?)", $array);
+        $bdd->cache("INSERT INTO `contrat`( `nom`, `pourcent`, `conge`) VALUES ( ?, ?, ?)", $array);
+        $bdd->exec();
         echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> contrat ajouter avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=contrat">';
     }
     function modifmotif($nom, $type, $id)
@@ -322,23 +344,26 @@ if (check_admin()) {
             $type,
             $id
         );
-        $bdd->tab('update motif set nom = ?, type=? where id=?', $array);
+        $bdd->cache('update motif set nom = ?, type=? where id=?', $array);
+        $bdd->exec();
         echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> motif mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=motif">';
     }
     function delmotif($id)
     {
         $bdd   = new bdd();
-        $a     = $bdd->tab('select id_cat from motif where id=?', array(
+        $bdd->cache('select id_cat from motif where id=?', array(
             $id
         ));
+        $a     = $bdd->exec();
         $array = array(
             $a[0][0]['id_cat']
         );
-        $bdd->tab('DELETE FROM `categorie` WHERE id=?', $array);
+        $bdd->cache('DELETE FROM `categorie` WHERE id=?', $array);
         $array = array(
             $id
         );
-        $bdd->tab("DELETE FROM `motif` WHERE id=?", $array);
+        $bdd->cache("DELETE FROM `motif` WHERE id=?", $array);
+        $bdd->exec();
         echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> motif supprimé avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=motif">';
         
     }
@@ -351,7 +376,8 @@ if (check_admin()) {
             $nom,
             $idcat
         );
-        $bdd->tab("INSERT INTO `motif`( `type`, `nom`, `id_cat`) VALUES (?,?,?)", $array);
+        $bdd->cache("INSERT INTO `motif`( `type`, `nom`, `id_cat`) VALUES (?,?,?)", $array);
+        $bdd->exec();
         echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> motif ajouté avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=motif">';
         
     }
@@ -359,15 +385,17 @@ if (check_admin()) {
     function credit_conge()
     {
         $bdd  = new bdd();
-        $user = $bdd->tab('select a.id as id, b.conge as conge, a.begin as begin from users a, contrat b where a.id_contrat=b.id ', '');
+        $bdd->cache('select a.id as id, b.conge as conge, a.begin as begin from users a, contrat b where a.id_contrat=b.id ', '');
+        $user = $bdd->exec();
         for ($i = 0; $i < count($user); $i++) {
             $datetime1 = strtotime($user[$i]['begin']);
             $datetime2 = strtotime('now');
             $nbs       = $datetime2 - $datetime1;
             $nbs       = intval($nbs / 86400);
-            $test      = $bdd->tab('select * from credit_conge where id_user=?', array(
+            $bdd->cache('select * from credit_conge where id_user=?', array(
                 $user[$i]['id']
             ));
+            $test      = $bdd->exec();
             $test      = $test[0];
             if (isset($test[0])) {
                 if ($nbs <= 363) { //si moins d\'un ans d'ancieneté calcul au prorata
@@ -377,14 +405,16 @@ if (check_admin()) {
                         $conge,
                         $user[$i]['id']
                     );
-                    $bdd->tab("UPDATE `credit_conge` SET `nb_jour`=? WHERE id_user=?", $array2);
+                    $bdd->cache("UPDATE `credit_conge` SET `nb_jour`=? WHERE id_user=?", $array2);
+                    $bdd->exec();
                     
                 } else {
                     $array = array(
                         $user[$i]['conge'],
                         $user[$i]['id']
                     );
-                    $bdd->tab("UPDATE `credit_conge` SET `nb_jour`=? WHERE id_user=?", $array);
+                    $bdd->cache("UPDATE `credit_conge` SET `nb_jour`=? WHERE id_user=?", $array);
+                    $bdd->exec();
                 }
             } else {
                 if ($nbs <= 363) { //si moins d\'un ans d'ancieneté calcul au prorata
@@ -394,7 +424,8 @@ if (check_admin()) {
                         $conge,
                         $user[$i]['id']
                     );
-                    $bdd->tab("insert into credit_conge ( `nb_jour`, `id_user`) VALUES (?,?)", $array2);
+                    $bdd->cache("insert into credit_conge ( `nb_jour`, `id_user`) VALUES (?,?)", $array2);
+                    $bdd->exec();
                     
                 } else {
                     $array = array(
@@ -409,13 +440,15 @@ if (check_admin()) {
     function admconge($id, $state)
     {
         $bdd = new bdd();
-        $bdd->tab("update conge set state= ? where id=?", array(
+        $bdd->cache("update conge set state= ? where id=?", array(
             $state,
             $id
         ));
-        $type = $bdd->tab('select a.state as state, a.id_motif as motif, b.type as type,b.id_cat as id_cat, a.end as end, a.begin as begin, a.id_user as id_user from conge a , motif b where b.id=a.id_motif and a.id=?', array(
+        $bdd->exec();
+        $bdd->cache('select a.state as state, a.id_motif as motif, b.type as type,b.id_cat as id_cat, a.end as end, a.begin as begin, a.id_user as id_user from conge a , motif b where b.id=a.id_motif and a.id=?', array(
             $id
         ));
+        $type = $bdd->exec();
         $type = $type[0];
         
         
@@ -433,12 +466,13 @@ if (check_admin()) {
                 if (isHoliday($compteur) != 1) { //check si c'est un jour de congé
                     if ($begins == $ends) { //si la personne a pris une demie journé
                         $nbh = hourtosec($end[1]) - hourtosec($begin[1]); //nombre de seconde
-                        $bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
+                        $bdd->cache("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
                             $type[0]['id_user'],
                             $nbh,
                             $type[0]['id_cat'],
                             $begin[0]
                         ));
+                        $bdd->exec();
                     } else {
                         
                         if ($begins == $compteur or $ends == $compteur) { //si on arrive au debut ou la fin de la periode demandée
@@ -450,12 +484,13 @@ if (check_admin()) {
                                     $n = '13:30';
                                 }
                                 $nbh = hourtosec('16:30') - (hourtosec($n));
-                                $bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
+                                $bdd->cache("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
                                     $type[0]['id_user'],
                                     $nbh,
                                     $type[0]['id_cat'],
                                     $begin[0]
                                 ));
+                                $bdd->exec();
                             } else {
                                 
                                 if ($end[1] == '12:00:00') {
@@ -466,22 +501,23 @@ if (check_admin()) {
                                 }
                                 $nbh = hourtosec($n) - hourtosec('08:30');
                                 
-                                $bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
+                                $bdd->cache("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
                                     $type[0]['id_user'],
                                     $nbh,
                                     $type[0]['id_cat'],
                                     $end[0]
                                 ));
-                                
+                                $bdd->exec();
                             }
                         } else { //sinon
                             
-                            $bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
+                            $bdd->cache("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
                                 $type[0]['id_user'],
                                 '25200',
                                 $type[0]['id_cat'],
                                 date('Y-m-d', $compteur)
                             ));
+                            $bdd->exec();
                         }
                         
                     }
@@ -493,9 +529,10 @@ if (check_admin()) {
         if ($type[0]['type'] == 1) { // dans le cas d'un conge paye
             for ($i = 0; $i < $nbj + 1; $i++) {
                 if (isHoliday($compteur) != 1) { //check si c'est un jour de congé
-                    $conge = $bdd->tab('select nb_jour from credit_conge where id_user=?', array(
+                    $conge = $bdd->cache('select nb_jour from credit_conge where id_user=?', array(
                         $type[0]['id_user']
                     ));
+                    $bdd->exec();
                     $conge = $conge[0];
                     if ($begins == $ends) { //si la personne a pris une demie journé
                         $nbh       = hourtosec($end[1]) - hourtosec($begin[1]); //nombre de seconde
@@ -513,12 +550,13 @@ if (check_admin()) {
                                 }
                                 $nbh  = hourtosec('16:30') - hourtosec($n);
                                 $nbjt = $nbjt + $nbh;
-                                $bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
+                                $bdd->cache("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
                                     $type[0]['id_user'],
                                     $nbh,
                                     $type[0]['id_cat'],
                                     $begin[0]
                                 ));
+                                $bdd->exec();
                             } else {
                                 
                                 if ($end[1] == '12:00:00') {
@@ -529,21 +567,23 @@ if (check_admin()) {
                                 }
                                 $nbh  = hourtosec($n) - hourtosec('08:30');
                                 $nbjt = $nbjt + $nbh;
-                                $bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
+                                $bdd->cache("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
                                     $type[0]['id_user'],
                                     $nbh,
                                     $type[0]['id_cat'],
                                     $end[0]
                                 ));
+                                $bdd->exec();
                             }
                         } else { //sinon
                             $nbjt = $nbjt + $nbh;
-                            $bdd->tab("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
+                            $bdd->cache("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
                                 $type[0]['id_user'],
                                 '25200',
                                 $type[0]['id_cat'],
                                 date('Y-m-d', $compteur)
                             ));
+                            $bdd->exec();
                         }
                         
                     }
@@ -557,10 +597,11 @@ if (check_admin()) {
                 //echo $nbjt."<br>".$conge[0]['nb_jour']."<br>";
                 $nbjt = $conge[0]['nb_jour'] - $nbjt * 12;
                 //echo $nbjt;
-                $bdd->tab('update credit_conge set nb_jour=? where id_user=?', array(
+                $bdd->cache('update credit_conge set nb_jour=? where id_user=?', array(
                     $nbjt,
                     $type[0]['id_user']
                 ));
+                $bdd->exec();
                 
             }
         } //fin du type congé paye
