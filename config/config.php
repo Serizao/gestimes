@@ -2,15 +2,15 @@
 if (!defined('BASE_BDD')){
 	//bdd
 	define('BASE_BDD','time');
-	define('USER_BDD','root');
-	define('PASS_BDD','7ac@RZ4');
-	define('HOST_BDD','time.triskem.fr');
+	define('USER_BDD','');
+	define('PASS_BDD','');
+	define('HOST_BDD','127.0.0.1');
 	//session
 	define('INACTIVITY_TIMEOUT',900);
 	//ldap
-	define('HOST_LDAP','192.168.6.200');
-	define('DOMAIN_LDAP','DOM2003');
-	define('DN_LDAP','dc=dom2003,dc=local');
+	define('HOST_LDAP','');
+	define('DOMAIN_LDAP','exemple.com');
+	define('DN_LDAP','dc=exemple,dc=com');
 
 }
 

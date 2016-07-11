@@ -2,8 +2,8 @@
 user::check_admin();
 ?>
 <div id="topdiv" class="row" style="margin-top:40px;">
-	<div class="col-md-3">
-		<?php
+    <div class="col-md-3">
+        <?php
 $bdd      = new bdd();
 $bdd->cache('select * from domaine', '');
 $domaines = $bdd->exec();
@@ -32,18 +32,18 @@ for ($i = 0; $i < count($user); $i++) {
 }
 echo '</select>';
 ?>
-	</div>
-	<div class="col-md-3">
-		<div class="col-md-12">date de début
-			<input type="month" id="begindate">
-					</div>
-		<div class="col-md-12"><br>date de fin
-			<input type="month" id="enddate">
-		</div>
-		<div class="col-md-12">
-			<br>
-			<a id="export" href="#"><button class="col-md-12 btn btn-primary">exporter sur exel</button></a>
-		</div>
-	</div>
+    </div>
+    <div class="col-md-3">
+        <div class="col-md-12">date de début
+            <input type="month" id="begindate">
+                    </div>
+        <div class="col-md-12"><br>date de fin
+            <input type="month" id="enddate">
+        </div>
+        <div class="col-md-12">
+            <br>
+            <a id="export" href="#"><button class="col-md-12 btn btn-primary">exporter sur exel</button></a>
+        </div>
+    </div>
 </div>
 <div class="col-md-12" id="retour"><div>

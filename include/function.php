@@ -260,10 +260,11 @@ function last_mouvement($id, $date)
     $bdd->cache("select es from es where id_user=? and cast(temps as date)<? and DATE_FORMAT(temps, '%d-%m-%Y')=DATE_FORMAT(?, '%d-%m-%Y') and DATE_FORMAT(temps, '%d-%m-%Y %H:%i:%s')<DATE_FORMAT(?, '%d-%m-%Y %H:%i:%s') order by temps desc limit 0, 1", $array);
     $result = $bdd->exec();
     if (isset($result[0][0]['es'])) {
-        return $result[0][0]['es'];
+        $resultat = $result[0][0]['es'];
     } else {
-        return '';
+        $resultat = '';
     }
+    return $resultat;
 }
 function del_mouvement($id_mouv, $id_user, $url)
 {
@@ -285,18 +286,19 @@ function check_exist($o)
     $bdd->cache('select * from users where username=?', $array);
     $p     = $bdd->exec();
     if (count($p[0]) >= 1) {
-        return true;
+        $resultat = true;
     }
     if (count($p[0]) < 1) {
-        return false;
+        $resultat = false;
     }
+    return $resultat;
 }
 function list_cat($v = 1, $user = NULL)
 {
     $bdd = new bdd();
     if ($v == 1) {
         $bdd->cache('select * from categorie', '');
-        return $bdd->exec();
+        $resultat = $bdd->exec();
     }
     if ($v == 2) {
         $bdd->cache('SELECT * FROM categorie a left outer join (SELECT a.id_cat as id_cat, count(a.id_cat)*100/(select count(id_cat) from heure where id_user=? and now() > (NOW() - INTERVAL 2 WEEK)) as val FROM `heure` a, categorie b WHERE id_user=? and a.id_cat=b.id group by id_cat order by val desc) b on a.id=b.id_cat where 1 order by val desc', array(
@@ -304,8 +306,9 @@ function list_cat($v = 1, $user = NULL)
             $user
         ));
         $result = $bdd->exec();
-        return $result[0];
+        $resultat = $result[0];
     }
+    return $resultat;
     
     
 }
@@ -343,10 +346,10 @@ function count_hour($date, $version)
         }
         if ($version == 1) {
             $return = hourtosec($tempspasser['heure'] . ':' . $tempspasser['minutes']);
-            return $return;
+            $resultat = $return;
         }
         if ($version == 2) {
-            return $tempspasser;
+            $resultat = $tempspasser;
         }
         if ($version == 3) {
             if (strlen($tempspasser['heure']) < 2) {
@@ -364,10 +367,10 @@ function count_hour($date, $version)
             echo 'il n\'y a pas de temps a catégoriser pour ce jour';
         }
         if ($version == 1) {
-            return 0;
+            $resultat = 0;
         }
         if ($version == 2) {
-            return 0;
+            $resultat = 0;
         }
         if ($version == 3) {
             echo json_encode(array(
@@ -375,6 +378,7 @@ function count_hour($date, $version)
             ));
         }
     }
+    return $resultat;
 }
 function hourtosec($hour)
 {
@@ -409,7 +413,7 @@ function cat_hour($date, $cathour, $nb, $url, $comment)
         );
         $bdd->cache('insert into heure set  id_user=?, nb=?, id_cat=?, date=? ,comment=?', $array);
         $bdd->exec();
-        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> modification effectuée avec succès</div><meta http-equiv="refresh" content="2; URL=index.php' . $url . '">';
+        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> modification effectuée avec succès</div><meta http-equiv="refresh" content="2; URL=' . $url . '">';
     } else {
         echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">erreur : le nombre d\'heure entré est probablement trop grand</div>';
     } 
@@ -699,26 +703,27 @@ function half_day($hday, $debut)
 {
     if ($debut == "d") {
         if ($hday == "matin") {
-            return "8:30:00";
+            $resultat = "8:30:00";
         }
         if ($hday == "amidi") {
-            return "13:00:00";
+            $resultat = "13:00:00";
         }
         if ($hday == "day") {
-            return "8:30:00";
+            $resultat = "8:30:00";
         }
     }
     if ($debut == "f") {
         if ($hday == "matin") {
-            return "12:00:00";
+            $resultat = "12:00:00";
         }
         if ($hday == "amidi") {
-            return "16:30:00";
+            $resultat = "16:30:00";
         }
         if ($hday == "day") {
-            return "16:30:00";
+            $resultat = "16:30:00";
         }
     }
+    return $resultat;
 }
 function compte_day_conge($debut, $fin)
 {
@@ -754,7 +759,6 @@ function compte_day_conge($debut, $fin)
             } else {
                 if ($begins == $compteur or $ends == $compteur) { //si on arrive au debut ou la fin de la periode demandée
                     if ($begins == $compteur) {
-                        echo $nbh . "<br>";
                         $n = $begin[1];
                         if ($begin[1] == '8:30:00') {
                             $n = '9:30'; //on enleve 1h le soir pour compenser la pause dejeuner

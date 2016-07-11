@@ -16,12 +16,12 @@ for ($i = 0; $i < count($user); $i++) {
 ?>
 </select>
 <div class="row">
-		date de début
-		<input type="month" id="begindate">
-		date de fin
-		<input type="month" id="enddate">	
-		<button class="col-md-6 btn btn-primary" id="userview">envoyer</button>
-	</div>
+        date de début
+        <input type="month" id="begindate">
+        date de fin
+        <input type="month" id="enddate">    
+        <button class="col-md-6 btn btn-primary" id="userview">envoyer</button>
+    </div>
 </div>
 <br>
 <div id="retour" class="col-md-12" ></div>

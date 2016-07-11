@@ -34,22 +34,22 @@ if (isset($ad_admin) and isset($ad_password) and !empty($ad_admin) and !empty($a
         $ad   = new ad();
         $user = $ad->get_all_user($ad_admin, $ad_password);
         echo '<div class="panel panel-default">
-					<div class="panel-heading">Liste des utilisateur de l\'active directory<br><form method="POST"><input type="submit" id="addselected" value="ajouter les utilisateur cochés à la base utilisateur"></div>
-					<input type="hidden" placeholder="administrateur du ldap" name="admin" value="' . $ad_admin . '">
-					<input type="hidden" name="password" placeholder="password" value="' . $ad_password . '">
-					<input type="hidden" name="user" placeholder="password" value=\'' . serialize($user) . '\'>
-					<table class="table">
-						<thead>
-							<tr>
-								<th>#</th>
-								<th>nom de connexion</th>
-								<th>nom</th>
-								<th>prenom</th>
-								<th>mail</th>
-								<th><input type="checkbox" /></th>
-							</tr>
-						</thead>
-						<tbody>';
+                    <div class="panel-heading">Liste des utilisateur de l\'active directory<br><form method="POST"><input type="submit" id="addselected" value="ajouter les utilisateur cochés à la base utilisateur"></div>
+                    <input type="hidden" placeholder="administrateur du ldap" name="admin" value="' . $ad_admin . '">
+                    <input type="hidden" name="password" placeholder="password" value="' . $ad_password . '">
+                    <input type="hidden" name="user" placeholder="password" value=\'' . serialize($user) . '\'>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>nom de connexion</th>
+                                <th>nom</th>
+                                <th>prenom</th>
+                                <th>mail</th>
+                                <th><input type="checkbox" /></th>
+                            </tr>
+                        </thead>
+                        <tbody>';
         for ($z = 0; $z < count($user); $z++) {
             $show    = '<input class="user" name="' . $user[$z]['samaccountname'] . '" type="checkbox" id="' . $user[$z]['samaccountname'] . '" />';
             $bdd     = new bdd();
@@ -66,14 +66,14 @@ if (isset($ad_admin) and isset($ad_password) and !empty($ad_admin) and !empty($a
             echo '<tr> <th scope="row">' . $z . '</th> <td>' . $user[$z]['samaccountname'] . '</td> <td>' . $user[$z]['last_name'] . '</td> <td>' . $user[$z]['first_name'] . '</td><td>' . $user[$z]['email'] . '</td><td>' . $show . '</td> </tr>';
         }
         echo '</tbody>
-					</table></form>
-				</div>';
+                    </table></form>
+                </div>';
     }
 } else {
     echo '<H2>Authentification sur le serveur d\'annuaire</h2><form method="POST">
-				<input type="text" placeholder="administrateur du ldap" name="admin">
-				<input type="password" name="password" placeholder="password">
-				<input type="submit" class="btn btn-primary" value="envoyer">
-			</form>';
+                <input type="text" placeholder="administrateur du ldap" name="admin">
+                <input type="password" name="password" placeholder="password">
+                <input type="submit" class="btn btn-primary" value="envoyer">
+            </form>';
 }
 ?>

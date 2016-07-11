@@ -220,8 +220,8 @@ class user
             $_SESSION['id']=$var[0][0]['nb'];
             $_SESSION['acl']=$var[0][0]['acl'];
             $_SESSION['userid']=$var[0][0]['nb'];
-            $_SESSION['uid'] = sha1(uniqid('',true).'_'.mt_rand()); // générer un numero unique different du php id                                                               // which can be used to hmac forms and form token (to prevent XSRF)
-            $_SESSION['ip']=$this->ip();                // stockage de l'ip deu visiteur
+            $_SESSION['uid'] = sha1(uniqid('',true).'_'.mt_rand()); 
+            $_SESSION['ip']=$this->ip();   // stockage de l'ip deu visiteur
             $_SESSION['username']=$user;
             $_SESSION['expires_on']=time()+INACTIVITY_TIMEOUT;  // Set session expiration.
             return True;

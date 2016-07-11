@@ -183,7 +183,7 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
     }
 ?>
     <hr  class="col-md-10 col-md-offset-1" style="height: 100%; height:2px; background-color:black;margin-top:10px;" />
-    <div class="col-md-4">
+    <div class="col-md-4 col-sm-6">
       <div class="row">
         <H4>Catégoriser ces heures</H4>
         <?php
@@ -198,7 +198,7 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
     echo '</select><br></div><div id="cir-detail"></div><div class="col-md-12" id="nbhour"></div><button class="btn btn-primary" id="okhour">valider</button>';
     echo '<div id="catretour"></div>';
 ?>
-      </div>
+      </div>	
       <div class="row"><br>
         <h4>Transfert d'heure</h4>
         <div class="col-md-6"><input type="date" class="form-control col-md-3" id="changetimeuser" ></div>
@@ -208,7 +208,7 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
     </div>
   </div>
 </div>
-<div class="col-md-3 col-md-offset-1">
+<div class="col-md-3 col-md-offset-1 col-sm-6">
   <h4>Congé / Récupération</h4><br>
   <form id="addconge" method="POST">
     <?php
@@ -224,7 +224,7 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
     echo '</select><br><br>';
 ?>
     <div class="row">
-      <div class=" col-md-6" style="float:left;" >
+      <div class=" col-md-6 col-sm-6" style="float:left;" >
         <h5> DU</h5>
         <input type="date"  class="form-control" id="beginholliday"/><br>
         <div style="text-align: left;">
@@ -240,7 +240,7 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
           <label> la journée</label>
         </div>
       </div>
-      <div class="col-md-6 " >
+      <div class="col-md-6 col-sm-6" style="float:right;">
         <h5>AU</h5>
         <input type="date" class="form-control" id="endholliday"/><br>
         <div style="text-align: right;">

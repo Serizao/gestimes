@@ -1,6 +1,6 @@
 <h1>transfère d'heure</h1>
 <div class="col-md-6 col-md-offset-3">
-	<div class="row">
+    <div class="row">
 <?php
 echo '<input type="date" id="changetime" class="col-md-4">';
 $bdd    = new bdd();
