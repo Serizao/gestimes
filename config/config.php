@@ -11,7 +11,6 @@ if (!defined('BASE_BDD')){
 	define('HOST_LDAP','');
 	define('DOMAIN_LDAP','exemple.com');
 	define('DN_LDAP','dc=exemple,dc=com');
-
 }
 
 
