@@ -409,7 +409,7 @@ function cat_hour($date, $cathour, $nb, $url, $comment)
             $nb,
             $cathour,
             $date,
-            $comment
+            antixss($comment)
         );
         $bdd->cache('insert into heure set  id_user=?, nb=?, id_cat=?, date=? ,comment=?', $array);
         $bdd->exec();
@@ -865,6 +865,11 @@ function random_color_part()
 function random_color()
 {
     return random_color_part() . random_color_part() . random_color_part();
+}
+function antixss($input) {
+strip_tags($input);
+$new = htmlspecialchars($input, ENT_QUOTES);
+return $new;
 }
 function del_heure_conge($id, $id_user)
 {

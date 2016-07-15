@@ -2,7 +2,8 @@
     include_once('include/function.php');
     include_once('include/bdd.php'); 
     include_once('include/admin-function.php');
-    if(user::check_admin()){
+    if(user::check_admin($_SERVER['HTTP_REFERER'])){
+
         ?>
         <!DOCTYPE html>
         <html>

@@ -1,5 +1,5 @@
 <?php
-if (user::check_admin()) {
+if (user::check_admin($_SERVER['HTTP_REFERER'])) {
     function list_user($id = '')
     {
         $bdd = new bdd();

@@ -240,23 +240,27 @@ class user
         $var=$this->_bdd->exec();
         return $var;
     }
-    public static function check_login(){
+    public static function check_login($referer=''){
         user::session();
         // si la session n'existe pas ou qu l'ip a changer -> logout
         if (!isset ($_SESSION['uid']) || !$_SESSION['uid'] || $_SESSION['ip']!=user::ip() || time()>=$_SESSION['expires_on'])
         {
             user::logout();
         }
+        if($referer!='' and $referer!=$_SERVER['HTTP_REFERER']){
+            user::logout();
+        }
         $_SESSION['expires_on']=time()+INACTIVITY_TIMEOUT;  // mise a jour de la dte d'expiration
     }
-    public static function check_admin(){
+    public static function check_admin($referer=''){
         user::session();
-        user::check_login();
+        user::check_login($referer);
         if(isset($_SESSION['acl']) and $_SESSION['acl']==10){
-            return true;
+            $resultat = true;
         } else {
-            return false;
+            $resultat = false;
         }
+        return $resultat;
     }
     public static function logout()
     // forcer la deconnexion

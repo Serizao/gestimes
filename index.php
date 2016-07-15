@@ -18,8 +18,10 @@ include_once('include/top-barre.php');
             <script src="js/jquery-2.0.2.js" type="text/javascript"></script>
             <!--style retro compatibilité html5-->
             <link rel="stylesheet" href="css/shim-ext.css">
+            <link rel="stylesheet" href="css/nprogress.css">
             <link rel="stylesheet" href="css/forms-picker.css">
             <script src="js/jquery-migrate-1.2.1.min.js"></script>
+            <script src="./js/nprogress.js"></script>
             <script src="js/polyfiller.js"></script>
 <script>
     webshims.setOptions('forms-ext', {types: 'date'});
@@ -56,9 +58,9 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
     $nbj      = count($result['jour']);
     $semaine  = $result['n'] - 1;
     $semaine2 = $result['n'] + 1;
-    echo "<a href='index.php?semaine=" . $semaine2 . "' style='float:right'> semaine suivante ></a>";
-    echo "<a href='index.php?semaine=" . $semaine . "' style='float:left'>< semaine precedente </a>";
-    echo "<a href='index.php' style='text-align:center'> NOW </a>";
+    echo '<a href="index.php?semaine=' . $semaine2 . '" style="float:right"> semaine suivante ></a>';
+    echo '<a href="index.php?semaine=' . $semaine . '" style="float:left">< semaine precedente </a>';
+    echo '<a href="index.php" style="text-align:center"> NOW </a>';
     echo '<table class="table table-bordered" style="width:100%">
         <tr>';
     for ($i = 0; $i < $nbj; $i++) {
@@ -68,11 +70,11 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
         $time     = '';
         $date1    = new datetime($result['date'][$i]);
         $date2    = new datetime();
-        $past[$i] = "0";
+        $past[$i] = '0';
         $total    = array();
         $date     = new DateTime($result['date'][$i]);
         if ($result['jour'][$i] == 'Samedi' or $result['jour'][$i] == 'Dimanche' or $date1 < $date2 or isHoliday($date->getTimestamp())) {
-            $color = "style='background-color:#81CFE0'";
+            $color = 'style="background-color:#81CFE0"';
         }
         if ($result['jour'][$i] != 'Samedi' and $result['jour'][$i] != 'Dimanche' and $date1 < $date2 and !isHoliday($date->getTimestamp())) {
             $past[$i] = true;
@@ -80,7 +82,7 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
         if ($result['numero'][$i] == date('j') and $result['mois2'][$i] == date('n')) {
             $now1  = 'class="now-ar"';
             $now2  = 'class="now-par"';
-            $color = "style='background-color:#87D37C'";
+            $color = 'style="background-color:#87D37C"';
         }
         for ($o = 0; $o < count($result[$i]); $o++) {
             if (isset($result[$i][$o]) and !empty($result[$i][$o])) {
@@ -96,13 +98,13 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
         }
         $tempspasser = calcul_time($total);
         if (!isset($tempspasser['heure'])) {
-            $tempspasser['heure'] = "00";
+            $tempspasser['heure'] = '00';
         }
         if (!isset($tempspasser['minutes'])) {
-            $tempspasser['minutes'] = "00";
+            $tempspasser['minutes'] = '00';
         }
         if (!isset($tempspasser['second'])) {
-            $tempspasser['second'] = "00";
+            $tempspasser['second'] = '00';
         }
         $finaltime         = '';
         $current_week_time = $current_week_time + hourtosec($tempspasser['heure'] . ':' . $tempspasser['minutes']);
@@ -198,7 +200,7 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
     echo '</select><br></div><div id="cir-detail"></div><div class="col-md-12" id="nbhour"></div><button class="btn btn-primary" id="okhour">valider</button>';
     echo '<div id="catretour"></div>';
 ?>
-      </div>	
+      </div>
       <div class="row"><br>
         <h4>Transfert d'heure</h4>
         <div class="col-md-6"><input type="date" class="form-control col-md-3" id="changetimeuser" ></div>
@@ -285,13 +287,13 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
     $vac = $vac[0];
     for ($i = 0; $i < count($vac); $i++) {
         if ($vac[$i]['statut'] == 0) {
-            $u = "en cour de traitement";
+            $u = 'en cour de traitement';
         }
         if ($vac[$i]['statut'] == 1) {
-            $u = "Accepté";
+            $u = 'Accepté';
         }
         if ($vac[$i]['statut'] == 10) {
-            $u = "Refusé";
+            $u = 'Refusé';
         }
         echo '<tr>
                   <td>' . $vac[$i]['begin'] . '</td>
@@ -306,13 +308,25 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
 }
 if (isset($_GET['function'])) {
     switch ($_GET['function']) {
-        case "cal":
+        case 'cal':
             include('include/calendar.php');
             break;
     }
 }
 ?>
 </div>
+<script>
+        // S. NProgress
+        NProgress.configure({ showSpinner: false });    
+        NProgress.start();
+        setTimeout(function() { NProgress.done(); $('.fade').removeClass('out'); }, 1000);
+ 
+        $("#b-0").click(function() { NProgress.start(); });
+        $("#b-40").click(function() { NProgress.set(0.4); });
+        $("#b-inc").click(function() { NProgress.inc(); });
+        $("#b-100").click(function() { NProgress.done(); });
+        // E. NProgress
+</script>
 <script src="./js/user.js"></script>
 <script src="./js/popup.js"></script>
 <script src="./js/bootstrap.min.js"></script>
