@@ -1,4 +1,4 @@
- <?php
+<?php
 
  if (file_exists('config/config.php')){
    include_once 'config/config.php'; 
