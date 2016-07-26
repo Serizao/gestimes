@@ -8,7 +8,7 @@ user::check_admin();
 $bdd = new bdd();
 $bdd->cache('select * from users', '');
 $user = $bdd->exec();
-echo '<div class="col-md-12" style=margin-top:40px;"><select class="col-md-6"  id="chooseuser" >';
+echo '<div class="col-md-12" style=margin-top:10px;"><select class="col-md-6"  id="chooseuser" >';
 echo '<option></option>';
 for ($i = 0; $i < count($user); $i++) {
     echo '<option value=' . $user[$i]['id'] . '>' . $user[$i]['prenom'] . ' ' . $user[$i]['nom'] . '</option>';

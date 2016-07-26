@@ -314,6 +314,7 @@ function list_cat($v = 1, $user = NULL)
 }
 function count_hour($date, $version)
 {
+    $resultat='';
     $bdd   = new bdd();
     $array = array(
         $_SESSION['userid'],
@@ -363,6 +364,7 @@ function count_hour($date, $version)
             ));
         }
     } else {
+        $resultat='';
         if ($version == 0) {
             echo 'il n\'y a pas de temps a catégoriser pour ce jour';
         }

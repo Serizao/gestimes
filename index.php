@@ -315,6 +315,11 @@ if (isset($_GET['function'])) {
 }
 ?>
 </div>
+<?php 
+if(BUG_HUNTER){
+    include('bug/bug.php');
+}
+?>
 <script>
         // S. NProgress
         NProgress.configure({ showSpinner: false });    
