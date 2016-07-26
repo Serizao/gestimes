@@ -23,6 +23,9 @@ php-pdo
 
 php-ldap
 
+###note
+l'utilisateur du processus php doit avoie les droit d'écriture sur les dossier bug/txt et bug/screen
+
 ## une fois mis en place
 
 identifiant: admin
