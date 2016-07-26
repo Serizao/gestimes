@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.2.12deb2+deb8u1
+-- version 4.2.7.1
 -- http://www.phpmyadmin.net
 --
 -- Client :  localhost
--- Généré le :  Ven 01 Juillet 2016 à 10:49
--- Version du serveur :  5.6.30
--- Version de PHP :  5.6.19-0+deb8u1
+-- Généré le :  Mar 26 Juillet 2016 à 15:47
+-- Version du serveur :  5.6.20-log
+-- Version de PHP :  5.4.31
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,9 +17,8 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8 */;
 
 --
--- Base de données :  `time`
+-- Base de données :  `t3`
 --
-
 
 -- --------------------------------------------------------
 
@@ -32,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `categorie` (
   `nom` varchar(255) NOT NULL,
   `id_domaine` int(11) NOT NULL,
   `cir` int(10) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=52 ;
 
 -- --------------------------------------------------------
 
@@ -47,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `conge` (
   `state` int(11) NOT NULL,
   `begin` datetime NOT NULL,
   `end` datetime NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=104 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=104 ;
 
 -- --------------------------------------------------------
 
@@ -60,7 +59,14 @@ CREATE TABLE IF NOT EXISTS `contrat` (
   `nom` varchar(255) NOT NULL,
   `pourcent` int(11) NOT NULL,
   `conge` varchar(255) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
+
+--
+-- Contenu de la table `contrat`
+--
+
+INSERT INTO `contrat` (`id`, `nom`, `pourcent`, `conge`) VALUES
+(4, 'Temps plein', 100, '25');
 
 -- --------------------------------------------------------
 
@@ -73,7 +79,13 @@ CREATE TABLE IF NOT EXISTS `credit_conge` (
   `nb_jour` float NOT NULL,
   `id_user` int(11) NOT NULL,
   `maj` datetime NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=56 ;
+
+--
+-- Contenu de la table `credit_conge`
+--
+
+
 
 -- --------------------------------------------------------
 
@@ -84,11 +96,17 @@ CREATE TABLE IF NOT EXISTS `credit_conge` (
 CREATE TABLE IF NOT EXISTS `domaine` (
 `id` int(11) NOT NULL,
   `nom` varchar(255) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ;
 
--- --------------------------------------------------------
+--
+-- Contenu de la table `domaine`
+--
+
 INSERT INTO `domaine` (`id`, `nom`) VALUES
 (7, 'autre');
+
+-- --------------------------------------------------------
+
 --
 -- Structure de la table `es`
 --
@@ -98,7 +116,7 @@ CREATE TABLE IF NOT EXISTS `es` (
   `es` varchar(255) NOT NULL,
   `id_user` int(11) NOT NULL,
   `temps` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB AUTO_INCREMENT=1305 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1305 ;
 
 -- --------------------------------------------------------
 
@@ -113,7 +131,7 @@ CREATE TABLE IF NOT EXISTS `heure` (
   `id_cat` int(11) NOT NULL,
   `date` date NOT NULL,
   `comment` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=855 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=855 ;
 
 -- --------------------------------------------------------
 
@@ -126,7 +144,7 @@ CREATE TABLE IF NOT EXISTS `heure_sup` (
   `id_user` int(11) NOT NULL,
   `heure` int(11) NOT NULL,
   `date_refresh` date NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=27 ;
 
 -- --------------------------------------------------------
 
@@ -139,7 +157,7 @@ CREATE TABLE IF NOT EXISTS `motif` (
   `type` int(11) NOT NULL,
   `nom` varchar(255) NOT NULL,
   `id_cat` int(220) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=16 ;
 
 -- --------------------------------------------------------
 
@@ -158,14 +176,18 @@ CREATE TABLE IF NOT EXISTS `users` (
   `id_contrat` varchar(255) NOT NULL,
   `begin` date NOT NULL DEFAULT '0000-00-00',
   `state` int(11) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=21 ;
+
+--
+-- Contenu de la table `users`
+--
+
+INSERT INTO `users` (`id`, `username`, `nom`, `prenom`, `password`, `acl`, `mail`, `id_contrat`, `begin`, `state`) VALUES
+(1, 'admin', 'admin', 'admin', 'c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b931dd472634dfac71cd34ebc35d16ab7fb8a90c81f975113d6c7538dc69dd8de9077ec', '1', 'admin@admin.fr', '4', '2016-07-25', 1);
 
 --
 -- Index pour les tables exportées
 --
-
-INSERT INTO `users` (`id`, `username`, `nom`, `prenom`, `password`, `acl`, `mail`, `id_contrat`, `begin`, `state`) VALUES
-(1, 'admin', 'admin', 'admin', 'c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b931dd472634dfac71cd34ebc35d16ab7fb8a90c81f975113d6c7538dc69dd8de9077ec', '10', 'admin@admin.fr', '3', '2016-04-25', 1);
 
 --
 -- Index pour la table `categorie`
@@ -245,12 +267,12 @@ MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=104;
 -- AUTO_INCREMENT pour la table `contrat`
 --
 ALTER TABLE `contrat`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT pour la table `credit_conge`
 --
 ALTER TABLE `credit_conge`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=55;
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=56;
 --
 -- AUTO_INCREMENT pour la table `domaine`
 --

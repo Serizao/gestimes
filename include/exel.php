@@ -145,54 +145,68 @@ for ($y = $yy; $y <= end($year); $y++) { //list des année
         }
     }
 }
-for ($y = $yy; $y <= end($year); $y++) { //list des année
-    for ($pp = $month[0]; $pp <= end($month); $pp++) { //liste des mois
-        $number   = number_day($moisbase, $y, '');
-        $wday     = $number;
-        $moisname = month(ltrim($moisbase, 0));
-        for ($i = 1; $i <= $number; $i++) { //liste de jour
-            if (strlen($i) == 1) {
-                $i = '0' . $i;
-            }
-            if (strlen($pp) == 1) {
-                $pp = '0' . $pp;
-            }
-            $compteur++;
-            $array   = array(
-                $user,
-                $i . '-' . $pp . '-' . $y
-            );
-            $bdd->cache("select * from heure where id_user=? and DATE_FORMAT(date, '%d-%m-%Y')=?", $array);
-            $usercat = $bdd->exec();
-            $objPHPExcel->setActiveSheetIndex(0)->setCellValue($alphabet[$compteur] . '1', $i . '-' . substr($moisname, 0, 4) . '-' . substr($y, -2));
-            $objPHPExcel->getActiveSheet()->getColumnDimension($alphabet[$compteur])->setAutoSize(true);
-            $oao    = mktime(0, 0, 0, $pp, $i, $year[0]);
-            $jour   = array(
-                "Dimanche",
-                "Lundi",
-                "Mardi",
-                "Mercredi",
-                "Jeudi",
-                "Vendredi",
-                "Samedi"
-            );
-            $times  = date("w", $oao);
-            $d      = $jour[$times];
-            //echo $d.' '.$oao.' '.$year[0].'-'.$pp.'-'.$i.'<br>';
-            $datess = new DateTime($i . '-' . $pp . '-' . $year[0]);
-            //formule
-            $mmm    = $oi + $i + 2;
-            for ($p = 0; $p < count($tab); $p++) {
-                $re  = $alphabet[$oi + $i - 1] . $tab[$p] . "+" . $re;
-                $re2 = $alphabet[$number + 1] . $tab[$p] . "+" . $re2;
-            }
-            if (!empty($alphabet[$oi - 1])) {
-                $objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi - 1] . $inc, '=SUM(' . $re . ')');
-            }
-            //couleur
-            //colorisation des samedi et dimanche
-            if ($d === "Samedi" or $d === "Dimanche") {
-                if ($i != 1) {
+if(isset($catbyname) and !empty($catbyname)){
+    for ($y = $yy; $y <= end($year); $y++) { //list des année
+        for ($pp = $month[0]; $pp <= end($month); $pp++) { //liste des mois
+            $number   = number_day($moisbase, $y, '');
+            $wday     = $number;
+            $moisname = month(ltrim($moisbase, 0));
+            for ($i = 1; $i <= $number; $i++) { //liste de jour
+                if (strlen($i) == 1) {
+                    $i = '0' . $i;
+                }
+                if (strlen($pp) == 1) {
+                    $pp = '0' . $pp;
+                }
+                $compteur++;
+                $array   = array(
+                    $user,
+                    $i . '-' . $pp . '-' . $y
+                );
+                $bdd->cache("select * from heure where id_user=? and DATE_FORMAT(date, '%d-%m-%Y')=?", $array);
+                $usercat = $bdd->exec();
+                $objPHPExcel->setActiveSheetIndex(0)->setCellValue($alphabet[$compteur] . '1', $i . '-' . substr($moisname, 0, 4) . '-' . substr($y, -2));
+                $objPHPExcel->getActiveSheet()->getColumnDimension($alphabet[$compteur])->setAutoSize(true);
+                $oao    = mktime(0, 0, 0, $pp, $i, $year[0]);
+                $jour   = array(
+                    "Dimanche",
+                    "Lundi",
+                    "Mardi",
+                    "Mercredi",
+                    "Jeudi",
+                    "Vendredi",
+                    "Samedi"
+                );
+                $times  = date("w", $oao);
+                $d      = $jour[$times];
+                //echo $d.' '.$oao.' '.$year[0].'-'.$pp.'-'.$i.'<br>';
+                $datess = new DateTime($i . '-' . $pp . '-' . $year[0]);
+                //formule
+                $mmm    = $oi + $i + 2;
+                for ($p = 0; $p < count($tab); $p++) {
+                    $re  = $alphabet[$oi + $i - 1] . $tab[$p] . "+" . $re;
+                    $re2 = $alphabet[$number + 1] . $tab[$p] . "+" . $re2;
+                }
+                if (!empty($alphabet[$oi - 1])) {
+                    $objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi - 1] . $inc, '=SUM(' . $re . ')');
+                }
+                //couleur
+                //colorisation des samedi et dimanche
+                if ($d === "Samedi" or $d === "Dimanche") {
+                    if ($i != 1) {
+                        $objPHPExcel->getActiveSheet()->getStyle($alphabet[$i + $oi] . '1:' . $alphabet[$i + $oi] . $z)->applyFromArray(array(
+                            'fill' => array(
+                                'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                                'color' => array(
+                                    'rgb' => 'FF9900'
+                                )
+                            )
+                        ));
+                    }
+                }
+                //colorisation desq vaccance et jour ferié
+                if (isHoliday($oao)) {
+                    $wday = $wday - 1;
                     $objPHPExcel->getActiveSheet()->getStyle($alphabet[$i + $oi] . '1:' . $alphabet[$i + $oi] . $z)->applyFromArray(array(
                         'fill' => array(
                             'type' => PHPExcel_Style_Fill::FILL_SOLID,
@@ -202,83 +216,71 @@ for ($y = $yy; $y <= end($year); $y++) { //list des année
                         )
                     ));
                 }
-            }
-            //colorisation desq vaccance et jour ferié
-            if (isHoliday($oao)) {
-                $wday = $wday - 1;
-                $objPHPExcel->getActiveSheet()->getStyle($alphabet[$i + $oi] . '1:' . $alphabet[$i + $oi] . $z)->applyFromArray(array(
-                    'fill' => array(
-                        'type' => PHPExcel_Style_Fill::FILL_SOLID,
-                        'color' => array(
-                            'rgb' => 'FF9900'
-                        )
-                    )
-                ));
-            }
-            if ($d == "Samedi") {
-                $f++;
-                $g   = $i + 2;
-                $mem = $i - 1;
-                $m++;
-            }
-            $objPHPExcel->getActiveSheet()->getStyle('B' . $inc . ':' . $alphabet[$number] . $inc)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-            $objPHPExcel->getActiveSheet()->getStyle('B1')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDD2);
-            //insertion des heure effectuées
-           
-            for ($m = 0; $m < count($catbyname); $m++) {
-                $h = '';
-                for ($l = 0; $l <= count($usercat[0]); $l++) {
-                    if (isset($usercat[0][$l]['id'])) {
-                        if (isset($usercat[0][$l]['id_cat']) and ($catbyname[$m]['id'] == $usercat[0][$l]['id_cat'])) {
-                            $h = $usercat[0][$l]['nb'] + $h;
+                if ($d == "Samedi") {
+                    $f++;
+                    $g   = $i + 2;
+                    $mem = $i - 1;
+                    $m++;
+                }
+                $objPHPExcel->getActiveSheet()->getStyle('B' . $inc . ':' . $alphabet[$number] . $inc)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+                $objPHPExcel->getActiveSheet()->getStyle('B1')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDD2);
+                //insertion des heure effectuées
+                for ($m = 0; $m < count($catbyname); $m++) {
+                    $h = '';
+                    for ($l = 0; $l <= count($usercat[0]); $l++) {
+                        if (isset($usercat[0][$l]['id'])) {
+                            if (isset($usercat[0][$l]['id_cat']) and ($catbyname[$m]['id'] == $usercat[0][$l]['id_cat'])) {
+                                $h = $usercat[0][$l]['nb'] + $h;
+                            }
                         }
                     }
+                    if ($h != '') {
+                        $k = sectohour($h);
+                        if (!isset($k['h'])) {
+                            $k['h'] = "00";
+                        }
+                        if (!isset($k['m'])) {
+                            $k['m'] = "00";
+                        }
+                        if (!isset($k['s'])) {
+                            $k['s'] = "00";
+                        }
+                        $objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi + $i] . $catbyname[$m]['space'], $k['h'] . '.' . mintodec($k['m']));
+                    }
                 }
-                if ($h != '') {
-                    $k = sectohour($h);
-                    if (!isset($k['h'])) {
-                        $k['h'] = "00";
-                    }
-                    if (!isset($k['m'])) {
-                        $k['m'] = "00";
-                    }
-                    if (!isset($k['s'])) {
-                        $k['s'] = "00";
-                    }
-                    $objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi + $i] . $catbyname[$m]['space'], $k['h'] . '.' . mintodec($k['m']));
-                }
+                //ajout formule
             }
-            //ajout formule
+            $moisbase++;
+            $oi = $i + $oi - 1;
         }
-        $moisbase++;
-        $oi = $i + $oi - 1;
     }
-}
-//fin de boucle du listage des jour du mois
-$re2 = 0;
-for ($p = 0; $p < count($tab); $p++) {
-    $re  = $alphabet[$oi - 1] . $tab[$p] . "+" . $re;
-    $re2 = $alphabet[$oi + 1] . $tab[$p] . "+" . $re2;
-    
-    $objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi + 2] . $tab[$p], '=IF(' . $alphabet[$oi + 1] . $inc . '>0,(' . $alphabet[$oi + 1] . $tab[$p] . '/' . $alphabet[$oi + 1] . $inc . ')*100,"")');
-}
-//total
-$objPHPExcel->setActiveSheetIndex(0)->setCellValue($alphabet[$oi + 1] . '1', 'Total');
-//ajout de formule totale
-$objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi + 1] . $inc, '=SUM(' . $re2 . ')');
-for ($o = 2; $o <= $less; $o++) {
-    $objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi + 1] . $o, '=SUM(B' . $o . ':' . $alphabet[$oi] . $o . ')');
-}
-$objPHPExcel->getActiveSheet()->getStyle($alphabet[$oi + 1] . '1:' . $alphabet[$oi + 1] . $less)->applyFromArray(array(
-    'fill' => array(
-        'type' => PHPExcel_Style_Fill::FILL_SOLID,
-        'color' => array(
-            'rgb' => 'E26B0A'
+
+    //fin de boucle du listage des jour du mois
+    $re2 = 0;
+    for ($p = 0; $p < count($tab); $p++) {
+        $re  = $alphabet[$oi - 1] . $tab[$p] . "+" . $re;
+        $re2 = $alphabet[$oi + 1] . $tab[$p] . "+" . $re2;
+        
+        $objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi + 2] . $tab[$p], '=IF(' . $alphabet[$oi + 1] . $inc . '>0,(' . $alphabet[$oi + 1] . $tab[$p] . '/' . $alphabet[$oi + 1] . $inc . ')*100,"")');
+    }
+    //total
+    $objPHPExcel->setActiveSheetIndex(0)->setCellValue($alphabet[$oi + 1] . '1', 'Total');
+    //ajout de formule totale
+    $objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi + 1] . $inc, '=SUM(' . $re2 . ')');
+    for ($o = 2; $o <= $less; $o++) {
+        $objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi + 1] . $o, '=SUM(B' . $o . ':' . $alphabet[$oi] . $o . ')');
+    }
+    $objPHPExcel->getActiveSheet()->getStyle($alphabet[$oi + 1] . '1:' . $alphabet[$oi + 1] . $less)->applyFromArray(array(
+        'fill' => array(
+            'type' => PHPExcel_Style_Fill::FILL_SOLID,
+            'color' => array(
+                'rgb' => 'E26B0A'
+            )
         )
-    )
-));
-$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
-// Rename worksheet
+    ));
+    $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+    // Rename worksheet
+}
 $filename = 'text.xlsx';
 // Set active sheet index to the first sheet, so Excel opens this as the first sheet
 $objPHPExcel->setActiveSheetIndex(0);
