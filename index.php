@@ -4,7 +4,6 @@ date_default_timezone_set('Europe/Paris');
 include_once('include/bdd.php');
 user::check_login();
 include_once('include/function.php');
-include_once('include/top-barre.php');
 ?>
  <html class="no-js" lang="">
  <head>
@@ -32,6 +31,7 @@ include_once('include/top-barre.php');
 </head>
 <body>
 <?php
+include_once('include/top-barre.php');
 $current_week_time = 0;
 if (empty($_GET['function'])) { //si pas de post on affiche la page normal
     $nav  = 0;
