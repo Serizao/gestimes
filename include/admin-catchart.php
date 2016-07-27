@@ -1,6 +1,6 @@
 <?php
 include_once('function.php');
-include_once('bdd.php'); 
+include_once('autoload.php'); 
 user::check_admin();
 include_once('admin-function.php');
 $cachem=explode("-",$_REQUEST['begindate']);

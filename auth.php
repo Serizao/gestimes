@@ -1,6 +1,6 @@
 <?php
 include_once('include/function.php');
-include_once('include/bdd.php');
+include_once('include/autoload.php');
 $ad                  = new ad();
 $util                = new user;
 $bdd               = new bdd;

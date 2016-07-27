@@ -1,5 +1,5 @@
 <?php
-include_once('bdd.php');
+include_once('autoload.php');
 user::session();
 include_once('function.php');
 include_once('admin-function.php');

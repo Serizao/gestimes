@@ -1,6 +1,6 @@
 <?php
 include_once('./function.php');
-include_once('./bdd.php');
+include_once('./autoload.php');
 include_once('./admin-function.php');
 user::check_login();
 $bdd    = new bdd();

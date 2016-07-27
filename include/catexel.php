@@ -2,7 +2,7 @@
 session_start();
 $cachem  = explode("-", $_REQUEST['begindate']);
 $cachem2 = explode("-", $_REQUEST['enddate']);
-include_once('bdd.php');
+include_once('autoload.php');
 include_once('function.php');
 $month    = array(
     $cachem[1],
