@@ -9,8 +9,12 @@ if (!defined('BASE_BDD')){
     define('INACTIVITY_TIMEOUT',900);
     //ldap
     define('HOST_LDAP','');
-    define('DOMAIN_LDAP','exemple.com');
-    define('DN_LDAP','dc=exemple,dc=com');
+    define('DOMAIN_LDAP','exemple.local');
+    define('DN_LDAP','dc=exemple,dc=local');
     // enable bug hunter
     define('BUG_HUNTER', true);
+     //temps du refresh de la page en ms
+    define('REFRESH_TIME', 960000);
 }
+
+
