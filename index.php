@@ -5,9 +5,10 @@ include_once('include/autoload.php');
 user::check_login();
 include_once('include/function.php');
 ?>
+<!doctype html>
  <html class="no-js" lang="">
  <head>
-            <title>Auth</title>
+            <title>Gestime</title>
             <meta charset="utf-8">
             <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
             <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
@@ -272,7 +273,7 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
   </form>
   <div id="congestate"></div>
 </div>
-<div class="col-md-4 ">
+<div class="col-md-4 col-sm-12">
 <?php
     $datenow = date('Y-m-d', strtotime('now'));
     echo $datenow;

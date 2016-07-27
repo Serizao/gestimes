@@ -1,5 +1,5 @@
 <?php
-include_once('bdd.php');
+include_once('autoload.php');
 include_once('function.php');
 user::session();
 date_default_timezone_set('Europe/Paris');
