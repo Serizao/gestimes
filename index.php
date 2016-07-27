@@ -1,7 +1,7 @@
 <?php
 session_start();
 date_default_timezone_set('Europe/Paris');
-include_once('include/bdd.php');
+include_once('include/autoload.php');
 user::check_login();
 include_once('include/function.php');
 ?>
@@ -26,6 +26,10 @@ include_once('include/function.php');
     webshims.setOptions('forms-ext', {types: 'date'});
     webshims.polyfill('forms forms-ext');
     var timer = null;
+    //refresh auto de la page
+    setTimeout(function(){
+   window.location.reload(1);
+}, <?php echo REFRESH_TIME; ?>);
     
 </script>
 </head>
@@ -72,9 +76,13 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
         $date2    = new datetime();
         $past[$i] = '0';
         $total    = array();
+        $aoaa      = count_hour($result['date2'][$i], '2');
         $date     = new DateTime($result['date'][$i]);
         if ($result['jour'][$i] == 'Samedi' or $result['jour'][$i] == 'Dimanche' or $date1 < $date2 or isHoliday($date->getTimestamp())) {
             $color = 'style="background-color:#81CFE0"';
+            if ($result['jour'][$i] == 'Samedi' or $result['jour'][$i] == 'Dimanche'){
+                $color.=' class="hidden-xs"';
+            }
         }
         if ($result['jour'][$i] != 'Samedi' and $result['jour'][$i] != 'Dimanche' and $date1 < $date2 and !isHoliday($date->getTimestamp())) {
             $past[$i] = true;
@@ -87,11 +95,11 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
         for ($o = 0; $o < count($result[$i]); $o++) {
             if (isset($result[$i][$o]) and !empty($result[$i][$o])) {
                 if ($result[$i][$o]['es'] == "e") {
-                    $time    = $time . '<div class="col-md-offset-1 hour"><a href="#"  class="delmouv" alt="' . $result[$i][$o]['id'] . '"><span class="glyphicon glyphicon-remove" aria-hidden="true"> </span></a> Arrivé à ' . $result[$i][$o]['time'] . '</div>';
+                    $time    = $time . '<div class="col-md-offset-1 hour hidden-xs"><a href="#"  class="delmouv" alt="' . $result[$i][$o]['id'] . '"><span class="glyphicon glyphicon-remove" aria-hidden="true"> </span></a> Arrivé à ' . $result[$i][$o]['time'] . '</div>';
                     $total[] = strtotime($result[$i][$o]['temps']);
                 }
                 if ($result[$i][$o]['es'] == "s") {
-                    $time    = $time . '<div class="col-md-offset-1 hour" ><a href="#" class="delmouv" alt="' . $result[$i][$o]['id'] . '"><span class="glyphicon glyphicon-remove" aria-hidden="true"> </span></a> Parti à ' . $result[$i][$o]['time'] . '</div>';
+                    $time    = $time . '<div class="col-md-offset-1 hour hidden-xs" ><a href="#" class="delmouv" alt="' . $result[$i][$o]['id'] . '"><span class="glyphicon glyphicon-remove" aria-hidden="true"> </span></a> Parti à ' . $result[$i][$o]['time'] . '</div>';
                     $total[] = strtotime($result[$i][$o]['temps']);
                 }
             }
@@ -125,7 +133,6 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
         if ($past[$i]) {
             echo $finaltime;
         }
-        $aoaa      = count_hour($result['date2'][$i], '2');
         $bdd_cat   = new bdd();
         $array_cat = array(
             $_SESSION['userid'],
@@ -135,12 +142,12 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
         $result_cat = $bdd_cat->exec();
         $result_cat = $result_cat[0];
         if (isset($result_cat[0]['nb'])) {
-            echo '<br><br><ul>';
+            echo '<br><br><div class="hidden-xs"><ul>';
             for ($uu = 0; $uu < count($result_cat); $uu++) {
                 $nb = sectohour($result_cat[$uu]['nb']);
                 echo '<li>' . $result_cat[$uu]['cat'] . '  ' . $nb['h'] . 'h' . $nb['m'] . '</li>';
             }
-            echo '</ul>';
+            echo '</ul></div>';
         }
         if ($aoaa and ($aoaa['heure'] > 0 or $aoaa['minutes'] > 0)) {
             echo '<br><br>il reste à catégoriser ' . $aoaa['heure'] . 'h' . $aoaa['minutes'];
@@ -278,7 +285,7 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
           <tr>
             <th>Date debut</th>
             <th>Date de fin</th>
-            <th>Type de conge</th>
+            <th><div class="hidden-xs">Type de conge</div></th>
             <th>Statut</th>
             <th>Action</th>
           </tr>
@@ -298,7 +305,7 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
         echo '<tr>
                   <td>' . $vac[$i]['begin'] . '</td>
                   <td>' . $vac[$i]['end'] . '</td>
-                  <td>' . $vac[$i]['nom'] . '</td>
+                  <td><div class="hidden-xs">' . $vac[$i]['nom'] . '</div></td>
                   <th>' . $u . '</th>
                   <td><input type="button" class="delconge btn btn-primary" alt="' . $vac[$i]['id'] . '" value="supprimer"/></td>
                 </tr>';

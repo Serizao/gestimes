@@ -1,6 +1,3 @@
-setTimeout(function(){
-   window.location.reload(1);
-}, 902000);
 $(document).ready(function(){
     $('.esbutton').click(function(){
         var clickBtnValue = $(this).attr('id');

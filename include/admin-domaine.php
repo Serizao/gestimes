@@ -1,6 +1,6 @@
 <?php
 //recuperation des infos
-user::chack_admin();
+user::check_admin();
 echo '<div id="topdiv" style="margin-top:40px;"><input type="text" style="width:200px;" id="newdom" placeholder="nom du nouveau domaine"/><button id="subnewdom" class="btn btn-primary">ajouter le nouveau domaine</button></div><div id="retour"></div>';
 
 $bdd = new bdd();
