@@ -1,0 +1,3 @@
+Le calendrier ne s'affiche pas avec Firefox.
+
+Yannick
