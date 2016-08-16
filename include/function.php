@@ -497,15 +497,17 @@ function check_conge($id, $idmotif, $raison = 1)
                 $id
             ));
             $solde = $bdd->exec();
-            if ($raison == 0) {
-                return $solde[0][0]['nb_jour'];
-            }
-            if ($raison == 1) {
-                $a = $solde[0][0]['nb_jour'];
-                if ($a != 0) {
-                    $a = $a / 12;
+             if(isset($solde[0][0]['nb_jour'])){
+                if ($raison == 0) {
+                    return $solde[0][0]['nb_jour'];
                 }
-                return $a;
+                if ($raison == 1) {
+                    $a = $solde[0][0]['nb_jour'];
+                    if ($a != 0) {
+                        $a = $a / 12;
+                    }
+                    return $a;
+                }
             }
         } elseif ($type[0][0]['type'] == 0) {
             $bdd->cache('select heure from heure_sup where id_user=?', array(
