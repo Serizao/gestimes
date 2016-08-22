@@ -209,18 +209,30 @@ for ($y = $by; $y <= $ey; $y++) {
     );
     for ($e = 1; $e <= $nbj; $e++) {
         $o = addzero($e - 1);
+
         if ($e > $nbjtm) {
-            if ($enddate >= $datebm) { //si e est superieur au nombre de jour dans le mois alor on passe au mois suivant
+            if ($enddate > $datebm and $em > $bm) { //si e est superieur au nombre de jour dans le mois alor on passe au mois suivant
                 if (intval($bm) < 12) { //si mois inferieur a 12
+                    $old_date=$y . '-' . $bm . '-' . addzero($e);
+                    $o      = $e;
+                    $e      = 1;
                     $bm++;
                     $mm    = array(
                         $bm,
                         $bm
                     );
                     $nbjtm = number_day($mm, $yy, 'a');
-                    
                     $datebm = new DateTime($y . '-' . $bm . '-' . addzero($e));
-                    $e      = 1;
+                    $dd     = $by . '-' . $bm . '-' . addzero($e);
+                    $nbweek = date("W", strtotime($dd));
+                    if ($nbweek != $nbweekmem) {
+                        $nbweekmem               = $nbweek;
+                        $week[$compt - 1]['end'] = $old_date;
+                        $week[$compt]['begin']   = $dd;
+                        $week[$compt]['number']  = $nbweek;
+                        $compt++;
+                    }
+                    if($bm>$em) break;
                 } else { //changement d'anné
                     $bm = '01';
                     $by++;
