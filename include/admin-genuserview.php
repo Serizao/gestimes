@@ -202,7 +202,7 @@ $enddate   = new DateTime($ey . '-' . $em . '-' . addzero($nbem));
 $datebm    = new DateTime($by . '-' . $bm . '-01');
 
 for ($y = $by; $y <= $ey; $y++) {
-    
+    if ($by!=$y)$bm='01';
     $yy = array(
         $y,
         $y
@@ -223,7 +223,7 @@ for ($y = $by; $y <= $ey; $y++) {
                     );
                     $nbjtm = number_day($mm, $yy, 'a');
                     $datebm = new DateTime($y . '-' . $bm . '-' . addzero($e));
-                    $dd     = $by . '-' . $bm . '-' . addzero($e);
+                    $dd     = $y . '-' . $bm . '-' . addzero($e);
                     $nbweek = date("W", strtotime($dd));
                     if ($nbweek != $nbweekmem) {
                         $nbweekmem               = $nbweek;
@@ -255,7 +255,7 @@ for ($y = $by; $y <= $ey; $y++) {
                 break;
             }
         }
-        $dd     = $by . '-' . $bm . '-' . addzero($e);
+        $dd     = $y . '-' . $bm . '-' . addzero($e);
         $nbweek = date("W", strtotime($dd));
         if ($nbweek != $nbweekmem) {
             $nbweekmem               = $nbweek;
