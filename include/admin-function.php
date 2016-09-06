@@ -168,9 +168,9 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
         $array = array(
             $id
         );
-        $bdd->cache("DELETE FROM `users` WHERE id=?", $array);
+        $bdd->cache("UPDATE `users` SET state=0 WHERE id=?", $array);
         $bdd->exec();
-        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> utilisateur supprimé avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=user">';
+        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> utilisateur desactivé avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=user">';
     }
     function update_user($nom, $prenom, $password, $acl, $mail, $contrat, $id, $begin,$nbjour)
     {
