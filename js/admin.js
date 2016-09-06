@@ -572,7 +572,11 @@ $(document).ready(function() {
 						 
 						var cat=$('#cat'+id).val();
 						var catdom=$('#catdom'+id).val();
-						var cir=$('#cir'+id).val();
+						if($('#cir'+id).is(':checked')){
+							var cir="on";
+						}else{
+							var cir="off";
+						}
 				        // Je récupère les valeurs
 				        // Je vérifie une première fois pour ne pas lancer la requête HTTP
 				        // si je sais que mon PHP renverra une erreur

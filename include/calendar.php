@@ -6,7 +6,6 @@
         </div>
 </div>
 <!-- JS ======================================================= -->
-<script type="text/javascript" src="js/jquery.js"></script>
 <script type="text/javascript" src="js/monthly.js"></script>
 <script type="text/javascript">
     $(window).load( function() {

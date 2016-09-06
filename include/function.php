@@ -73,7 +73,8 @@ function transfere($date, $id, $provenance)
             echo '<option value="' . $result[$i]['id'] . '" max="' . $nb['h'] . ':' . $nb['m'] . '">de ' . $result[$i]['cat'] . ' ( ' . $nb['h'] . 'h' . $nb['m'] . ' disponible ) </option>';
         }
         echo '</select></div>';
-        $cat = $bdd->cache('select * from categorie', '');
+        $bdd->cache('select * from categorie', '');
+        $cat = $bdd->exec();
         echo '<div class="col-md-6"><select id="vers" class="form-control">';
         $compteur2 = count($cat);
         for ($i = 0; $i < $compteur2; $i++) {
@@ -113,16 +114,16 @@ function transfere_v($id, $date, $user, $time, $vers, $de)
                 $futur,
                 $de
             );
+            $bdd->cache('update heure set nb=? where id=?', $array1);
         } else {
             $array1 = array(
-                '0',
                 $de
             );
+            $bdd->cache('delete from heure where id=?', $array1);
         }
-        $bdd->cache('update heure set nb=? where id=?', $array1);
         $bdd->cache("INSERT INTO `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", $array2);
         $bdd->exec();
-        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> heure modifié avec succès</div>';
+        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> '.$futur.'heure modifié avec succès</div>';
     } else {
         echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">le temps est sans doute trop élevé</div>';
     }
