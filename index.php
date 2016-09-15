@@ -226,7 +226,7 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
     $userid = array(
         $_SESSION['userid']
     );
-    $bdd->cache('select * from motif where 1', '');
+    $bdd->cache('select * from motif where type<4', '');
     $motif = $bdd->exec();
     echo '<select name="typeconge" id="typeconge" class="col-md-3  form-control">';
     for ($i = 0; $i < count($motif); $i++) {

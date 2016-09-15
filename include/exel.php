@@ -35,11 +35,14 @@ $year     = array(
     $cachem[0],
     $cachem2[0]
 );
-$f        = 1;
-$g        = 1;
-$mem      = 1;
-$m        = 0;
-$moissans = "3";
+$liste_somme        =array();
+$hour_letter_mem    = 'B';
+$hour_by_cat_mem    = 0;
+$f                  = 1;
+$g                  = 1;
+$mem                = 1;
+$m                  = 0;
+$moissans           = "3";
 include_once('ajax.php');
 error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
@@ -98,6 +101,9 @@ for ($j = 0; $j < count($domaine); $j++) {
         }
     }
     $objPHPExcel->setActiveSheetIndex(0)->setCellValue('A' . $z, 'TOTAL : ' . $domaine[$j]['nom']);
+                                 if(!in_array($z, $liste_number_somme)){
+                                    $liste_number_somme[]=$z;
+                                }
     $tab[] = $z;
     $objPHPExcel->getActiveSheet()->getStyle('A' . $z . ':' . $alphabet[$numberj] . $z)->applyFromArray(array(
         'fill' => array(
@@ -137,6 +143,7 @@ $oi       = 0;
 $moisbase = $month[0];
 $yy       = $year[0];
 $all      = 0;
+$jour_semaine=0;
 for ($y = $yy; $y <= end($year); $y++) { //list des année
     $number = number_day($moisbase, $y, '');
     for ($pp = $month[0]; $pp <= end($month); $pp++) { //liste des mois
@@ -190,8 +197,11 @@ if(isset($catbyname) and !empty($catbyname)){
                 if (!empty($alphabet[$oi - 1])) {
                     $objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi - 1] . $inc, '=SUM(' . $re . ')');
                 }
+                $hour_by_cat_mem++;
                 //couleur
                 //colorisation des samedi et dimanche
+                $ligne=$z+1;
+                
                 if ($d === "Samedi" or $d === "Dimanche") {
                     if ($i != 1) {
                         $objPHPExcel->getActiveSheet()->getStyle($alphabet[$i + $oi] . '1:' . $alphabet[$i + $oi] . $z)->applyFromArray(array(
@@ -202,8 +212,42 @@ if(isset($catbyname) and !empty($catbyname)){
                                 )
                             )
                         ));
+                        if($d=="Samedi"){
+                            
+                        
+                            //somme total hebdomadaire
+                            
+                            for($cat_total=0;$cat_total<count($tab);$cat_total++){
+                                //somme par catégorie
+                             //   $objPHPExcel->setActiveSheetIndex(0)->setCellValue($alphabet[$i + $oi] . $tab[$cat_total], '=SUM('.$hour_letter_mem.$tab[$cat_total].':'.$alphabet[$i + $oi-1] . $tab[$cat_total].')');
+                                if(!in_array($alphabet[$i + $oi], $liste_somme)){
+                                    $liste_somme[]=$alphabet[$i + $oi];
+                                }
+                                 if(!in_array($tab[$cat_total], $liste_number_somme)){
+                                    $liste_number_somme[]=$tab[$cat_total];
+                                }
+                            }
+                        }
+                         if($d=="Dimanche"){
+                            $hour_by_cat_mem=0;
+                            $hour_letter_mem=$alphabet[$i + $oi+1];
+                            $ligne_total=$z+2;
+                            $ligne_total_bis=$z+1;
+                            $bas_colonne_total=$z-1;
+                            $begin_total_hebdo=($i + $oi)-$jour_semaine;
+                            $objPHPExcel->setActiveSheetIndex(0)->setCellValue($alphabet[$i+$oi] . $ligne_total, '="TOTAL : "&SUM('.$alphabet[$i + $oi].$ligne_total_bis.':'.$alphabet[$begin_total_hebdo].$ligne_total_bis.')');
+                            $jour_semaine=0;
+                         }
                     }
                 }
+                $somme_par_jour='=SUM('.$alphabet[$oi + $i].$liste_number_somme['0'];
+                for($count_ligne_somme=1;$count_ligne_somme<count($liste_number_somme);$count_ligne_somme++){
+                    $somme_par_jour=$somme_par_jour.'+'.$alphabet[$oi + $i].$liste_number_somme[$count_ligne_somme];
+                 
+                }
+                $jour_semaine++;
+                $somme_par_jour=$somme_par_jour.')';
+              $objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi + $i] . $ligne, $somme_par_jour);
                 //colorisation desq vaccance et jour ferié
                 if (isHoliday($oao)) {
                     $wday = $wday - 1;
@@ -224,6 +268,7 @@ if(isset($catbyname) and !empty($catbyname)){
                 }
                 $objPHPExcel->getActiveSheet()->getStyle('B' . $inc . ':' . $alphabet[$number] . $inc)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
                 $objPHPExcel->getActiveSheet()->getStyle('B1')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDD2);
+
                 //insertion des heure effectuées
                 for ($m = 0; $m < count($catbyname); $m++) {
                     $h = '';
@@ -246,6 +291,7 @@ if(isset($catbyname) and !empty($catbyname)){
                             $k['s'] = "00";
                         }
                         $objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi + $i] . $catbyname[$m]['space'], $k['h'] . '.' . mintodec($k['m']));
+                        
                     }
                 }
                 //ajout formule
@@ -260,16 +306,36 @@ if(isset($catbyname) and !empty($catbyname)){
     for ($p = 0; $p < count($tab); $p++) {
         $re  = $alphabet[$oi - 1] . $tab[$p] . "+" . $re;
         $re2 = $alphabet[$oi + 1] . $tab[$p] . "+" . $re2;
-        
-        $objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi + 2] . $tab[$p], '=IF(' . $alphabet[$oi + 1] . $inc . '>0,(' . $alphabet[$oi + 1] . $tab[$p] . '/' . $alphabet[$oi + 1] . $inc . ')*100,"")');
+        //FOMULE POUCENTAGE
+        $objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi + 2] . $tab[$p], '=IF(' . $alphabet[$oi + 1] . $inc . '>0,CONCATENATE((' . $alphabet[$oi + 1] . $tab[$p] . '/' . $alphabet[$oi + 1] . $inc . ')*100,"%"),"")');
+
     }
     //total
     $objPHPExcel->setActiveSheetIndex(0)->setCellValue($alphabet[$oi + 1] . '1', 'Total');
     //ajout de formule totale
     $objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi + 1] . $inc, '=SUM(' . $re2 . ')');
-    for ($o = 2; $o <= $less; $o++) {
-        $objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi + 1] . $o, '=SUM(B' . $o . ':' . $alphabet[$oi] . $o . ')');
+    function total_total($a,$liste_somme,$letter,$alphabet){
+        $return_total=$liste_somme['0'].$a;
+         for($test_count=1;$test_count<count($liste_somme);$test_count++){
+            $return_total=$return_total.'+'.$liste_somme[$test_count].$a;
+        }
+        
+        if($letter!=$liste_somme[$test_count]){
+                $letter_begin_id=array_search($letter, $alphabet)-$jour_semaine;
+                $letter_end_id=array_search($letter, $alphabet);
+                $return_total=$return_total.'+ SUM('.$alphabet[$letter_end_id].$a.':'.$alphabet[$letter_end_id].$a.')';
+            } 
+        
+        return $return_total;
     }
+
+//total collonne
+    for ($o = 0; $o < count($liste_number_somme); $o++) {
+       // $objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi + 1] . $liste_number_somme[$o], '='.total_total($liste_number_somme[$o],$liste_somme,$alphabet[$oi],$alphabet));
+        $objPHPExcel->getActiveSheet()->setCellValue($alphabet[$oi + 1] . $liste_number_somme[$o], '=SUM(B'.$liste_number_somme[$o].':'.$alphabet[$oi].$liste_number_somme[$o].')');
+
+    }
+
     $objPHPExcel->getActiveSheet()->getStyle($alphabet[$oi + 1] . '1:' . $alphabet[$oi + 1] . $less)->applyFromArray(array(
         'fill' => array(
             'type' => PHPExcel_Style_Fill::FILL_SOLID,
@@ -288,6 +354,8 @@ $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
 $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 ob_end_clean();
 // We'll be outputting an excel file
+
+
 header('Content-type: application/vnd.ms-excel');
 header('Content-Disposition: attachment; filename="fiche de temps du ' . $d1b . ' au ' . $d2e . '.xlsx"');
 $objWriter->save('php://output');

@@ -56,7 +56,7 @@
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                           </button>
-                          <a class="navbar-brand" href="index.php">Gestime</a>
+                          <a class="navbar-brand" href="admin.php">Gestime</a>
                         </div>
 
                         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -87,6 +87,7 @@
                                 <li><a href="admin.php?action=categorie">Gerer les catégories</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="admin.php?action=geshour">Gerer les heures</a></li>
+                                <li><a href="admin.php?action=payehour">Payer des heures suplémentaire</a></li>
                               </ul>
                               
                             </li>
@@ -115,7 +116,6 @@
 
 
                     <?php
-                    if(isset($_REQUEST['action'])){
                         $choix=$_REQUEST['action'];
                         switch($choix){
 
@@ -164,8 +164,13 @@
                         case "timeline":
                             include('include/admin-cir-proj.php');
                         break;
+                         case "payehour":
+                            include('include/admin-payehour.php');
+                        break;
+                        default :
+                            include('include/admin-dashboard.php');
+                        break;
                         }
-                    }    
                     ?>
                 </div>
                 <script src="./js/admin.js"></script>

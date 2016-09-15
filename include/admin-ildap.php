@@ -13,7 +13,7 @@ if (isset($ad_admin) and isset($ad_password) and !empty($ad_admin) and !empty($a
         echo '<h3>import de utilisateur suivent:</h3>';
         for ($z = 0; $z < count($user); $z++) {
             if (isset($_REQUEST[$user[$z]['samaccountname']])) {
-                $bdd   = new bdd();
+            	$bdd   = new bdd();
                 $array = array(
                     $user[$z]['samaccountname'],
                     $user[$z]['last_name'],
@@ -25,9 +25,10 @@ if (isset($ad_admin) and isset($ad_password) and !empty($ad_admin) and !empty($a
                     '0000-00-00',
                     '0'
                 );
-                $bdd->tab("insert into users set  username=?, nom=?, prenom=?, password=?, acl=?, mail=?, id_contrat=?, begin=?,state=?", $array);
+                $bdd->cache("insert into users set  username=?, nom=?, prenom=?, password=?, acl=?, mail=?, id_contrat=?, begin=?,state=?", $array);
+                $bdd->exec();
                 echo '-' . $user[$z]['samaccountname'];
-            }
+            } 
         }
         echo '<br><br><div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> imort effectuer avec succès</div>';
     } else {
