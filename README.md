@@ -14,6 +14,15 @@ application de gestion du temps basé sur les entrées sorties orienté laborato
 
 - [x] les exports excel (merci PHPexcel)
 
+- [x] l'authentification CAS LDAP et HTTP_HEADER
+
+- [x] notion de hierachie (user manager administrateur)
+
+- [x] envoie de mail en cas de demande de congé
+
+- [x] posibilité de synchroniser le calendrier avec Gestime (configurer l'interprétation de include.calendar.ics par php)
+
+
 le modele de base de donnée est à importer et le fichier dans config/config.php est a remplir connection à la BDD et au LDAP (optionnel)
 ## requirement
 
