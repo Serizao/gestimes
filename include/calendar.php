@@ -1,5 +1,5 @@
 <link rel="stylesheet" href="css/monthly.css">
-
+<h3> vous pouvez ajouter ce calendrier à Outlook avec ce lien : <a href="https://<?php echo $_SERVER['HTTP_HOST ']; ?>/include/calendar.ics ">https://<?php echo $_SERVER['HTTP_HOST ']; ?>/include/calendar.ics </a></h3>
 <div class="col-md-12">
         <div style="width:100%; max-width:1300px; display:inline-block;">
             <div class="monthly" id="mycalendar2"></div>

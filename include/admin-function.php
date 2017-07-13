@@ -1,11 +1,18 @@
 <?php
 if (user::check_admin($_SERVER['HTTP_REFERER'])) {
-    function list_user($id = '')
+    function list_user($id = '',$state='2')
     {
         $bdd = new bdd();
         if ($id == '') {
-            $bdd->cache("select a.begin as begin, a.id as id, a.username as username, a.nom as nom, a.prenom as prenom, a.acl as acl, a.mail as mail, b.nom as contrat , b.pourcent as pourcent, a.state as state  from users a, contrat b where a.id_contrat=b.id", '');
-            $result = $bdd->exec();
+            if($state=='2'){
+                $bdd->cache("select a.begin as begin, a.id as id, a.username as username, a.nom as nom, a.prenom as prenom, a.acl as acl, a.mail as mail, b.nom as contrat , b.pourcent as pourcent, a.state as state  from users a, contrat b where a.id_contrat=b.id", '');
+                $result = $bdd->exec();
+
+        } else {
+                $bdd->cache("select a.begin as begin, a.id as id, a.username as username, a.nom as nom, a.prenom as prenom, a.acl as acl, a.mail as mail, b.nom as contrat , b.pourcent as pourcent, a.state as state  from users a, contrat b where a.id_contrat=b.id and a.state!=0", '');
+                $result = $bdd->exec();
+        }
+
         }
         if ($id != '') {
             $array  = array(
@@ -14,10 +21,10 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
             $bdd->cache("select  a.begin as begin, a.id as id, a.username as username, a.nom as nom, a.prenom as prenom, a.acl as acl, a.mail as mail, b.nom as contrat , b.pourcent as pourcent, a.state as state  from users a, contrat b where a.id_contrat=b.id and a.id=?", $array);
             $result = $bdd->exec();
         }
-        
+
         return $result;
     }
-    function add_user($nom, $prenom, $password, $acl, $mail, $contrat, $begin,$nbconge)
+    function add_user($nom, $prenom, $password, $acl, $mail, $contrat, $begin,$nbconge,$day)
     {
         $password = hash('sha512', $password);
         $username = strtolower(substr($prenom, 0) . $nom);
@@ -124,7 +131,7 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
         $content .= '<div class="col-md-6"><br>
                         <table class="table table-hover">
                             <thead>
-                              <tr> 
+                              <tr>
                               <th>Date</th>';
         foreach ($mem3 as $users) {
             $content .= " <th>" . $users . "</th>";
@@ -152,15 +159,15 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
                 $tt = sectohour($mem5);
                 $content .= '<td>' . $tt['h'] . ' H ' . $tt['m'] . '</td>';
                 $content .= ' </tr>';
-                
+
             }
         }
         $content .= '</table>
                                 </div>';
-        
+
         echo $content;
-        
-        
+
+
     }
     function delete_user($id)
     {
@@ -168,11 +175,12 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
         $array = array(
             $id
         );
-        $bdd->cache("UPDATE `users` SET state=0 WHERE id=?", $array);
+       // $bdd->cache("DELETE FROM `users` WHERE id=?", $array);
+       $bdd->cache('UPDATE users SET state="0" WHERE id=?',array($id));
         $bdd->exec();
-        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> utilisateur desactivé avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=user">';
+        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> utilisateur supprimé avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=user"><SCRIPT LANGUAGE="JavaScript">document.location.href="admin.php?action=user"</SCRIPT>';
     }
-    function update_user($nom, $prenom, $password, $acl, $mail, $contrat, $id, $begin,$nbjour)
+    function update_user($nom, $prenom, $password, $acl, $mail, $contrat, $id, $begin,$nbjour,$delegated_user,$day)
     {
         $array = array();
         $req   = 'UPDATE `users` SET ';
@@ -204,6 +212,20 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
             $nbjour=$nbjour*12;
             $bdd->cache('select nb_jour as jour from credit_conge where id_user=?',array($id));
             $jour = $bdd->exec();
+            if(isset($delegated_user)){
+                $delegated_user=explode(",",$delegated_user);
+                $bdd->cache('delete from hierachie_liaison where id_user_sup=?', array(
+                  $id
+                ));
+                for($du_count=0;$du_count<count($delegated_user);$du_count++){
+                  $bdd->cache('INSERT INTO `hierachie_liaison`(`id_user`, `id_user_sup`) VALUES (? , ?) ', array(
+                    $delegated_user[$du_count],
+                    $id
+                  ));
+
+                }
+                $bdd->exec();
+            }
             if(isset($jour[0][0]['jour'])){
                  $bdd->cache('update credit_conge set nb_jour=? where id_user=?', array(
                     $nbjour,
@@ -218,7 +240,27 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
                 ));
                 $bdd->exec();
             }
-            echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> utilisateur mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=user">';
+            $day=json_decode($day);
+            $bdd->cache('select * from user_day where user_id=?',array($id));
+            $userDay=$bdd->exec();
+            for($f=0;$f<=count($day);$f++){
+                if(isset($userDay[0][$f]['day']) and isset($day[$userDay[0][$f]['day']])){
+                    $bdd->cache('UPDATE user_day SET time=? WHERE user_id=? and day=?',array(
+                        $day[$f],
+                        $id,
+                        $f
+                        ));
+                } else {
+                    $bdd->cache('INSERT INTO `user_day`( `user_id`, `day`, `time`) VALUES (?,?,?)',array(
+                        $id,
+                        $f,
+                        $day[$f]
+                        ));
+                }
+            }
+            $bdd->exec();
+
+            echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> utilisateur mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=user"><SCRIPT LANGUAGE="JavaScript">document.location.href="admin.php?action=user"</SCRIPT>';
         } else {
             echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">erreur : vous n\'avez probablement pas remplity les champs obligatoire : -contrat<br>-niveau de droit<br>-date de debut</div>';
         }
@@ -234,11 +276,11 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
         $bdd->cache('insert into categorie set  nom=?, id_domaine=?, cir=0', $array);
         $bdd->exec();
         if ($intern == 0) {
-            echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> catégorie ajoutée avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=categorie">';
+            echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> catégorie ajoutée avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=categorie"><SCRIPT LANGUAGE="JavaScript">document.location.href="admin.php?action=categorie"</SCRIPT>';
         } else {
             return $bdd->lastid();
         }
-        
+
     }
     function rename_cat($cat, $name, $catdom, $cir)
     {
@@ -275,7 +317,7 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
         } else {
             echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">Catégorie nessessaire au fonctionnement de l\'application</div>';
         }
-        
+
     }
     //gestion des domaine
     function add_dom($dom)
@@ -286,7 +328,7 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
         );
         $bdd->cache('insert into domaine set  nom=?', $array);
         $bdd->exec();
-        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> domaine ajoutée avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=domaine">';
+        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> domaine ajoutée avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=domaine"><SCRIPT LANGUAGE="JavaScript">document.location.href="admin.php?action=domaine"</SCRIPT>';
     }
     function rename_dom($dom, $name)
     {
@@ -297,7 +339,7 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
         );
         $bdd->cache('UPDATE domaine SET nom=? where id=?', $array);
         $bdd->exec();
-        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> domaine ajoutée avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=domaine">';
+        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> domaine ajoutée avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=domaine"><SCRIPT LANGUAGE="JavaScript">document.location.href="admin.php?action=domaine"</SCRIPT>';
     }
     function delete_dom($id)
     {
@@ -308,11 +350,11 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
         if ($id != 7) {
             $bdd->cache("DELETE FROM `domaine` WHERE id=?", $array);
             $bdd->exec();
-            echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> domaine supprimé avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=domaine">';
+            echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> domaine supprimé avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=domaine"><SCRIPT LANGUAGE="JavaScript">document.location.href="admin.php?action=domaine"</SCRIPT>';
         } else {
             echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">Domaine nessessaire au fonctionnement de l\'application</div>';
         }
-        
+
     }
     function delcontrat($id)
     {
@@ -326,31 +368,31 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
         if (empty($user)) {
             $bdd->cache("DELETE FROM `contrat` WHERE id=?", $array);
             $bdd->exec();
-            echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> contrat supprimé avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=contrat">';
+            echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> contrat supprimé avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=contrat"><SCRIPT LANGUAGE="JavaScript">document.location.href="admin.php?action=contrat"</SCRIPT>';
         } else {
             echo '<div style="border:solid 2px red; background:pink;color:red;padding:1em;display:inline-block" class="droid">erreur : un/des utilisateur(s) utilise(nt) ce contrat : <br>
                     ';
             for ($i = 0; $i < count($user); $i++) {
                 echo '- ' . $user[$i]['nom'] . ' ' . $user[$i]['prenom'];
             }
-            
+
             echo '</div>';
         }
-        
+
     }
     function updatecontrat($array)
     {
         $bdd = new bdd();
         $bdd->cache("UPDATE `contrat` SET `nom`=?,`pourcent`=?,`conge`=? WHERE id=?", $array);
         $bdd->exec();
-        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> contrat mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=contrat">';
+        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> contrat mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=contrat"><SCRIPT LANGUAGE="JavaScript">document.location.href="admin.php?action=contrat"</SCRIPT>';
     }
     function addcontrat($array)
     {
         $bdd = new bdd();
         $bdd->cache("INSERT INTO `contrat`( `nom`, `pourcent`, `conge`) VALUES ( ?, ?, ?)", $array);
         $bdd->exec();
-        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> contrat ajouter avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=contrat">';
+        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> contrat ajouter avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=contrat"><SCRIPT LANGUAGE="JavaScript">document.location.href="admin.php?action=contrat"</SCRIPT>';
     }
     function modifmotif($nom, $type, $id)
     {
@@ -362,7 +404,39 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
         );
         $bdd->cache('update motif set nom = ?, type=? where id=?', $array);
         $bdd->exec();
-        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> motif mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=motif">';
+        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> motif mis à jour avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=motif"><SCRIPT LANGUAGE="JavaScript">document.location.href="admin.php?action=motif"</SCRIPT>';
+    }
+    function check_hs($id, $type="1"){
+        $bdd=new bdd;
+        $bdd->cache('select heure from heure_sup where id_user=?',array($id));
+        $heure_sup=$bdd->exec();
+        if($type="1"){
+            if(empty($heure_sup[0][0]['heure'])){
+            $total_heure_sup='<strong> pas d\'heure suplémentaire</strong>';
+            } else {
+                $total_heure_sup=sectohour($heure_sup[0][0]['heure']);
+                $total_heure_sup='<strong>'.$total_heure_sup['h'].' h '.$total_heure_sup['m'] .'minutes</strong>';
+            }
+        echo 'Disponible avec cet utilisateur : '.$total_heure_sup;
+        } else {
+            if(empty($heure_sup[0][0]['heure'])){
+                $heure_sup[0][0]['heure']=0;
+            }
+            return sectohour($heure_sup[0][0]['heure']);
+        }
+    }
+    function paye_hs($id,$hour, $date){
+        $hour='-'.hourtosec($hour);
+        $bdd = new bdd;
+        $array   = array(
+            $id,
+            $hour,
+            $date
+        );
+        $bdd->cache('insert into heure set  id_user=?, nb=?, id_cat=54, date=? ,comment=NULL', $array);
+        $bdd->exec();
+        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> ajout des heures suplémentaires effectuer</div><meta http-equiv="refresh" content="2; URL=admin.php?action=payehour"><SCRIPT LANGUAGE="JavaScript">document.location.href="admin.php?action=payehour"</SCRIPT>';
+
     }
     function delmotif($id)
     {
@@ -380,8 +454,8 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
         );
         $bdd->cache("DELETE FROM `motif` WHERE id=?", $array);
         $bdd->exec();
-        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> motif supprimé avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=motif">';
-        
+        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> motif supprimé avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=motif"><SCRIPT LANGUAGE="JavaScript">document.location.href="admin.php?action=motif"</SCRIPT>';
+
     }
     function addmotif($nom, $type)
     {
@@ -394,10 +468,10 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
         );
         $bdd->cache("INSERT INTO `motif`( `type`, `nom`, `id_cat`) VALUES (?,?,?)", $array);
         $bdd->exec();
-        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> motif ajouté avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=motif">';
-        
+        echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> motif ajouté avec succès</div><meta http-equiv="refresh" content="2; URL=admin.php?action=motif"><SCRIPT LANGUAGE="JavaScript">document.location.href="admin.php?action=motif"</SCRIPT>';
+
     }
-    
+
     function credit_conge()
     {
         $bdd  = new bdd();
@@ -423,7 +497,7 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
                     );
                     $bdd->cache("UPDATE `credit_conge` SET `nb_jour`=? WHERE id_user=?", $array2);
                     $bdd->exec();
-                    
+
                 } else {
                     $array = array(
                         $user[$i]['conge'],
@@ -442,7 +516,7 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
                     );
                     $bdd->cache("insert into credit_conge ( `nb_jour`, `id_user`) VALUES (?,?)", $array2);
                     $bdd->exec();
-                    
+
                 } else {
                     $array = array(
                         $user[$i]['conge'],
@@ -453,21 +527,31 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
             }
         }
     }
+
     function admconge($id, $state)
     {
         $bdd = new bdd();
-        $bdd->cache("update conge set state= ? where id=?", array(
-            $state,
-            $id
-        ));
-        $bdd->exec();
+       
         $bdd->cache('select a.state as state, a.id_motif as motif, b.type as type,b.id_cat as id_cat, a.end as end, a.begin as begin, a.id_user as id_user from conge a , motif b where b.id=a.id_motif and a.id=?', array(
             $id
         ));
         $type = $bdd->exec();
+         $bdd->cache("update conge set state= ? where id=?", array(
+            $state,
+            $id
+        ));
+        $bdd->exec();
+  $bdd->cache('select mail from users where id=?',array($type[0][0]['id_user']));
+  $mailuser=$bdd->exec();
+      //  $user_detail=$user_detail/12; //les congt� etant exprim� en 12eme
         $type = $type[0];
-        
-        
+        if($state=='1'){
+        $etatcongemail='valider';
+        } else {
+        $etatcongemail='refuser';
+        }
+          sendmail($mailuser[0][0]['mail'], 'Un congé vient d\' �tre '. $etatcongemail.' ','Votre congé du '.$type[0]['begin'].' au '.$type[0]['end'].'vient d\' être '.$etatcongemail.' ','<p>Votre congé du <br>'.$type[0]['begin'].' au '.$type[0]['end'].'<br>vient d\' être '. $etatcongemail.'</p><br> <a href="https://temps.triskem.fr/index.php"> Cliquez ici pour y acceder</a><br><br><p>Cordialement,<br>Votre gestion du temps</p>' );
+          
         $jour     = '86400'; //jour en seconde
         $end      = explode(" ", $type[0]['end']);
         $begin    = explode(" ", $type[0]['begin']);
@@ -477,11 +561,45 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
         $nbj      = intval($nb['h'] / 24);
         $compteur = $begins;
         $nbjt     = 0;
-        if ($type[0]['type'] == 2) { // dans le cas d'un deplacement on recrédite les heures sur le compte
+        $bdd->cache('select a.pourcent as pourcent  from contrat a , users b where b.id_contrat=a.id and b.id=?',array($type[0]['id_user']));
+        $pourcent=$bdd->exec();
+        $bdd->cache('select * from user_day where user_id=?',array($type[0]['id_user']));
+        $days=$bdd->exec();
+
+        if ($type[0]['type'] == 2 and $state== '1') { // dans le cas d'un deplacement on recrédite les heures sur le compte
             for ($i = 0; $i < $nbj + 1; $i++) {
-                if (isHoliday($compteur) != 1) { //check si c'est un jour de congé
+              $checkDay=true;
+              $timeByDay='none';
+              if($pourcent[0][0][0] != '100'){
+              	$date = new DateTime();
+                $datetimeDay = $date->setTimestamp($compteur);
+                $dayName  = $datetimeDay->format('N')-1;
+                 $dayTest = $datetimeDay->format('D');
+                for($jours=0;$jours<count($days[0]);$jours++ ){
+                	//echo 'boucle2---'.$dayName.'--'.$dayTest.'-----'.$compteur.'<br>';
+                  if($dayName == $days[0][$jours]['day']){
+                  	//echo 'boucle3<br>';
+                    if($days[0][$jours]['time']>0){
+                    //	echo 'boucle4<br>';
+                      $timeByDay=$days[0][$jours]['time'];
+                    } else {
+                      $checkDay=false;
+                    }
+                  }
+                //  echo '----<br>';
+                }
+                
+              }
+
+                if (isHoliday($compteur) != 1 and $checkDay) { //check si c'est un jour de congé et si c'est un jour non travailler (moins de 100%)
                     if ($begins == $ends) { //si la personne a pris une demie journé
                         $nbh = hourtosec($end[1]) - hourtosec($begin[1]); //nombre de seconde
+                         if($nbh=="28800"){
+                            $nbh=$nbh-3600;
+                          }
+                          if($timeByDay!='none'){
+                            $nbh=$timeByDay/2;
+                          }
                         $bdd->cache("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
                             $type[0]['id_user'],
                             $nbh,
@@ -490,7 +608,7 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
                         ));
                         $bdd->exec();
                     } else {
-                        
+
                         if ($begins == $compteur or $ends == $compteur) { //si on arrive au debut ou la fin de la periode demandée
                             if ($begins == $compteur) {
                                 if ($begin[1] == '08:30:00') {
@@ -500,6 +618,10 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
                                     $n = '13:30';
                                 }
                                 $nbh = hourtosec('16:30') - (hourtosec($n));
+                                if($timeByDay!='none'){
+                                    $nbh=$timeByDay;
+                                }
+                                echo '=='.$timeByDay;
                                 $bdd->cache("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
                                     $type[0]['id_user'],
                                     $nbh,
@@ -508,7 +630,7 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
                                 ));
                                 $bdd->exec();
                             } else {
-                                
+
                                 if ($end[1] == '12:00:00') {
                                     $n = '12:00'; //on enleve 1h le soir pour compenser la pause dejeuner
                                 }
@@ -516,7 +638,9 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
                                     $n = '15:30';
                                 }
                                 $nbh = hourtosec($n) - hourtosec('08:30');
-                                
+                                if($timeByDay!='none'){
+                                    $nbh=$timeByDay;
+                                }
                                 $bdd->cache("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
                                     $type[0]['id_user'],
                                     $nbh,
@@ -526,104 +650,141 @@ if (user::check_admin($_SERVER['HTTP_REFERER'])) {
                                 $bdd->exec();
                             }
                         } else { //sinon
-                            
+                            $nbh='25200';
+                            if($timeByDay!='none'){
+                                    $nbh=$timeByDay;
+                            }
                             $bdd->cache("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
                                 $type[0]['id_user'],
-                                '25200',
+                                $nbh,
                                 $type[0]['id_cat'],
                                 date('Y-m-d', $compteur)
                             ));
                             $bdd->exec();
                         }
-                        
+
                     }
                 } //fin check jour de congé
-                
+
                 $compteur = $compteur + $jour;
             } //fin boucle for
         } //fin du type deplacement
-        if ($type[0]['type'] == 1) { // dans le cas d'un conge paye
-            for ($i = 0; $i < $nbj + 1; $i++) {
-                if (isHoliday($compteur) != 1) { //check si c'est un jour de congé
-                    $conge = $bdd->cache('select nb_jour from credit_conge where id_user=?', array(
-                        $type[0]['id_user']
-                    ));
-                    $bdd->exec();
-                    $conge = $conge[0];
-                    if ($begins == $ends) { //si la personne a pris une demie journé
-                        $nbh       = hourtosec($end[1]) - hourtosec($begin[1]); //nombre de seconde
-                        $nbh       = ($nbh * 3600) / 7;
-                        $aftersous = $conge[0]['nb_jour'];
-                    } else {
-                        if ($begins == $compteur or $ends == $compteur) { //si on arrive au debut ou la fin de la periode demandée
-                            if ($begins == $compteur) {
-                                
-                                if ($begin[1] == '08:30:00') {
-                                    $n = '9:30'; //on enleve 1h le soir pour compenser la pause dejeuner
-                                }
-                                if ($begin[1] == '13:00:00') {
-                                    $n = '13:30';
-                                }
-                                $nbh  = hourtosec('16:30') - hourtosec($n);
-                                $nbjt = $nbjt + $nbh;
-                                $bdd->cache("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
-                                    $type[0]['id_user'],
-                                    $nbh,
-                                    $type[0]['id_cat'],
-                                    $begin[0]
-                                ));
-                                $bdd->exec();
-                            } else {
-                                
-                                if ($end[1] == '12:00:00') {
-                                    $n = '12:00'; //on enleve 1h le soir pour compenser la pause dejeuner
-                                }
-                                if ($end[1] == '16:30:00') {
-                                    $n = '15:30';
-                                }
-                                $nbh  = hourtosec($n) - hourtosec('08:30');
-                                $nbjt = $nbjt + $nbh;
-                                $bdd->cache("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
-                                    $type[0]['id_user'],
-                                    $nbh,
-                                    $type[0]['id_cat'],
-                                    $end[0]
-                                ));
-                                $bdd->exec();
-                            }
-                        } else { //sinon
-                            $nbjt = $nbjt + $nbh;
+        if($type[0]['state']!='2' and $state == '1'){
+          if ($type[0]['type'] == 1) { // dans le cas d'un conge paye
+          
+              for ($i = 0; $i < $nbj + 1; $i++) {
+                  if (isHoliday($compteur) != 1) { //check si c'est un jour de congé
+                      $conge = $bdd->cache('select nb_jour from credit_conge where id_user=?', array(
+                          $type[0]['id_user']
+                      ));
+                      $bdd->exec();
+                      $conge = $conge[0];
+                      if ($begins == $ends) { //si la personne a pris une demie journé
+                          $nbh       = hourtosec($end[1]) - hourtosec($begin[1]); //nombre de seconde
+                          if($nbh=="28800"){
+                            $nbh=$nbh-3600;
+                          }
                             $bdd->cache("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
-                                $type[0]['id_user'],
-                                '25200',
-                                $type[0]['id_cat'],
-                                date('Y-m-d', $compteur)
-                            ));
-                            $bdd->exec();
-                        }
-                        
-                    }
-                } //fin check jour de congé
-                
-                $compteur = $compteur + $jour;
-            } //fin boucle for
-            
-            if ($type[0]['state'] == 1) { //si il a déja été valider on recredite le solde de congé de l'utilisateur
-                $nbjt = ($nbjt / 3600) / 7;
-                //echo $nbjt."<br>".$conge[0]['nb_jour']."<br>";
-                $nbjt = $conge[0]['nb_jour'] - $nbjt * 12;
-                //echo $nbjt;
-                $bdd->cache('update credit_conge set nb_jour=? where id_user=?', array(
-                    $nbjt,
-                    $type[0]['id_user']
-                ));
-                $bdd->exec();
-                
-            }
-        } //fin du type congé paye
+                            $type[0]['id_user'],
+                            $nbh,
+                            $type[0]['id_cat'],
+                            $begin[0]
+                        ));
+                        $bdd->exec();
+                          $nbjt=$nbh;
+                          
+                          //$nbh       = ($nbh * 3600) / 7;
+                          
+                          $aftersous = $conge[0]['nb_jour'];
+                      } else {
+                          if ($begins == $compteur or $ends == $compteur) { //si on arrive au debut ou la fin de la periode demandée
+
+                              if ($begins == $compteur) {
+  
+                                  if ($begin[1] == '08:30:00') {
+                                      $n = '9:30'; //on enleve 1h le soir pour compenser la pause dejeuner
+                                  }
+                                  if ($begin[1] == '13:00:00') {
+                                      $n = '13:30';
+                                  }
+                                  $nbh  = hourtosec('16:30') - hourtosec($n);
+                                  $nbjt = $nbjt + $nbh;
+                                  $bdd->cache("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
+                                      $type[0]['id_user'],
+                                      $nbh,
+                                      $type[0]['id_cat'],
+                                      $begin[0]
+                                  ));
+                                  $bdd->exec();
+                                 
+                              } else {
+  
+                                  if ($end[1] == '12:00:00') {
+                                      $n = '12:00'; //on enleve 1h le soir pour compenser la pause dejeuner
+                                  }
+                                  if ($end[1] == '16:30:00') {
+                                      $n = '15:30';
+                                  }
+                                  $nbh  = hourtosec($n) - hourtosec('08:30');
+                                  $nbjt = $nbjt + $nbh;
+                                  $bdd->cache("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
+                                      $type[0]['id_user'],
+                                      $nbh,
+                                      $type[0]['id_cat'],
+                                      $end[0]
+                                  ));
+                                  $bdd->exec();
+                              }
+                          } else { //sinon
+                              $nbjt = $nbjt + $nbh;
+                              $bdd->cache("insert into `heure`( `id_user`, `nb`, `id_cat`, `date`) VALUES (?,?,?,?)", array(
+                                  $type[0]['id_user'],
+                                  '25200',
+                                  $type[0]['id_cat'],
+                                  date('Y-m-d', $compteur)
+                              ));
+                              $bdd->exec();
+                          }
+  
+                      }
+                  } //fin check jour de congé
+  
+                  $compteur = $compteur + $jour;
+              } //fin boucle for
+              $bdd->cache('select nb_jour from credit_conge where id_user=?',array(
+                $type[0]['id_user']
+              ));
+              $user_detail=$bdd->exec();
+            /*  if ($type[0]['state'] == 1) { //si il a déja été valider on recredite le solde de congé de l'utilisateur
+              echo $nbjt."<br>".$conge[0]['nb_jour']."tata<br>";
+                  $nbjt = ($nbjt / 3600) / 7;
+                  //echo $nbjt."<br>".$conge[0]['nb_jour']."<br>";
+                  $nbjt = $conge[0]['nb_jour'] - $nbjt * 12;
+                  //echo $nbjt;
+                  $bdd->cache('update credit_conge set nb_jour=? where id_user=?', array(
+                      $nbjt,
+                      $type[0]['id_user']
+                  ));
+                  $bdd->exec();
+  
+              }
+*/
+                if ($type[0]['state'] == 0 and $state==1) { //on vient de valider le conger donc on les suprime des conge user
+                  $nbjt = ($nbjt / 3600) / 7; //on transforme les seconde en jour de travail
+                  $nbjt =$user_detail[0][0]['nb_jour'] -$nbjt*12;
+                  $bdd->cache('update credit_conge set nb_jour=? where id_user=?', array(
+                      $nbjt,
+                      $type[0]['id_user']
+                  ));
+                  $bdd->exec();
+  
+              }
+          } //fin du type congé paye
+      }
         echo '<div style="border:solid 2px green;background:lightgreen;color:green;padding:1em;display:inline-block" class="droid"> conge mis à jour avec succès</div>';
+      
+      //  echo '<meta http-equiv="refresh" content="1; URL=admin.php?action=conge"><SCRIPT LANGUAGE="JavaScript">document.location.href="admin.php?action=conge"</SCRIPT>';
     } //fin fonction
-    //<meta http-equiv="refresh" content="2; URL=admin.php?action=conge">
-    
+
+
 } //fin de la verif admin
-    

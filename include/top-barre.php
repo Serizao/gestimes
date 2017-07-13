@@ -1,9 +1,9 @@
-<nav class="navbar navbar-default"> 
+<nav class="navbar navbar-default">
     <div class="container-fluid"> <div class="navbar-header">
         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-7" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span> 
+            <span class="sr-only">Toggle navigation</span>
             <span class="icon-bar"></span> <span class="icon-bar"></span>
-            <span class="icon-bar"></span> 
+            <span class="icon-bar"></span>
         </button>
         <a class="navbar-brand" href="index.php">Gestime</a>
     </div>
@@ -19,8 +19,11 @@
                     </ul>
             </li>
             <li><a href="?function=cal" ><i class="fa fa-calendar" aria-hidden="true"></i> Le calendrier</a></li>
-            
+
             <?php
+if ($_SESSION['acl']==5 or $_SESSION['acl']==10 ) {
+              echo '<li><a href="index.php?action=user-modo" id ><i class="fa fa-cog" aria-hidden="true"></i> Pré-validation des congé de votre équipe</a></li>';
+}
 if ($_SESSION['acl']==10) {
     echo '<li><a href="admin.php" id ><i class="fa fa-cog" aria-hidden="true"></i> Panneau d\'administration</a></li>';
 }

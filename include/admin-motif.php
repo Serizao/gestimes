@@ -14,6 +14,7 @@ echo '<div class="col-md-12">
                     1 <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> congé qui ne sera pas deduit des heure suplémentaire et retournera un abcence de l\'utilisateur.<br>
                     2 <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> congé qui indiquera que l\'utilisateur est present (exemple deplacement).<br>
                     3 <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> congé qui sera deduit des heure suplémentaire et retournera une abcence <br>
+                    4 <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> déduit les heures supplémentaire payées<br>
                 </h4>
             </div>
             <div class="col-md-6">

@@ -3,6 +3,7 @@ include_once('autoload.php');
 user::session();
 include_once('function.php');
 include_once('admin-function.php');
+include_once('modo-function.php');
 date_default_timezone_set('Europe/Paris');
 if(isset($_REQUEST['action']))$action=$_REQUEST['action'];
 else $action="";
@@ -21,13 +22,13 @@ switch($action){
           header('location: ../auth.php');
           break;
     case "adduser":
-        add_user($_REQUEST['nom'], $_REQUEST['prenom'], $_REQUEST['password'], $_REQUEST['acl'], $_REQUEST['mail'], $_REQUEST['hour'], $_REQUEST['begin'],$_REQUEST['nbconge']);
+        add_user($_REQUEST['nom'], $_REQUEST['prenom'], $_REQUEST['password'], $_REQUEST['acl'], $_REQUEST['mail'], $_REQUEST['hour'], $_REQUEST['begin'],$_REQUEST['nbconge'],$_REQUEST['day']);
         break;
     case "deluser":
         delete_user($_REQUEST['id']);
         break;
     case "updateuser":
-        update_user($_REQUEST['nom'], $_REQUEST['prenom'], $_REQUEST['password'], $_REQUEST['acl'], $_REQUEST['mail'], $_REQUEST['hour'], $_REQUEST['id'], $_REQUEST['begin'],$_REQUEST['nbconge']);
+        update_user($_REQUEST['nom'], $_REQUEST['prenom'], $_REQUEST['password'], $_REQUEST['acl'], $_REQUEST['mail'], $_REQUEST['hour'], $_REQUEST['id'], $_REQUEST['begin'],$_REQUEST['nbconge'],$_REQUEST['delegated_user'],$_REQUEST['day']);
         break;
     case "delcat":
         delete_cat($_REQUEST['id']);
@@ -55,6 +56,10 @@ switch($action){
         break;
     case "gethour2":
         count_hour($_REQUEST['date'], '3');
+        break;
+    case "geshour-calendar":
+        $id_user=$_REQUEST['id'];
+        include('./admin-calendar-hour.php');
         break;
     case "delcontrat":
         delcontrat($_REQUEST['id']);
@@ -85,6 +90,9 @@ switch($action){
     case "admconge":
         admconge($_REQUEST['id'],$_REQUEST['state']);
         break;
+    case "modoconge":
+          modoconge($_REQUEST['id'],$_REQUEST['state'],$_SESSION['id']);
+          break;
     case "credit_conge":
         credit_conge();
         break;
@@ -105,6 +113,12 @@ switch($action){
         break;
     case "timeline":
         gentimeline($_REQUEST['id']);
+      break;
+    case "nb_hour_sup":
+        check_hs($_REQUEST['id']);
+      break;
+    case "paye_hour_sup":
+        paye_hs($_REQUEST['id'],$_REQUEST['hour'],$_REQUEST['date']);
       break;
     }
 ?>

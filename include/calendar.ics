@@ -1,0 +1,25 @@
+<?php
+include('autoload.php');
+include_once('./function.php');
+
+
+header('Content-type: text/calendar; charset=utf-8');
+header('Content-Disposition: attachment; filename=Triskem-calendar.ics');
+$bdd    = new bdd();
+$bdd->cache('select a.id as id,a.begin as begin, a.end as end, b.nom as nom, b.prenom as prenom, c.nom as type from conge a, users b, motif c where a.id_user=b.id and a.id_motif=c.id and a.state!=0 and a.state!=10', '');
+$result = $bdd->exec();
+$ics 	= new ics();
+for ($i = 0; $i < count($result); $i++) {
+    $begin = explode(" ", $result[$i]['begin']);
+    $end   = explode(" ", $result[$i]['end']);
+    $ics->set(array(
+	  'location' => '',
+	  'description' =>  '' ,
+	  'dtstart' => $result[$i]['begin'],
+	  'dtend' => $result[$i]['end'],
+	  'summary' => $result[$i]['prenom'] . ' ' . $result[$i]['nom'],
+	  'url' => ''
+	));
+   
+}
+echo $ics->to_string();

@@ -1,6 +1,6 @@
 <?php
     include_once('include/function.php');
-    include_once('include/autoload.php'); 
+    include_once('include/autoload.php');
     include_once('include/admin-function.php');
     if(user::check_admin($_SERVER['HTTP_REFERER'])){
 
@@ -10,15 +10,17 @@
             <head>
                 <title>Auth</title>
                 <meta charset="utf-8">
+                <link rel="stylesheet" type="text/css" href="css/chosen.min.css">
                 <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
                 <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <link rel="stylesheet" href="css/font-awesome.min.css">
-                <link rel="stylesheet" type="text/css" href="css/popup.css"> 
+                <link rel="stylesheet" type="text/css" href="css/popup.css">
                 <link rel="stylesheet" type="text/css" href="css/global.css">
                 <script src="js/jquery-1.12.0.min.js"></script>
                 <script src="js/jquery-migrate-1.2.1.min.js"></script>
-                
+                <script src="js/chosen.jquery.min.js"></script>
+
                 <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
                 <!--[if lt IE 9]>
                   <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -36,14 +38,14 @@
             <body>
                 <?php
                     $bdd = new bdd();
-                    $bdd->cache('select id from conge where state=0','');
+                    $bdd->cache('select id from conge where state=0 and id_validator!="-1"','');
                     $a   = $bdd->exec();
                     if(count($a)>0){
                         $not='<span class="badge">'.count($a).' </span>';
                     }else{
                         $not="";
                     }
-                    
+
                     ?>
                 <div>
                     <nav class="navbar navbar-inverse" style="border-radius:0px">
@@ -72,11 +74,11 @@
                                 <li><a href="admin.php?action=timeline">Les projets eligible cir</a></li>
                               </ul>
                             </li>
-                          
+
                            <li class="dropdown">
                               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-cogs" aria-hidden="true"></i> Gestion <?php echo $not; ?><span class="caret"></span></a>
                               <ul class="dropdown-menu">
-                                
+
                                 <li><a href="admin.php?action=user">Gerer les utilsateurs</a></li>
                                 <li><a href="admin.php?action=contrat">Gerer les contrats</a></li>
                                 <li role="separator" class="divider"></li>
@@ -89,21 +91,21 @@
                                 <li><a href="admin.php?action=geshour">Gerer les heures</a></li>
                                 <li><a href="admin.php?action=payehour">Payer des heures suplémentaire</a></li>
                               </ul>
-                              
+
                             </li>
                              <li class="dropdown">
                               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-terminal" aria-hidden="true"></i> Système<span class="caret"></span></a>
                               <ul class="dropdown-menu">
-                                
+
                                 <li><a href="admin.php?action=clean">Nettoyer la base de donnée</a></li>
                                 <li><a href="admin.php?action=config">Configuration</a></li>
                                 <li><a href="admin.php?action=importldap">Import LDAP</a></li>
-                              
+
                               </ul>
                               <li><a href="admin.php?action=calendar"><i class="fa fa-calendar" aria-hidden="true"></i> Le calendrier</a></li>
                             </li>
                           </ul>
-                         
+
                           <ul class="nav navbar-nav navbar-right">
                            <li><a href="include/ajax.php?action=disconnect">Deconnexion <i class="fa fa-sign-out" aria-hidden="true"></i></a></li>
                           </ul>
@@ -116,7 +118,12 @@
 
 
                     <?php
+                      if(isset($_REQUEST['action']) and !empty($_REQUEST['action'])){
                         $choix=$_REQUEST['action'];
+                      } else {
+                        $choix='';
+                      }
+
                         switch($choix){
 
                         case "user": //panneau de gestion des utilisateurs
@@ -172,6 +179,7 @@
                         break;
                         }
                     ?>
+      </div>
                 </div>
                 <script src="./js/admin.js"></script>
                 <script src="./js/popup.js"></script>
@@ -180,8 +188,8 @@
             </body>
         </html>
         <?php
-        
-        
+
+
     }
     else{
         echo 'vous n\'avez pas les droits pour acceder à cette section';

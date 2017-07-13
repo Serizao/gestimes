@@ -27,12 +27,13 @@ class user
         $password=hash($this->_password_type, $password);
         $this->_bdd->cache('SELECT '.$this->_coluserid.' as nb, acl FROM '.$this->_tabuser.' where '.$this->_colusername.'=? and '.$this->_colpassword.'=?',array($user,$password));
         $var=$this->_bdd->exec();
+        //var_dump('SELECT '.$this->_coluserid.' as nb, acl FROM '.$this->_tabuser.' where '.$this->_colusername.'=? and '.$this->_colpassword.'=?'.$user,$password);
         if(isset($var[0][0]['nb']) and $var[0][0]['nb']!=''){
             setcookie ("username", $_POST['username'], time() + 432000);
             $_SESSION['id']=$var[0][0]['nb'];
             $_SESSION['acl']=$var[0][0]['acl'];
             $_SESSION['userid']=$var[0][0]['nb'];
-            $_SESSION['uid'] = sha1(uniqid('',true).'_'.mt_rand()); 
+            $_SESSION['uid'] = sha1(uniqid('',true).'_'.mt_rand());
             $_SESSION['ip']=$this->ip();   // stockage de l'ip deu visiteur
             $_SESSION['username']=$user;
             $_SESSION['expires_on']=time()+INACTIVITY_TIMEOUT;  // Set session expiration.
@@ -74,6 +75,16 @@ class user
         }
         return $resultat;
     }
+    public static function check_modo($referer=''){
+        user::session();
+        user::check_login($referer);
+        if(isset($_SESSION['acl']) and ($_SESSION['acl']==5 or $_SESSION['acl']==10)){
+            $resultat = true;
+        } else {
+            $resultat = false;
+        }
+        return $resultat;
+    }
     public static function logout()
     // forcer la deconnexion
     {
@@ -84,7 +95,7 @@ class user
     }
     public static function session(){
         if(!isset($_SESSION)){
-           session_start(); 
-        } 
+           session_start();
+        }
     }
 }

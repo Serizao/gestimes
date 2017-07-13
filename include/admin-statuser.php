@@ -6,7 +6,7 @@
 <?php
 user::check_admin();
 $bdd = new bdd();
-$bdd->cache('select * from users', '');
+$bdd->cache('select * from users where state!=0', '');
 $user = $bdd->exec();
 echo '<div class="col-md-12" style=margin-top:10px;"><select class="col-md-6"  id="chooseuser" >';
 echo '<option></option>';

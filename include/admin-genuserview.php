@@ -88,7 +88,7 @@ for ($i = 0; $i < count($result); $i++) {
     echo "
     {   
                     name: '" . $result[$i]['nom'] . "',
-                    y: " . $percent . "
+                    y: " . abs($percent) . "
                 },";
 }
 
@@ -156,7 +156,7 @@ for ($i = 0; $i < count($domaine); $i++) {
     echo "
     {   
                     name: '" . $domaine[$i]['nom'] . "',
-                    y: " . $percent . "
+                    y: " . abs($percent) . "
                 },";
 }
 

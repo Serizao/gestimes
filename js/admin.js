@@ -1,3 +1,5 @@
+
+
 $(document).ready(function() {
 				    // Lorsque je soumets le formulaire
 				    //ajout user
@@ -5,7 +7,7 @@ $(document).ready(function() {
 				        e.preventDefault(); // J'empêche le comportement par défaut du navigateur, c-à-d de soumettre le formulaire
 				         var _this = this;
 				        var $this = $(this); // L'objet jQuery du formulaire
-				       
+
 				       var id=$this.attr('alt');
 				        // Je récupère les valeurs
 				      	var hour =$('.hour'+id).val();
@@ -16,19 +18,37 @@ $(document).ready(function() {
 						var mail = $('.mail'+id).val();
 						var begin = $('.begin'+id).val();
 						var nbconge= $('.nbconge'+id).val();
-				
-				        // Je vérifie une première fois pour ne pas lancer la requête HTTP
+						var delegated_user=$('.delgated_user'+id).val();
+						var pourcent = $('.hour'+id+' option:selected').attr('alt');
+						var bad = false;
+						        // Je vérifie une première fois pour ne pas lancer la requête HTTP
 				        // si je sais que mon PHP renverra une erreur
 						if(id==''){
-							if(hour=== '' || acl === '' || password === '' || nom === '' || prenom === '' || mail === '' ||begin===''||nbconge==='') {
+							if(pourcent!=100){
+								var lundi 	 = hourToSec($('#lundi'+id).val());
+								var mardi 	 = hourToSec($('#mardi'+id).val());
+								var mercredi = hourToSec($('#mercredi'+id).val());
+								var jeudi 	 = hourToSec($('#jeudi'+id).val());
+								var vendredi = hourToSec($('#vendredi'+id).val());
+								if(lundi === '' || mardi ==='' || mercredi === '' || jeudi ==='' || vendredi){
+									bad = true;
+								}
+								var total = (parseInt(lundi)+parseInt(mardi)+parseInt(mercredi)+parseInt(jeudi)+parseInt(vendredi))/3600;
+								var totalTheorique = (pourcent / 100) * 35;
+								if(total != totalTheorique){
+									bad = true;
+									alert('vous avez placé '+total+' heures dans la semaine au lieu de '+totalTheorique );
+								}
+
+							}
+							if( bad || hour=== '' || acl === '' || password === '' || nom === '' || prenom === '' || mail === '' ||begin===''||nbconge==='') {
 				            alert('Les champs doivent êtres remplis');
 					        } else {
-					        ;
 					            // Envoi de la requête HTTP en mode asynchrone
 					            $.ajax({
 					                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
 					                type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
-					                data: 'action=adduser&nom='+nom+'&prenom='+prenom+'&password='+password+'&mail='+mail+'&acl='+acl+'&hour='+hour+'&begin='+begin+'&nbconge='+nbconge, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+					                data: 'action=adduser&nom='+nom+'&prenom='+prenom+'&password='+password+'&mail='+mail+'&acl='+acl+'&hour='+hour+'&begin='+begin+'&nbconge='+nbconge+'&delegated_user='+delegated_user+'&day'+allDay, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 					                success: function(html) {
 					                  // Je récupère la réponse du fichier PHP
 					                  if(html==1)
@@ -43,15 +63,37 @@ $(document).ready(function() {
 					            });
 					        }
 						}else{
-						if(hour=== '' || acl === '' || nom === '' || id=='' || prenom === '' || mail === ''||nbconge==='') {
+							if(pourcent!=100){
+								var lundi 	 = hourToSec($('#lundi'+id).val());
+								var mardi 	 = hourToSec($('#mardi'+id).val());
+								var mercredi = hourToSec($('#mercredi'+id).val());
+								var jeudi 	 = hourToSec($('#jeudi'+id).val());
+								var vendredi = hourToSec($('#vendredi'+id).val());
+								if(lundi === '' || mardi ==='' || mercredi === '' || jeudi ==='' || vendredi ===''){
+									bad = true;
+								}
+								var total = (parseInt(lundi)+parseInt(mardi)+parseInt(mercredi)+parseInt(jeudi)+parseInt(vendredi))/3600;
+								var totalTheorique = (pourcent / 100) * 35;
+								if(total != totalTheorique){
+									bad = true;
+									alert('vous avez placé '+total+' heures dans la semaine au lieu de '+totalTheorique );
+								}
+								if(bad==false){
+									var allDay = [lundi,mardi,mercredi,jeudi,vendredi];
+								} 
+							}
+							if (typeof allDay === 'undefined') {
+								var allDay = [];
+							}
+						if(bad || hour=== '' || acl === '' || nom === '' || id=='' || prenom === '' || mail === ''||nbconge==='') {
 				            alert('Les champs doivent êtres remplis');
 					        } else {
-					        ;
+					        
 					            // Envoi de la requête HTTP en mode asynchrone
 					            $.ajax({
 					                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
 					                type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
-					                data: 'action=updateuser&nom='+nom+'&prenom='+prenom+'&password='+password+'&mail='+mail+'&acl='+acl+'&hour='+hour+"&id="+id+'&begin='+begin+'&nbconge='+nbconge, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+					                data: 'action=updateuser&nom='+nom+'&prenom='+prenom+'&password='+password+'&mail='+mail+'&acl='+acl+'&hour='+hour+"&id="+id+'&begin='+begin+'&nbconge='+nbconge+'&delegated_user='+delegated_user+'&day='+JSON.stringify(allDay), // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 					                success: function(html) {
 					                  // Je récupère la réponse du fichier PHP
 					                  if(html==1)
@@ -67,7 +109,7 @@ $(document).ready(function() {
 					            });
 					        }
 						}
-				        
+
 				    });
 					 $('.deluser').on('click', function(e) {
 				        e.preventDefault(); // J'empêche le comportement par défaut du navigateur, c-à-d de soumettre le formulaire
@@ -120,9 +162,9 @@ $(document).ready(function() {
 				                data: 'action=delcat&id='+id, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#retour"+id ).html( html ); // J'affiche cette réponse
-				                        
+
 				                }
 				            });
 				        }
@@ -147,15 +189,15 @@ $(document).ready(function() {
 				                data: 'action=addcat&cat='+cat+'&catdom='+catdom, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#retour" ).html( html ); // J'affiche cette réponse
-				                        
+
 				                }
 				            });
 				        }
 				    });
-					
-					
+
+
 					 $('.renamecat').on('click', function(e) {
 				        e.preventDefault(); // J'empêche le comportement par défaut du navigateur, c-à-d de soumettre le formulaire
 				        var _this = this;
@@ -166,7 +208,7 @@ $(document).ready(function() {
 						var cir=$('#cir'+id).html();
 						if(cir=="oui") var chk="checked";
 						else var chk ="";
-						
+
 						  $("#catname"+id ).html( '<input type="text" id="cat'+id+'" value="'+content+'"/><select id="catdom'+id+'">'+alldom+'</select><br>Eligible au CIR <input type="checkbox" '+chk+' id="cir'+id+'"/><br><button onclick="vrcat('+id+');" alt="'+id+'" class="vrcat btn btn-primary">valider</button>' );
 					 });
 	//gestion des domaine
@@ -189,9 +231,9 @@ $(document).ready(function() {
 				                data: 'action=deldom&id='+id, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#retour"+id ).html( html ); // J'affiche cette réponse
-				                        
+
 				                }
 				            });
 				        }
@@ -203,7 +245,7 @@ $(document).ready(function() {
 				      	var begindate=$('#begindate').val();
 						var enddate=$('#enddate').val();
 						var catdom=$('#catdom').val();
-					
+
 				        // Je récupère les valeurs
 				        // Je vérifie une première fois pour ne pas lancer la requête HTTP
 				        // si je sais que mon PHP renverra une erreur
@@ -218,9 +260,9 @@ $(document).ready(function() {
 				                data: 'catdom='+catdom+'&begindate='+begindate+'&enddate='+enddate, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#retour").html( html ); // J'affiche cette réponse
-				                        
+
 				                }
 				            });
 				        }
@@ -247,14 +289,14 @@ $(document).ready(function() {
 				                data: 'user='+chooseuser+'&begindate='+begindate+'&enddate='+enddate, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#retour").html( html ); // J'affiche cette réponse
-				                        
+
 				                }
 				            });
 				        }
 				    });
-				    
+
 					 $('#subnewdom').on('click', function(e) {
 				        e.preventDefault(); // J'empêche le comportement par défaut du navigateur, c-à-d de soumettre le formulaire
 				        var _this = this;
@@ -274,9 +316,9 @@ $(document).ready(function() {
 				                data: 'action=adddom&dom='+dom, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#retour" ).html( html ); // J'affiche cette réponse
-				                        
+
 				                }
 				            });
 				        }
@@ -300,9 +342,9 @@ $(document).ready(function() {
 				                data: 'action=delcontrat&id='+id, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#retour" ).html( html ); // J'affiche cette réponse
-				                        
+
 				                }
 				            });
 				        }
@@ -330,9 +372,9 @@ $(document).ready(function() {
 				                data: 'action=updatecontrat&id='+id+'&nom='+nom+'&pourcent='+pourcent+'&conge='+conge, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#retour"+id ).html( html ); // J'affiche cette réponse
-				                        
+
 				                }
 				            });
 				        }
@@ -360,9 +402,9 @@ $(document).ready(function() {
 				                data: 'action=addcontrat&nom='+nom+'&pourcent='+pourcent+'&conge='+conge, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#retour"+id ).html( html ); // J'affiche cette réponse
-				                        
+
 				                }
 				            });
 				        }
@@ -385,9 +427,9 @@ $(document).ready(function() {
 				                data: 'action=modifmotif&nom='+nom+'&type='+type+'&id='+id, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#retour"+id ).html( html ); // J'affiche cette réponse
-				                        
+
 				                }
 				            });
 				        }
@@ -411,9 +453,9 @@ $(document).ready(function() {
 				                data: 'action=addmotif&nom='+nom+'&type='+type, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#retouradd" ).html( html ); // J'affiche cette réponse
-				                        
+
 				                }
 				            });
 				        }
@@ -428,7 +470,7 @@ $(document).ready(function() {
 				        	var state='1';
 				       	if($this.val()=="refuser")
 				        	var state='10';
-				        
+
 				         if(state===''||id==='') {
 				            alert('erreur');
 				        } else {
@@ -440,15 +482,15 @@ $(document).ready(function() {
 				                data: 'action=admconge&id='+id+'&state='+state, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#retour" ).html( html ); // J'affiche cette réponse
-				                        
+
 				                }
 				            });
 				        }
 
 					});
-					
+
 					$('#creditconge').on('click', function(e){
 						if (confirm("Attention cela ecrasera les congé des utilisateur si il en reste désirez vous continuer?")) {
 							$.ajax({
@@ -457,10 +499,10 @@ $(document).ready(function() {
 				                data: 'action=credit_conge', // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#retour" ).html( html ); // J'affiche cette réponse
-				               }         
-				                
+				               }
+
 				            });
 						}
 
@@ -475,12 +517,12 @@ $(document).ready(function() {
 				                data: 'action=transfere&date='+date+'&id='+user, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#transfretour" ).html( html ); // J'affiche cette réponse
-				               }         
-				                
+				               }
+
 				            });
-						
+
 
 					});
 				$('.delmotif').on('click', function(e){
@@ -488,7 +530,7 @@ $(document).ready(function() {
 				        var _this = this;
 				        var $this = $(this); // L'objet jQuery du formulaire
 				        var id =$this.attr('alt');
-				      
+
 				         if(id==='') {
 				            alert('erreur');
 				        } else {
@@ -500,9 +542,9 @@ $(document).ready(function() {
 				                data: 'action=delmotif&id='+id, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#retour" ).html( html ); // J'affiche cette réponse
-				                        
+
 				                }
 				            });
 				        }
@@ -513,11 +555,11 @@ $(document).ready(function() {
 				        var _this = this;
 				        var $this = $(this); // L'objet jQuery du formulaire
 				        var id =$("#cir-proj-select").val();
-				      
+
 				         if(id==='') {
 				            alert('erreur');
 				        } else {
-				        
+
 				            // Envoi de la requête HTTP en mode asynchrone
 				            $.ajax({
 				                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
@@ -525,9 +567,83 @@ $(document).ready(function() {
 				                data: 'action=timeline&id='+id, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#time-line" ).html( html ); // J'affiche cette réponse
-				                        
+
+				                }
+				            });
+				        }
+
+					});
+					$('#user_hour_paye').on('change', function(e){
+						 var _this = this;
+				        var $this = $(this);
+				        var id =$("#user_hour_paye").val();
+
+				         if(id==='') {
+				            alert('erreur');
+				        } else {
+
+				            // Envoi de la requête HTTP en mode asynchrone
+				            $.ajax({
+				                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
+				                type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
+				                data: 'action=nb_hour_sup&id='+id, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+				                success: function(html) {
+				                  // Je récupère la réponse du fichier PHP
+
+				                          $(".return" ).html( html ); // J'affiche cette réponse
+
+				                }
+				            });
+				        }
+
+					});
+					$('.user-id-geshour').on('change', function(e){
+						 var _this = this;
+				        var $this = $(this);
+				        var id =$this.val();
+
+
+				         if(id==='') {
+				            alert('erreur');
+				        } else {
+
+				            // Envoi de la requête HTTP en mode asynchrone
+				            $.ajax({
+				                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
+				                type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
+				                data: 'action=geshour-calendar&id='+id, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+				                success: function(html) {
+				                  // Je récupère la réponse du fichier PHP
+
+				                          $("#geshour-return" ).html( html ); // J'affiche cette réponse
+
+				                }
+				            });
+				        }
+
+					});
+					$('#valid_paye_heure_sup').on('click', function(e){
+						 var _this = this;
+				        var $this = $(this);
+				        var id =$("#user_hour_paye").val();
+				      	var hour=$("#time").val();
+				      	var date=$('#date').val();
+				         if(id==='' || hour==='' || date==='') {
+				            alert('erreur');
+				        } else {
+
+				            // Envoi de la requête HTTP en mode asynchrone
+				            $.ajax({
+				                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
+				                type: 'POST', // La méthode indiquée dans le formulaire (get ou post)
+				                data: 'action=paye_hour_sup&id='+id+'&hour='+hour+'&date='+date, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+				                success: function(html) {
+				                  // Je récupère la réponse du fichier PHP
+
+				                          $(".return" ).html( html ); // J'affiche cette réponse
+
 				                }
 				            });
 				        }
@@ -558,9 +674,9 @@ $(document).ready(function() {
 						var content=$("#domname"+id ).text();
 						  $("#domname"+id ).html( '<input type="text" id="dom'+id+'" value="'+content+'"/><button onclick="vrdom('+id+');" alt="'+id+'" class="vrcat btn btn-primary">valider</button>' );
 					 });
-					 
-				
-					  
+
+
+
 
 				}); //fin du document ready
 
@@ -568,8 +684,8 @@ $(document).ready(function() {
 
 //fonction js car comme l'element aparait aprait lechargement sionon il nest pas calculer
 				function vrcat(id){
-					
-						 
+
+
 						var cat=$('#cat'+id).val();
 						var catdom=$('#catdom'+id).val();
 						if($('#cir'+id).is(':checked')){
@@ -583,7 +699,7 @@ $(document).ready(function() {
 				        if(cat==='' || id===''||catdom==''||cir=='') {
 				            alert('erreur');
 				        } else {
-				        
+
 				            // Envoi de la requête HTTP en mode asynchrone
 				            $.ajax({
 				                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
@@ -591,25 +707,25 @@ $(document).ready(function() {
 				                data: 'action=renamecat&id='+id+'&nom='+cat+'&catdom='+catdom+'&cir='+cir, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#retour"+id ).html( html ); // J'affiche cette réponse
-				                        
+
 				                }
 				            });
 				        }
 				}
 				function vrdom(id){
-					
-						 
+
+
 						var dom=$('#dom'+id).val();
-						 
+
 				        // Je récupère les valeurs
 				        // Je vérifie une première fois pour ne pas lancer la requête HTTP
 				        // si je sais que mon PHP renverra une erreur
 				        if(dom==='' || id==='') {
 				            alert('erreur');
 				        } else {
-				        
+
 				            // Envoi de la requête HTTP en mode asynchrone
 				            $.ajax({
 				                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
@@ -617,9 +733,9 @@ $(document).ready(function() {
 				                data: 'action=renamedom&id='+id+'&nom='+dom, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#retour"+id ).html( html ); // J'affiche cette réponse
-				                        
+
 				                }
 				            });
 				        }
@@ -627,13 +743,33 @@ $(document).ready(function() {
 				function change(id){
 						var dom=$('#'+id).val();
 						$('#'+id).attr('alt', dom);
-						
-						$('#export').attr('alt', id); 
-						
-						
+
+						$('#export').attr('alt', id);
+
+
+				}
+				function add_day_popup(id){
+					$("#day"+id).html("");
+					var pourcent = $('.hour'+id+' option:selected').attr('alt');
+					if(pourcent< 100){
+						$('#day'+id).append('<div class="col-md-12"><div class="col-md-4">Lundi</div><input class="lundi col-md-3 form-control" style="width:33.33%" id="lundi'+id+'" type="time"> heure(s)</div>');
+						$('#day'+id).append('<div class="col-md-12"><div class="col-md-4">Mardi</div><input class="mardi col-md-3 form-control" style="width:33.33%" id="mardi'+id+'" type="time"> heure(s)</div></div>');
+						$('#day'+id).append('<div class="col-md-12"><div class="col-md-4">Mercredi</div><input class="mercredi col-md-3 form-control" style="width:33.33%" id="mercredi'+id+'" type="time"> heure(s)</div></div>');
+						$('#day'+id).append('<div class="col-md-12"><div class="col-md-4">Jeudi</div><input class="jeudi col-md-3 form-control" style="width:33.33%" id="jeudi'+id+'" type="time"> heure(s) </div></div>');
+						$('#day'+id).append('<div class="col-md-12"><div class="col-md-4">Vendredi</div><input class="vendredi col-md-3 form-control" style="width:33.33%" id="vendredi'+id+'" type="time"> heure(s)<br></div></div>');
+					} 
+
+				}
+				function hourToSec(time){
+					time = time.split(':');
+					var second = (+time[0]) *60 *60 + (+time[1] * 60);
+					return second ;
+				}
+				function secToHour(time){
+					return time * 3600 ;
 				}
 				function valid_transfere(){
-						
+
 				        var _this = this;
 				        var $this = $(this); // L'objet jQuery du formulaire
 				        var id =$this.attr('alt');
@@ -642,12 +778,12 @@ $(document).ready(function() {
 				        var de =$('#de').val();
 				        var vers =$('#vers').val();
 				        var time =$('#nb_transf').val();
-				        
-				        
+
+
 				         if(user===''||id==='' || date===''||de===''|| vers===''||time==='') {
 				            alert('erreur');
 				        } else {
-				        
+
 				            // Envoi de la requête HTTP en mode asynchrone
 				            $.ajax({
 				                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
@@ -655,9 +791,9 @@ $(document).ready(function() {
 				                data: 'action=valid_transf&id='+id+'&user='+user+'&date='+date+'&vers='+vers+'+&de='+de+'&time='+time, // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
 				                success: function(html) {
 				                  // Je récupère la réponse du fichier PHP
-				                 
+
 				                          $("#transfretour" ).html( html ); // J'affiche cette réponse
-				                        
+
 				                }
 				            });
 				        }
