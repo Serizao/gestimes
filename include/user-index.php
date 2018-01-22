@@ -27,9 +27,9 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
      if (isset($_REQUEST['semaine'])) {
       if($_REQUEST['semaine']<=0){
         $year--;
-        $nbweek =date("W",mktime(0,0,0,12,31,$year));
+        $nbweek =date("W",mktime(0,0,0,12,24,$year));
         $nav=$nbweek;
-      }elseif($_REQUEST['semaine']>date("W",mktime(0,0,0,12,31,$year))){
+      }elseif($_REQUEST['semaine']>date("W",mktime(0,0,0,12,24,$year))){
        $year++;
        $nav=1;
       }else {
