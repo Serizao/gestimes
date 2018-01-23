@@ -88,7 +88,7 @@ function current_semaine($n, $o, $y=0)
         if (isset($o) and $o != 0) {
             $w = $o;
         }
-        
+
         $semaine['n'] = $w;
         if ($week == $w) {
             // Ensuite pour afficher tous les (jour)s de la semaine
@@ -389,7 +389,7 @@ function count_hour($date, $version)
      } else {
          $bdd->cache("select * from heure where  id_user=?  and DATE_FORMAT(`date`, '%Y-%m-%d')=? ", $array);
      }
-   
+
     $hour  = $bdd->exec();
     for ($i = 0; $i < count($hour[0]); $i++) {
         $time[] = $hour[0][$i]['nb'];

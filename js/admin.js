@@ -80,7 +80,7 @@ $(document).ready(function() {
 								}
 								if(bad==false){
 									var allDay = [lundi,mardi,mercredi,jeudi,vendredi];
-								} 
+								}
 							}
 							if (typeof allDay === 'undefined') {
 								var allDay = [];
@@ -88,7 +88,7 @@ $(document).ready(function() {
 						if(bad || hour=== '' || acl === '' || nom === '' || id=='' || prenom === '' || mail === ''||nbconge==='') {
 				            alert('Les champs doivent êtres remplis');
 					        } else {
-					        
+
 					            // Envoi de la requête HTTP en mode asynchrone
 					            $.ajax({
 					                url: 'include/ajax.php', // Le nom du fichier indiqué dans le formulaire
@@ -751,13 +751,13 @@ $(document).ready(function() {
 				function add_day_popup(id){
 					$("#day"+id).html("");
 					var pourcent = $('.hour'+id+' option:selected').attr('alt');
-					if(pourcent< 100){
+					if(pourcent != 100){
 						$('#day'+id).append('<div class="col-md-12"><div class="col-md-4">Lundi</div><input class="lundi col-md-3 form-control" style="width:33.33%" id="lundi'+id+'" type="time"> heure(s)</div>');
 						$('#day'+id).append('<div class="col-md-12"><div class="col-md-4">Mardi</div><input class="mardi col-md-3 form-control" style="width:33.33%" id="mardi'+id+'" type="time"> heure(s)</div></div>');
 						$('#day'+id).append('<div class="col-md-12"><div class="col-md-4">Mercredi</div><input class="mercredi col-md-3 form-control" style="width:33.33%" id="mercredi'+id+'" type="time"> heure(s)</div></div>');
 						$('#day'+id).append('<div class="col-md-12"><div class="col-md-4">Jeudi</div><input class="jeudi col-md-3 form-control" style="width:33.33%" id="jeudi'+id+'" type="time"> heure(s) </div></div>');
 						$('#day'+id).append('<div class="col-md-12"><div class="col-md-4">Vendredi</div><input class="vendredi col-md-3 form-control" style="width:33.33%" id="vendredi'+id+'" type="time"> heure(s)<br></div></div>');
-					} 
+					}
 
 				}
 				function hourToSec(time){
