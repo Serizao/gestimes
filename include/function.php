@@ -682,6 +682,7 @@ function majhs($id)
         $tab4 = array(
             $id
         );
+        
         $bdd->cache('select * from heure_sup where id_user=?', $tab4);
         $test = $bdd->exec();
         echo '<br><br>';
