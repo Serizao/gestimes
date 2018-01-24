@@ -1,5 +1,6 @@
 <?php
 $current_week_time = 0;
+date_default_timezone_set('Europe/Paris');
 if (empty($_GET['function'])) { //si pas de post on affiche la page normal
     $nav  = 0;
     $bdd  = new bdd;
@@ -18,7 +19,7 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
         $yeartime     = calcul_time($yeartime);
         $semaine_time = 0;
     }
-   
+
     if (isset($_REQUEST['year'])){
         $year=$_REQUEST['year'];
     } else {
@@ -27,20 +28,22 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
      if (isset($_REQUEST['semaine'])) {
       if($_REQUEST['semaine']<=0){
         $year--;
-        $nbweek =date("W",mktime(0,0,0,12,24,$year));
+        $nbweek =date("W",mktime(0,0,0,12,30,$year));
         $nav=$nbweek;
-      }elseif($_REQUEST['semaine']>date("W",mktime(0,0,0,12,24,$year))){
+      }elseif($_REQUEST['semaine']>date("W",mktime(0,0,0,12,30,$year))){
+
        $year++;
        $nav=1;
       }else {
           $nav = $_REQUEST['semaine'];
       }
     }
+
     $result   = current_semaine($_SESSION['userid'], $nav,$year);
+    var_dump($result);
     $nbj      = count($result['jour']);
     $semaine  = $result['n'] - 1;
     $semaine2 = $result['n'] + 1;
-    
     echo '<a href="index.php?semaine=' . $semaine2 . '&year='.$year.'" style="float:right"> semaine suivante ></a>';
     echo '<a href="index.php?semaine=' . $semaine . '&year='.$year.'" style="float:left">< semaine precedente </a>';
     echo '<a href="index.php" style="text-align:center"> NOW </a>';

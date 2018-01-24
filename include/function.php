@@ -83,17 +83,29 @@ function current_semaine($n, $o, $y=0)
     } else {
       $year = date('Y');
     }
-    for ($i = 1; $i <= 365; $i++) {
-        $week = date("W", mktime(0, 0, 0, 1, $i, $year));
+    for ($s = 1; $s <= 365; $s++) {
+        $week = date("W", mktime(0, 0, 0, 1, $s, $year));
+        //echo $week.'<br>'.$i.'<br>'.$year.'<br>'.$o;
         if (isset($o) and $o != 0) {
             $w = $o;
+
         }
 
         $semaine['n'] = $w;
+
         if ($week == $w) {
+
+          if (isset($o) and $o != 0) {
+            $gendate = new DateTime();
+            $gendate->setISODate($year,$o,2); //year , week num , day
+            $i = $gendate->format('z');
+          } else {
+            $i = $s;
+          }
             // Ensuite pour afficher tous les (jour)s de la semaine
             for ($d = 0; $d < 7; $d++) {
                 //echo $i+$d;
+
                 $semaine['jour'][$d]   = jour($i + $d, $year);
                 $semaine['numero'][$d] = date("d", mktime(0, 0, 0, 1, $i + $d, $year));
                 $semaine['mois'][$d]   = month(date("n", mktime(0, 0, 0, 1, $i + $d, $year)));
