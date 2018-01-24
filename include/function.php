@@ -672,7 +672,7 @@ function majhs($id)
                     date('YW', $date),
                     $id
                 );
-                $bdd->cache("select sum(nb) as nb from heure where yearweek(date)=? and id_user=?", $tab0);
+                $bdd->cache("select sum(nb) as nb from heure where yearweek(date,5)=? and id_user=?", $tab0);
                 $dates = $bdd->exec();
                 $total = $dates[0][0]['nb'] - $contrat;
                 $all   = $all + $total;

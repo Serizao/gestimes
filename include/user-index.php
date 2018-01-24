@@ -40,7 +40,6 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
     }
 
     $result   = current_semaine($_SESSION['userid'], $nav,$year);
-    var_dump($result);
     $nbj      = count($result['jour']);
     $semaine  = $result['n'] - 1;
     $semaine2 = $result['n'] + 1;

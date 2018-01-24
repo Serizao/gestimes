@@ -28,7 +28,7 @@ $bdd->cache('select * from contrat', '');
 $contra = $bdd->exec();
 for ($p = 0; $p < count($contra); $p++) {
 
-    echo '<option  value="' . $contra[$p]['id'] . '" selected>' . $contra[$p]['nom'] . '</option> ';
+    echo '<option  value="' . $contra[$p]['id'] . '" alt="' . $contra[$p]['pourcent'] . '" selected>' . $contra[$p]['nom'] . '</option> ';
 }
 echo '
                                     </select><br><br>
@@ -95,9 +95,9 @@ for ($i = 0; $i < count($result2); $i++) { //liste de utilisateur pour cr�� 
         $admin = "";
         $modo  = "selected";
     }
-  
-   
-        
+
+
+
 
     echo '<tr><th>' . $result2[$i]['username'] . '</th><th>' . $result2[$i]['nom'] . '</th><th>' . $result2[$i]['prenom'] . '</th><th><h4><a href="#" data-width="600" data-rel="popup' . $result2[$i]['id'] . '" class="poplight" style="color:black"> <button class="btn btn-primary " >fiche de ' . $result2[$i]['prenom'] . '</button></a>';
     if (!isset($result[0]['contrat']) or $result[0]['state']!=1)
