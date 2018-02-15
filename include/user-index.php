@@ -100,7 +100,7 @@ if (empty($_GET['function'])) { //si pas de post on affiche la page normal
         }
         $finaltime         = '';
         $current_week_time = $current_week_time + hourtosec($tempspasser['heure'] . ':' . $tempspasser['minutes']);
-        $current_week_time = $current_week_time + $tempspasser['second'];
+        //$current_week_time = $current_week_time + $tempspasser['second'];
 
         if (isset($tempspasser) and $tempspasser['heure'] >= 7) {
             $finaltime = $tempspasser['heure'] . 'h' . $tempspasser['minutes'] . 'min' . $tempspasser['second'];

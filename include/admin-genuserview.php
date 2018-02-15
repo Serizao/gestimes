@@ -86,7 +86,7 @@ for ($i = 0; $i < count($result); $i++) {
     $percent = 0;
     $percent = ($result[$i]['nb'] * 100) / $all;
     echo "
-    {   
+    {
                     name: '" . $result[$i]['nom'] . "',
                     y: " . abs($percent) . "
                 },";
@@ -99,10 +99,10 @@ for ($i = 0; $i < count($result); $i++) {
     });
 });
     </script>
-    
+
      <div class="col-md-8">
         <div id="chart3" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-        
+
     </div>
     <div id="chart2" class="col-md-4" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>
 
@@ -154,7 +154,7 @@ for ($i = 0; $i < count($domaine); $i++) {
     $percent = 0;
     $percent = ($domaine[$i]['nb'] * 100) / $all;
     echo "
-    {   
+    {
                     name: '" . $domaine[$i]['nom'] . "',
                     y: " . abs($percent) . "
                 },";
@@ -198,10 +198,12 @@ $yy        = array(
 $nbjtm     = number_day($mm, $yy, 'a');
 $nbweekmem = "";
 $compt     = 0;
-$enddate   = new DateTime($ey . '-' . $em . '-' . addzero($nbem));
-$datebm    = new DateTime($by . '-' . $bm . '-01');
+$enddate   = new DateTime($ey . '-' . addzero($em) . '-' . addzero($nbem));
+$datebm    = new DateTime($by . '-' . addzero($bm) . '-01');
 
 for ($y = $by; $y <= $ey; $y++) {
+  //echo $ey;
+  //echo $by.'----'.$y.'---'.$bm.'||||||';
     if ($by!=$y)$bm='01';
     $yy = array(
         $y,
@@ -209,9 +211,10 @@ for ($y = $by; $y <= $ey; $y++) {
     );
     for ($e = 1; $e <= $nbj; $e++) {
         $o = addzero($e - 1);
-
+//echo $nbj.'<br>';
         if ($e > $nbjtm) {
-            if ($enddate > $datebm and $em > $bm) { //si e est superieur au nombre de jour dans le mois alor on passe au mois suivant
+              //    var_dump($em > $bm);
+            if ($enddate > $datebm /*and $em > $bm*/) { //si e est superieur au nombre de jour dans le mois alor on passe au mois suivant
                 if (intval($bm) < 12) { //si mois inferieur a 12
                     $old_date=$y . '-' . $bm . '-' . addzero($e);
                     $o      = $e;
@@ -221,8 +224,9 @@ for ($y = $by; $y <= $ey; $y++) {
                         $bm,
                         $bm
                     );
+
                     $nbjtm = number_day($mm, $yy, 'a');
-                    $datebm = new DateTime($y . '-' . $bm . '-' . addzero($e));
+                    $datebm = new DateTime($y . '-' . addzero($bm)  . '-' . addzero($e));
                     $dd     = $y . '-' . $bm . '-' . addzero($e);
                     $nbweek = date("W", strtotime($dd));
                     if ($nbweek != $nbweekmem) {
@@ -232,7 +236,10 @@ for ($y = $by; $y <= $ey; $y++) {
                         $week[$compt]['number']  = $nbweek;
                         $compt++;
                     }
-                    if($bm>$em) break;
+                  /* if($bm>$em){
+                     echo 'ty1ty';
+                     break;
+                   }*/
                 } else { //changement d'anné
                     $bm = '01';
                     $by++;
@@ -248,10 +255,11 @@ for ($y = $by; $y <= $ey; $y++) {
                     $nbjtm  = number_day($mm, $yy, 'a');
                     $e      = 1;
                     $o      = $e;
-                    $datebm = new DateTime($y . '-' . $bm . '-' . addzero($e));
+                    $datebm = new DateTime($y . '-' . addzero($bm)  . '-' . addzero($e));
                 }
             } else {
                 $week[$compt - 1]['end'] = $y . '-' . $bm . '-' . addzero($e);
+                //echo 'tyty';
                 break;
             }
         }
@@ -265,23 +273,25 @@ for ($y = $by; $y <= $ey; $y++) {
             $compt++;
         }
     }
+
 }
 $y = $y - 1;
 //echo $dd;
 if ($_REQUEST['begindate'] == $_REQUEST['enddate']) {
     $week[$compt - 1]['end'] = $dd;
 } else {
-    $week[$compt - 1]['end'] = $y . '-' . $bm . '-' . addzero($e);
+    if($e >31) $e--;
+    $week[$compt - 1]['end'] = $y . '-' .addzero($bm) . '-' . addzero($e);
 }
 if(isset($hs[0][0]['heure']) and $hs[0][0]['heure']!=''){
 $hs = $hs[0][0]['heure'];
 } else {
-    $hs=0; 
+    $hs=0;
 }
 
 $hs = sectohour($hs);
 ?>
-   
+
     <div class="col-md-8">
     <?php
 $hourcontrat = contrat2hour($user['pourcent']);
@@ -308,9 +318,9 @@ for ($e = 0; $e <= count($week) - 2; $e++) {
     $nbnonferie  = datediff($week[$e]['begin'], $week[$e]['end']); //nombre de jour non ferié dans la semaien traitée
     $hourcontrat = contrat2hour($user['pourcent']);
     //echo $nbnonferie.'-----'.$hourcontrat.'-----------------'.hourtosec($hourcontrat.':00');
-    
+
     // $seccontrat=$seccontrat*$nbnonferie;
-    
+
     $hourcontrat = ((7 * $nbnonferie) * $user['pourcent']) / 100;
     $seccontrat  = hourtosec($hourcontrat . ':00');
     $array       = array(
@@ -321,28 +331,28 @@ for ($e = 0; $e <= count($week) - 2; $e++) {
     //print_r($array).'<br>';
     $bdd->cache("select sum(nb) as nb from heure where id_user=? and date between ? and ?", $array);
     $week_hour   = $bdd->exec();
-    
-    
+
+
     $hour    = sectohour($week_hour[0][0]['nb']);
     //echo $week_hour[0][0]['nb'];
     $heure_s = sectohour($week_hour[0][0]['nb'] - $seccontrat);
     //echo $week_hour[0][0]['nb'].'-'.$seccontrat.'='.$heure_s.'<br>';
     //echo intval($heure_s / 3600);
-    
-    
+
+
     $h1 = $hour['h'] . 'h' . $hour['m'] . 'min' . $hour['s'];
     $h2 = $heure_s['h'] . 'h' . $heure_s['m'] . 'min' . $heure_s['s'];
     if (date('Y-W') < date('Y-W', strtotime($week[$e]['begin']))) {
         $h1 = "à venir";
         $h2 = "à venir";
-        
+
     }
     if (date('Y-W') == date('Y-W', strtotime($week[$e]['begin']))) {
         $h1 = "en cour";
         $h2 = "en cour";
-        
+
     }
-    
+
     if ($hourcontrat >= $hour['h'] - 5 and $hourcontrat <= $hour['h'] + 5) {
         $s = 'class="success"';
     }
@@ -363,10 +373,10 @@ for ($e = 0; $e <= count($week) - 2; $e++) {
                     <td>' . $h1 . '</td>
                     <td>' . $h2 . '</td>
                   </tr>';
-    
+
     $hour_seq2[$e] = $hour['h'] . '.' . mintodec($hour['m']);
     $hour_seq[$e]  = $hour['h'];
-    
+
 }
 
 $t       = array(

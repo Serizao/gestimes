@@ -634,7 +634,7 @@ function majhs($id)
     //partie heure sup
     $date       = strtotime("now");
     $dateformat = date('Y-m-d', strtotime('now'));
-    $date       = $date - (604800 * 50);
+    $date       = $date - (604800 * 58);
     $moins      = '604800'; //une semaine en seconde
     $daywork    = '25200';
     //echo strtotime('50W');
@@ -646,15 +646,17 @@ function majhs($id)
         $contrat = hourtosec((($user[0]['pourcent'] / 100) * 35) . ':0');
         $total   = 0;
         $all     = 0;
-        for ($a = 1; $a <= 50; $a++) {
+        for ($a = 1; $a <= 58; $a++) {
             $o   = date('YW', $date);
             $ooo = date('Y-W', $date);
             $oo  = date('Y-m-d', $date);
             $Yo  = date('Y', $date);
             $Wo  = date('W', $date);
+
             if ($Wo == 53) {
                 $Yo--; //gestion des anné bixextile
             }
+
             $dfweek = fnl_of_week($Yo, $Wo);
             $Yo++;
             $nbnonferie  = datediff($dfweek[0], $dfweek[1]);
@@ -676,13 +678,14 @@ function majhs($id)
                 $dates = $bdd->exec();
                 $total = $dates[0][0]['nb'] - $contrat;
                 $all   = $all + $total;
+                  echo '-----*'.$contrat.'---'.$ooo.'----'.var_dump(sectohour($total)).'----'.$all.'<br>';
             }
             $date = $date + $moins;
         }
         $tab4 = array(
             $id
         );
-        
+
         $bdd->cache('select * from heure_sup where id_user=?', $tab4);
         $test = $bdd->exec();
         echo '<br><br>';
