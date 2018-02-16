@@ -678,7 +678,6 @@ function majhs($id)
                 $dates = $bdd->exec();
                 $total = $dates[0][0]['nb'] - $contrat;
                 $all   = $all + $total;
-                  echo '-----*'.$contrat.'---'.$ooo.'----'.var_dump(sectohour($total)).'----'.$all.'<br>';
             }
             $date = $date + $moins;
         }
